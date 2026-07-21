@@ -1,0 +1,47 @@
+import { useState, useEffect } from 'react';
+import { useVaultStore } from '@/store/useVaultStore';
+import { AppHeader } from '@/components/layout/AppHeader';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { ReadingCanvas } from '@/components/layout/ReadingCanvas';
+import { SearchModal } from '@/components/search/SearchModal';
+import { OfflineBanner } from '@/components/sync/OfflineBanner';
+
+export function App() {
+  const { loadVaults } = useVaultStore();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  useEffect(() => {
+    loadVaults();
+  }, [loadVaults]);
+
+  // Global Keyboard Shortcut: Cmd+K / Ctrl+K
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  return (
+    <div className="h-screen w-screen bg-slate-950 text-slate-100 flex flex-col overflow-hidden font-sans select-none">
+      {/* Offline Status Bar */}
+      <OfflineBanner />
+
+      {/* Primary Top Header */}
+      <AppHeader onOpenSearch={() => setIsSearchOpen(true)} />
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex overflow-hidden">
+        <Sidebar />
+        <ReadingCanvas />
+      </div>
+
+      {/* Command Palette / Search Modal */}
+      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+    </div>
+  );
+}
