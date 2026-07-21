@@ -18,7 +18,7 @@ interface MarkdownRendererProps {
 
 export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, noteName, className = '' }) => {
   return (
-    <div className={`prose prose-invert max-w-none prose-slate text-slate-200 ${className}`}>
+    <div className={`prose prose-invert max-w-none text-primary-theme ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath, remarkWikiLinks, remarkCallouts]}
         rehypePlugins={[rehypeKatex, rehypeSlug]}
@@ -53,11 +53,11 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, not
             const match = /language-(\w+)/.exec(codeClass || '');
             if (!inline && match) {
               return (
-                <div className="relative my-4 rounded-xl border border-slate-800 bg-slate-950 overflow-hidden font-mono text-xs">
-                  <div className="bg-slate-900/80 px-4 py-1.5 border-b border-slate-800 text-slate-400 font-sans text-[11px] font-semibold flex items-center justify-between">
+                <div className="relative my-4 rounded-xl border app-border card-bg overflow-hidden font-mono text-xs">
+                  <div className="surface-bg px-4 py-1.5 border-b app-border text-secondary-theme font-sans text-[11px] font-semibold flex items-center justify-between">
                     <span>{match[1]}</span>
                   </div>
-                  <pre className="p-4 overflow-x-auto text-slate-200">
+                  <pre className="p-4 overflow-x-auto text-primary-theme">
                     <code>{children}</code>
                   </pre>
                 </div>
@@ -70,37 +70,37 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, not
             );
           },
           h1: ({ children, ...props }) => (
-            <h1 className="text-2xl font-bold text-slate-100 tracking-tight mt-8 mb-4 border-b border-slate-800/80 pb-2" {...props}>
+            <h1 className="text-2xl font-bold text-primary-theme tracking-tight mt-8 mb-4 border-b app-border pb-2" {...props}>
               {children}
             </h1>
           ),
           h2: ({ children, ...props }) => (
-            <h2 className="text-xl font-semibold text-slate-200 tracking-tight mt-6 mb-3 border-b border-slate-800/40 pb-1.5" {...props}>
+            <h2 className="text-xl font-semibold text-primary-theme tracking-tight mt-6 mb-3 border-b app-border pb-1.5" {...props}>
               {children}
             </h2>
           ),
           h3: ({ children, ...props }) => (
-            <h3 className="text-lg font-medium text-slate-300 mt-5 mb-2" {...props}>
+            <h3 className="text-lg font-medium text-primary-theme mt-5 mb-2" {...props}>
               {children}
             </h3>
           ),
           p: ({ children }) => (
-            <p className="my-3 leading-relaxed text-slate-300 font-sans text-sm">{children}</p>
+            <p className="my-3 leading-relaxed text-secondary-theme font-sans text-sm">{children}</p>
           ),
-          ul: ({ children }) => <ul className="my-3 ml-6 list-disc space-y-1 text-sm text-slate-300">{children}</ul>,
-          ol: ({ children }) => <ol className="my-3 ml-6 list-decimal space-y-1 text-sm text-slate-300">{children}</ol>,
+          ul: ({ children }) => <ul className="my-3 ml-6 list-disc space-y-1 text-sm text-secondary-theme">{children}</ul>,
+          ol: ({ children }) => <ol className="my-3 ml-6 list-decimal space-y-1 text-sm text-secondary-theme">{children}</ol>,
           blockquote: ({ children }) => (
-            <blockquote className="my-4 border-l-4 border-indigo-500/60 bg-indigo-950/20 pl-4 py-2 italic text-slate-300 rounded-r-lg">
+            <blockquote className="my-4 border-l-4 border-indigo-500/60 card-bg pl-4 py-2 italic text-secondary-theme rounded-r-lg">
               {children}
             </blockquote>
           ),
           table: ({ children }) => (
-            <div className="my-4 overflow-x-auto rounded-lg border border-slate-800">
-              <table className="w-full text-xs text-left text-slate-300">{children}</table>
+            <div className="my-4 overflow-x-auto rounded-lg border app-border">
+              <table className="w-full text-xs text-left text-secondary-theme">{children}</table>
             </div>
           ),
-          th: ({ children }) => <th className="bg-slate-900 px-4 py-2.5 font-semibold text-slate-200 border-b border-slate-800">{children}</th>,
-          td: ({ children }) => <td className="px-4 py-2 border-b border-slate-800/50">{children}</td>,
+          th: ({ children }) => <th className="surface-bg px-4 py-2.5 font-semibold text-primary-theme border-b app-border">{children}</th>,
+          td: ({ children }) => <td className="px-4 py-2 border-b app-border">{children}</td>,
         }}
       >
         {content}
