@@ -34,9 +34,9 @@ export const ReadingCanvas: React.FC = () => {
   const pathParts = activeNote.path.split('/');
 
   return (
-    <div className="flex-1 overflow-y-auto bg-slate-950 flex flex-col">
+    <div className="flex-1 overflow-y-auto app-bg flex flex-col transition-colors duration-200">
       {/* Top Breadcrumb Bar */}
-      <div className="border-b border-slate-800/60 px-8 py-3 bg-slate-950/40 text-xs font-mono text-slate-400 flex items-center justify-between sticky top-0 backdrop-blur z-20">
+      <div className="border-b app-border px-8 py-3 surface-bg text-xs font-mono text-secondary-theme flex items-center justify-between sticky top-0 backdrop-blur z-20">
         <div className="flex items-center gap-1.5 truncate max-w-xl">
           <span className="text-indigo-400 font-semibold">{activeVault.name}</span>
           {pathParts.map((part, i) => (

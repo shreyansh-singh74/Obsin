@@ -3,18 +3,30 @@ import { batchFetchMarkdownFiles } from '@/engine/github/batch';
 import { bulkUpsertNotes, deleteNotesByPaths, getNotesByVault } from '@/db/repository/notesRepo';
 import { updateWikiLinkMap } from '@/db/repository/wikiMapRepo';
 import { generateBacklinkTable } from '@/db/repository/backlinksRepo';
+import { saveVault } from '@/db/repository/vaultsRepo';
 import { searchEngine } from '@/engine/search';
 import { useSyncStore } from '@/store/useSyncStore';
 import { db } from '@/db';
 import type { Note, VaultConfig, SyncMeta } from '@/types';
 
-export async function executeVaultSync(vault: VaultConfig, token?: string): Promise<void> {
+export async function executeVaultSync(vault: VaultConfig, token?: string): Promise<Note[]> {
   const { setSyncStage, setProgress, setSyncError, resetSync } = useSyncStore.getState();
 
   try {
-    // Stage 1: Fetch Repository Tree
+    // Stage 1: Fetch Repository Tree & discover branch
     setSyncStage('fetching-tree', `Connecting to GitHub API for ${vault.owner}/${vault.repo}...`);
-    const { treeSha, markdownFiles } = await fetchRepositoryTree(vault.owner, vault.repo, vault.branch, token);
+    const { treeSha, markdownFiles, branchUsed } = await fetchRepositoryTree(
+      vault.owner,
+      vault.repo,
+      vault.branch,
+      token
+    );
+
+    // Save updated branch if auto-discovered
+    if (branchUsed && branchUsed !== vault.branch) {
+      vault.branch = branchUsed;
+      await saveVault(vault);
+    }
 
     // Stage 2: Compare SHAs against local IndexedDB
     setSyncStage('comparing-shas', 'Comparing remote SHAs with local database...');
@@ -52,7 +64,7 @@ export async function executeVaultSync(vault: VaultConfig, token?: string): Prom
 
     // Stage 3: Download Changed Blobs
     if (filesToFetch.length > 0) {
-      setSyncStage('downloading-blobs', `Fetching ${filesToFetch.length} updated files...`);
+      setSyncStage('downloading-blobs', `Fetching ${filesToFetch.length} updated markdown files...`);
 
       const fetchedNotes = await batchFetchMarkdownFiles(
         vault.id,
@@ -62,7 +74,11 @@ export async function executeVaultSync(vault: VaultConfig, token?: string): Prom
         filesToFetch,
         token,
         (progress) => {
-          setProgress(progress.completed, progress.total, `Downloading (${progress.completed}/${progress.total}): ${progress.currentPath}`);
+          setProgress(
+            progress.completed,
+            progress.total,
+            `Downloading (${progress.completed}/${progress.total}): ${progress.currentPath}`
+          );
         }
       );
 
@@ -95,8 +111,11 @@ export async function executeVaultSync(vault: VaultConfig, token?: string): Prom
     setTimeout(() => {
       resetSync();
     }, 3000);
+
+    return currentVaultNotes;
   } catch (err: any) {
     console.error('Vault Sync Error:', err);
     setSyncError(err.message || 'Vault synchronization failed.');
+    throw err;
   }
 }

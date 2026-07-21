@@ -21,7 +21,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
   }
 
   return (
-    <header className="h-14 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur px-4 flex items-center justify-between z-30 select-none">
+    <header className="h-14 border-b app-border surface-bg px-4 flex items-center justify-between z-30 select-none transition-colors duration-200">
       {/* Left: Brand Logo & Vault Selector */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">

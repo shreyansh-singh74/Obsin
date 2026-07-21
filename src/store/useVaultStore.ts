@@ -60,7 +60,14 @@ export const useVaultStore = create<VaultState>((set, get) => ({
     const activeVault = get().activeVault;
     if (!activeVault) return;
     const notes = await getNotesByVault(activeVault.id);
-    set({ notes });
+    const currentActivePath = get().activeNotePath;
+    const validPath = notes.some((n) => n.path === currentActivePath)
+      ? currentActivePath
+      : notes.length > 0
+      ? notes[0].path
+      : null;
+
+    set({ notes, activeNotePath: validPath });
   },
 
   setError: (error: string | null) => {
