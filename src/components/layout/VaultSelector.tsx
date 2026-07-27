@@ -4,11 +4,13 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { saveVault } from '@/db/repository/vaultsRepo';
 import { executeVaultSync } from '@/engine/sync';
 import type { VaultConfig } from '@/types';
+import { useSidebar } from '@/components/ui/sidebar';
 import { Database, Plus, Check, ChevronDown, FolderGit2, Link, Key, AlertTriangle } from 'lucide-react';
 
 export const VaultSelector: React.FC = () => {
   const { activeVault, vaults, setActiveVault, loadVaults, refreshNotes } = useVaultStore();
   const { token, setToken } = useAuthStore();
+  const { open: isSidebarOpen } = useSidebar();
   const [isOpen, setIsOpen] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -21,7 +23,6 @@ export const VaultSelector: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Handle URL parsing helper (e.g. https://github.com/owner/repo)
   function handleUrlChange(url: string) {
     setRepoUrl(url);
     setErrorMessage('');
@@ -44,7 +45,6 @@ export const VaultSelector: React.FC = () => {
       return;
     }
 
-    // Save token if user entered one in modal
     if (patToken.trim()) {
       setToken(patToken.trim());
     }
@@ -55,7 +55,7 @@ export const VaultSelector: React.FC = () => {
       id: vaultId,
       owner: finalOwner,
       repo: finalRepo,
-      branch: branch.trim(), // Defaults to auto-discovered branch
+      branch: branch.trim(),
       name: name.trim() || `${finalOwner}/${finalRepo}`,
       lastOpened: new Date().toISOString(),
     };
@@ -65,7 +65,6 @@ export const VaultSelector: React.FC = () => {
       await loadVaults();
       await setActiveVault(newVault);
 
-      // Auto-trigger sync upon creation
       await executeVaultSync(newVault, activeToken);
       await refreshNotes();
 
@@ -89,20 +88,27 @@ export const VaultSelector: React.FC = () => {
   }
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-md)] bg-[var(--surface-input)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all duration-[var(--duration-fast)] cursor-pointer shadow-[var(--shadow-sm)]"
+        title={activeVault ? `Active Vault: ${activeVault.name}` : 'Select GitHub Vault'}
+        className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-[var(--radius-md)] bg-[var(--surface-input)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all duration-[var(--duration-fast)] cursor-pointer shadow-[var(--shadow-sm)] ${
+          !isSidebarOpen ? 'justify-center px-0' : 'justify-between'
+        }`}
       >
-        <FolderGit2 className="w-3.5 h-3.5 text-[var(--accent-text)]" />
-        <span className="truncate max-w-[140px] font-semibold">{activeVault ? activeVault.name : 'Select Vault'}</span>
-        <ChevronDown className="w-3 h-3 text-[var(--icon-muted)]" />
+        <div className="flex items-center gap-2 truncate">
+          <FolderGit2 className="w-4 h-4 text-[var(--accent-text)] shrink-0" />
+          {isSidebarOpen && (
+            <span className="truncate font-semibold text-xs">{activeVault ? activeVault.name : 'Select Vault'}</span>
+          )}
+        </div>
+        {isSidebarOpen && <ChevronDown className="w-3 h-3 text-[var(--icon-muted)] shrink-0" />}
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-72 bg-[var(--surface-popover)] border border-[var(--border-default)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] z-[var(--z-dropdown)] overflow-hidden py-1 animate-pop-in">
+        <div className="absolute top-full left-0 mt-2 w-64 bg-[var(--surface-popover)] border border-[var(--border-default)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] z-[var(--z-dropdown)] overflow-hidden py-1 animate-pop-in">
           <div className="px-3 py-1.5 text-[10px] font-semibold text-[var(--text-subtle)] uppercase tracking-wider">
-            Your Connected Vaults ({vaults.length})
+            Connected Vaults ({vaults.length})
           </div>
 
           <div className="max-h-56 overflow-y-auto">
@@ -132,7 +138,7 @@ export const VaultSelector: React.FC = () => {
               }}
               className="w-full px-3 py-2.5 text-left text-xs text-[var(--accent-text)] hover:bg-[var(--surface-hover)] font-medium flex items-center gap-2 transition-colors cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5" /> Add GitHub Repository Vault
+              <Plus className="w-3.5 h-3.5" /> Add GitHub Repository
             </button>
           </div>
         </div>
@@ -155,7 +161,6 @@ export const VaultSelector: React.FC = () => {
             )}
 
             <form onSubmit={handleAddVault} className="space-y-3.5 text-xs">
-              {/* GitHub URL Quick Paste */}
               <div>
                 <label className="block text-[var(--text-muted)] font-medium mb-1 flex items-center gap-1">
                   <Link className="w-3.5 h-3.5 text-[var(--accent-text)]" /> Paste GitHub Repository URL
@@ -223,7 +228,6 @@ export const VaultSelector: React.FC = () => {
                 </div>
               </div>
 
-              {/* Token Input Field */}
               <div className="pt-1">
                 <label className="block text-[var(--text-muted)] font-medium mb-1 flex items-center justify-between">
                   <span className="flex items-center gap-1">
