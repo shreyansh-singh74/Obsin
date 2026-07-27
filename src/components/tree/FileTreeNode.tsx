@@ -21,24 +21,24 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({ node, depth = 0 }) =
         <button
           onClick={() => setIsOpen(!isOpen)}
           style={{ paddingLeft }}
-          className="w-full text-left py-1.5 pr-3 text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 rounded-md flex items-center justify-between transition-colors cursor-pointer group"
+          className="w-full text-left py-1.5 pr-3 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] rounded-[var(--radius-sm)] flex items-center justify-between transition-colors duration-[var(--duration-fast)] cursor-pointer group"
         >
           <div className="flex items-center gap-1.5 truncate">
             {isOpen ? (
-              <ChevronDown className="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300 shrink-0" />
+              <ChevronDown className="w-3.5 h-3.5 text-[var(--icon-muted)] group-hover:text-[var(--text-primary)] shrink-0" />
             ) : (
-              <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300 shrink-0" />
+              <ChevronRight className="w-3.5 h-3.5 text-[var(--icon-muted)] group-hover:text-[var(--text-primary)] shrink-0" />
             )}
             {isOpen ? (
-              <FolderOpen className="w-4 h-4 text-indigo-400/80 shrink-0" />
+              <FolderOpen className="w-4 h-4 text-[var(--accent-text)] shrink-0" />
             ) : (
-              <Folder className="w-4 h-4 text-slate-500 group-hover:text-slate-400 shrink-0" />
+              <Folder className="w-4 h-4 text-[var(--icon-muted)] group-hover:text-[var(--text-secondary)] shrink-0" />
             )}
             <span className="truncate">{node.name}</span>
           </div>
 
           {node.noteCount !== undefined && node.noteCount > 0 && (
-            <span className="text-[10px] font-mono text-slate-600 group-hover:text-slate-500 px-1.5 py-0.2 rounded bg-slate-950/40">
+            <span className="text-[10px] font-mono text-[var(--text-subtle)] px-1.5 py-0.2 rounded-[var(--radius-xs)] bg-[var(--surface-input)]">
               {node.noteCount}
             </span>
           )}
@@ -59,13 +59,13 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({ node, depth = 0 }) =
     <button
       onClick={() => setActiveNotePath(node.path)}
       style={{ paddingLeft }}
-      className={`w-full text-left py-1.5 pr-3 text-xs font-medium rounded-md flex items-center gap-2 transition-all cursor-pointer truncate ${
+      className={`w-full text-left py-1.5 pr-3 text-xs font-medium rounded-[var(--radius-sm)] flex items-center gap-2 transition-all duration-[var(--duration-fast)] cursor-pointer truncate ${
         isSelected
-          ? 'bg-indigo-600/20 text-indigo-300 font-semibold border-l-2 border-indigo-500'
-          : 'text-slate-300 hover:text-white hover:bg-slate-900/60'
+          ? 'bg-[var(--accent-soft)] text-[var(--text-primary)] font-semibold border-l-2 border-[var(--accent)]'
+          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
       }`}
     >
-      <FileText className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-indigo-400' : 'text-slate-500'}`} />
+      <FileText className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-[var(--accent-text)]' : 'text-[var(--icon-muted)]'}`} />
       <span className="truncate">{node.name}</span>
     </button>
   );

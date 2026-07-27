@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Sun, Moon, BookOpen } from 'lucide-react';
+import { Sun, Moon } from 'lucide-react';
 
-export type Theme = 'dark' | 'light' | 'sepia';
+export type Theme = 'dark' | 'light';
 
 export const ThemeSwitcher: React.FC = () => {
   const [theme, setTheme] = useState<Theme>(() => {
@@ -10,39 +10,31 @@ export const ThemeSwitcher: React.FC = () => {
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove('theme-light', 'theme-sepia');
-    if (theme === 'light') root.classList.add('theme-light');
-    if (theme === 'sepia') root.classList.add('theme-sepia');
+    root.setAttribute('data-theme', theme);
     localStorage.setItem('pocketvault_theme', theme);
   }, [theme]);
 
   return (
-    <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5">
+    <div className="flex items-center bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] p-1 gap-0.5 shadow-inner">
       <button
         onClick={() => setTheme('dark')}
         title="Dark Obsidian Theme"
-        className={`p-1.5 rounded-md transition-all cursor-pointer ${
-          theme === 'dark' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
+        className={`p-1.5 rounded-[var(--radius-sm)] transition-all duration-[var(--duration-fast)] ease-[var(--ease-standard)] cursor-pointer ${
+          theme === 'dark'
+            ? 'bg-[var(--accent)] text-[var(--text-on-accent)] shadow-[var(--shadow-sm)]'
+            : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
         }`}
       >
         <Moon className="w-3.5 h-3.5" />
       </button>
 
       <button
-        onClick={() => setTheme('sepia')}
-        title="Sepia Reading Theme"
-        className={`p-1.5 rounded-md transition-all cursor-pointer ${
-          theme === 'sepia' ? 'bg-amber-700 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
-        }`}
-      >
-        <BookOpen className="w-3.5 h-3.5" />
-      </button>
-
-      <button
         onClick={() => setTheme('light')}
         title="Light Paper Theme"
-        className={`p-1.5 rounded-md transition-all cursor-pointer ${
-          theme === 'light' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
+        className={`p-1.5 rounded-[var(--radius-sm)] transition-all duration-[var(--duration-fast)] ease-[var(--ease-standard)] cursor-pointer ${
+          theme === 'light'
+            ? 'bg-[var(--accent)] text-[var(--text-on-accent)] shadow-[var(--shadow-sm)]'
+            : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
         }`}
       >
         <Sun className="w-3.5 h-3.5" />

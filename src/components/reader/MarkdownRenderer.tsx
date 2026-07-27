@@ -18,7 +18,7 @@ interface MarkdownRendererProps {
 
 export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, noteName, className = '' }) => {
   return (
-    <div className={`prose prose-invert max-w-none text-primary-theme ${className}`}>
+    <div className={`prose ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath, remarkWikiLinks, remarkCallouts]}
         rehypePlugins={[rehypeKatex, rehypeSlug]}
@@ -53,54 +53,28 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, not
             const match = /language-(\w+)/.exec(codeClass || '');
             if (!inline && match) {
               return (
-                <div className="relative my-4 rounded-xl border app-border card-bg overflow-hidden font-mono text-xs">
-                  <div className="surface-bg px-4 py-1.5 border-b app-border text-secondary-theme font-sans text-[11px] font-semibold flex items-center justify-between">
-                    <span>{match[1]}</span>
+                <div className="code-block-wrapper">
+                  <div className="code-block-header">
+                    <span>{match[1].toUpperCase()}</span>
                   </div>
-                  <pre className="p-4 overflow-x-auto text-primary-theme">
+                  <pre className="code-block-content">
                     <code>{children}</code>
                   </pre>
                 </div>
               );
             }
             return (
-              <code className="bg-slate-800/80 text-indigo-300 px-1.5 py-0.5 rounded font-mono text-xs border border-slate-700/50" {...props}>
+              <code {...props}>
                 {children}
               </code>
             );
           },
-          h1: ({ children, ...props }) => (
-            <h1 className="text-2xl font-bold text-primary-theme tracking-tight mt-8 mb-4 border-b app-border pb-2" {...props}>
-              {children}
-            </h1>
-          ),
-          h2: ({ children, ...props }) => (
-            <h2 className="text-xl font-semibold text-primary-theme tracking-tight mt-6 mb-3 border-b app-border pb-1.5" {...props}>
-              {children}
-            </h2>
-          ),
-          h3: ({ children, ...props }) => (
-            <h3 className="text-lg font-medium text-primary-theme mt-5 mb-2" {...props}>
-              {children}
-            </h3>
-          ),
-          p: ({ children }) => (
-            <p className="my-3 leading-relaxed text-secondary-theme font-sans text-sm">{children}</p>
-          ),
-          ul: ({ children }) => <ul className="my-3 ml-6 list-disc space-y-1 text-sm text-secondary-theme">{children}</ul>,
-          ol: ({ children }) => <ol className="my-3 ml-6 list-decimal space-y-1 text-sm text-secondary-theme">{children}</ol>,
-          blockquote: ({ children }) => (
-            <blockquote className="my-4 border-l-4 border-indigo-500/60 card-bg pl-4 py-2 italic text-secondary-theme rounded-r-lg">
-              {children}
-            </blockquote>
-          ),
-          table: ({ children }) => (
-            <div className="my-4 overflow-x-auto rounded-lg border app-border">
-              <table className="w-full text-xs text-left text-secondary-theme">{children}</table>
-            </div>
-          ),
-          th: ({ children }) => <th className="surface-bg px-4 py-2.5 font-semibold text-primary-theme border-b app-border">{children}</th>,
-          td: ({ children }) => <td className="px-4 py-2 border-b app-border">{children}</td>,
+          img: ({ src, alt }) => (
+            <figure className="my-6">
+              <img src={src} alt={alt || ''} className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] shadow-[var(--shadow-sm)] max-w-full h-auto mx-auto block" />
+              {alt && <figcaption className="text-xs text-[var(--text-muted)] text-center mt-2 font-sans italic">{alt}</figcaption>}
+            </figure>
+          )
         }}
       >
         {content}

@@ -1,0 +1,56 @@
+/* ==========================================
+   POCKETVAULT DESIGN SYSTEM - GLOBALS & OVERRIDES
+   ========================================== */
+
+/* Selection Highlight */
+::selection {
+  background-color: var(--accent-soft-hover);
+  color: inherit;
+}
+
+::-moz-selection {
+  background-color: var(--accent-soft-hover);
+  color: inherit;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+}
+
+/* Body Reset */
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--surface-page);
+  color: var(--text-primary);
+  transition: background-color var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus Ring Accessibility Defaults */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: var(--focus-offset);
+  border-radius: var(--radius-xs);
+}
+
+button, input, textarea, select {
+  font-family: inherit;
+}

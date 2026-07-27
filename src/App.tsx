@@ -27,7 +27,7 @@ export function App() {
   }, []);
 
   return (
-    <div className="h-screen w-screen app-bg text-primary-theme flex flex-col overflow-hidden font-sans select-none transition-colors duration-200">
+    <div className="h-screen w-screen bg-[var(--surface-page)] text-[var(--text-primary)] flex flex-col overflow-hidden font-sans select-none transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]">
       {/* Offline Status Bar */}
       <OfflineBanner />
 

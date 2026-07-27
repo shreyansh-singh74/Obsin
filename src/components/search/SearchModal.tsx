@@ -58,15 +58,15 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-start justify-center pt-16 px-4"
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[var(--z-modal)] flex items-start justify-center pt-16 px-4 animate-fade-in"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
+        className="bg-[var(--surface-modal)] border border-[var(--border-default)] rounded-[var(--radius-xl)] max-w-2xl w-full shadow-[var(--shadow-lg)] overflow-hidden flex flex-col max-h-[80vh] animate-pop-in"
       >
         {/* Search Input Bar */}
-        <div className="p-4 border-b border-slate-800 flex items-center gap-3 bg-slate-900/90">
-          <Search className="w-5 h-5 text-indigo-400 shrink-0" />
+        <div className="p-4 border-b border-[var(--border-subtle)] flex items-center gap-3 bg-[var(--surface-modal)]">
+          <Search className="w-5 h-5 text-[var(--accent-text)] shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -74,17 +74,17 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent text-sm font-sans text-slate-100 placeholder-slate-500 focus:outline-none"
+            className="flex-1 bg-transparent text-sm font-sans text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="p-1 rounded hover:bg-slate-800 text-slate-500 hover:text-slate-300"
+              className="p-1 rounded-[var(--radius-sm)] hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
           )}
-          <span className="text-[10px] font-mono text-slate-500 border border-slate-800 px-1.5 py-0.5 rounded bg-slate-950">
+          <span className="text-[10px] font-mono text-[var(--text-subtle)] border border-[var(--border-subtle)] px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--surface-page)]">
             ESC
           </span>
         </div>
@@ -101,42 +101,42 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
                     setActiveNotePath(item.path);
                     onClose();
                   }}
-                  className={`w-full text-left p-3 rounded-xl transition-all flex items-start gap-3 cursor-pointer ${
+                  className={`w-full text-left p-3 rounded-[var(--radius-md)] transition-all duration-[var(--duration-fast)] flex items-start gap-3 cursor-pointer ${
                     isSelected
-                      ? 'bg-indigo-600/20 border border-indigo-500/40 text-white'
-                      : 'hover:bg-slate-800/60 border border-transparent text-slate-300'
+                      ? 'bg-[var(--accent-soft)] border border-[var(--accent-soft)] text-[var(--text-primary)]'
+                      : 'hover:bg-[var(--surface-hover)] border border-transparent text-[var(--text-secondary)]'
                   }`}
                 >
-                  <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-indigo-400 shrink-0 mt-0.5">
+                  <div className="p-2 rounded-[var(--radius-sm)] bg-[var(--surface-input)] border border-[var(--border-subtle)] shrink-0 mt-0.5">
                     {item.matchedField === 'heading' ? (
-                      <Heading className="w-4 h-4 text-emerald-400" />
+                      <Heading className="w-4 h-4 text-[var(--success-text)]" />
                     ) : item.matchedField === 'tag' ? (
-                      <Hash className="w-4 h-4 text-amber-400" />
+                      <Hash className="w-4 h-4 text-[var(--warning-text)]" />
                     ) : item.matchedField === 'alias' ? (
-                      <Bookmark className="w-4 h-4 text-purple-400" />
+                      <Bookmark className="w-4 h-4 text-[var(--accent-text)]" />
                     ) : (
-                      <FileText className="w-4 h-4 text-indigo-400" />
+                      <FileText className="w-4 h-4 text-[var(--info-text)]" />
                     )}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-semibold text-xs text-slate-100 truncate">{item.title}</span>
+                      <span className="font-semibold text-xs text-[var(--text-primary)] truncate">{item.title}</span>
                       {item.folder && (
-                        <span className="text-[10px] font-mono text-slate-500 truncate max-w-[150px]">
+                        <span className="text-[10px] font-mono text-[var(--text-subtle)] truncate max-w-[150px]">
                           {item.folder}
                         </span>
                       )}
                     </div>
 
                     {item.headingMatch && (
-                      <span className="inline-flex items-center gap-1 text-[11px] text-emerald-300 font-mono mt-0.5">
+                      <span className="inline-flex items-center gap-1 text-[11px] text-[var(--success-text)] font-mono mt-0.5">
                         <Heading className="w-3 h-3" /> Section: {item.headingMatch}
                       </span>
                     )}
 
                     {item.snippet && (
-                      <p className="text-xs text-slate-400 font-mono mt-1 line-clamp-2 leading-snug opacity-90">
+                      <p className="text-xs text-[var(--text-muted)] font-mono mt-1 line-clamp-2 leading-snug">
                         {item.snippet}
                       </p>
                     )}
@@ -145,13 +145,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
               );
             })
           ) : query.trim() ? (
-            <div className="p-8 text-center text-xs text-slate-500 font-mono space-y-1">
+            <div className="p-8 text-center text-xs text-[var(--text-muted)] font-mono space-y-1">
               <p>No search results found for "{query}"</p>
             </div>
           ) : (
-            <div className="p-8 text-center text-xs text-slate-500 font-sans space-y-1">
-              <p className="text-slate-400 font-medium">Type a search term to find notes instantly</p>
-              <p className="text-[11px] font-mono text-slate-600">Supports searching headers (#), tags, aliases, and contents</p>
+            <div className="p-8 text-center text-xs text-[var(--text-muted)] font-sans space-y-1">
+              <p className="text-[var(--text-secondary)] font-medium">Type a search term to find notes instantly</p>
+              <p className="text-[11px] font-mono text-[var(--text-subtle)]">Supports searching headers (#), tags, aliases, and contents</p>
             </div>
           )}
         </div>

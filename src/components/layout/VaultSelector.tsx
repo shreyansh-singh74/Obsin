@@ -92,16 +92,16 @@ export const VaultSelector: React.FC = () => {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-medium text-slate-200 transition-all cursor-pointer shadow-sm"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-md)] bg-[var(--surface-input)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all duration-[var(--duration-fast)] cursor-pointer shadow-[var(--shadow-sm)]"
       >
-        <FolderGit2 className="w-3.5 h-3.5 text-indigo-400" />
+        <FolderGit2 className="w-3.5 h-3.5 text-[var(--accent-text)]" />
         <span className="truncate max-w-[140px] font-semibold">{activeVault ? activeVault.name : 'Select Vault'}</span>
-        <ChevronDown className="w-3 h-3 text-slate-500" />
+        <ChevronDown className="w-3 h-3 text-[var(--icon-muted)]" />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-72 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden py-1">
-          <div className="px-3 py-1.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+        <div className="absolute top-full left-0 mt-2 w-72 bg-[var(--surface-popover)] border border-[var(--border-default)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] z-[var(--z-dropdown)] overflow-hidden py-1 animate-pop-in">
+          <div className="px-3 py-1.5 text-[10px] font-semibold text-[var(--text-subtle)] uppercase tracking-wider">
             Your Connected Vaults ({vaults.length})
           </div>
 
@@ -113,24 +113,24 @@ export const VaultSelector: React.FC = () => {
                   await setActiveVault(v);
                   setIsOpen(false);
                 }}
-                className="w-full px-3 py-2 text-left text-xs flex items-center justify-between hover:bg-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer border-b border-slate-800/40 last:border-0"
+                className="w-full px-3 py-2 text-left text-xs flex items-center justify-between hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer border-b border-[var(--border-subtle)] last:border-0"
               >
                 <div className="truncate pr-2">
-                  <span className="font-medium block truncate text-slate-200">{v.name}</span>
-                  <span className="text-[10px] text-slate-500 font-mono block truncate">{v.owner}/{v.repo}</span>
+                  <span className="font-medium block truncate text-[var(--text-primary)]">{v.name}</span>
+                  <span className="text-[10px] text-[var(--text-muted)] font-mono block truncate">{v.owner}/{v.repo}</span>
                 </div>
-                {activeVault?.id === v.id && <Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" />}
+                {activeVault?.id === v.id && <Check className="w-3.5 h-3.5 text-[var(--accent-text)] shrink-0" />}
               </button>
             ))}
           </div>
 
-          <div className="border-t border-slate-800 pt-1 mt-1">
+          <div className="border-t border-[var(--border-subtle)] pt-1 mt-1">
             <button
               onClick={() => {
                 setShowAddModal(true);
                 setIsOpen(false);
               }}
-              className="w-full px-3 py-2.5 text-left text-xs text-indigo-400 hover:bg-slate-800 font-medium flex items-center gap-2 transition-colors cursor-pointer"
+              className="w-full px-3 py-2.5 text-left text-xs text-[var(--accent-text)] hover:bg-[var(--surface-hover)] font-medium flex items-center gap-2 transition-colors cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" /> Add GitHub Repository Vault
             </button>
@@ -140,16 +140,16 @@ export const VaultSelector: React.FC = () => {
 
       {/* Add Vault Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center gap-2 text-slate-200">
-              <Database className="w-5 h-5 text-indigo-400" />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[var(--z-modal)] flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-[var(--surface-modal)] border border-[var(--border-default)] rounded-[var(--radius-lg)] max-w-md w-full p-6 shadow-[var(--shadow-lg)] space-y-4">
+            <div className="flex items-center gap-2 text-[var(--text-primary)]">
+              <Database className="w-5 h-5 text-[var(--accent-text)]" />
               <h3 className="font-semibold text-base">Add GitHub Markdown Vault</h3>
             </div>
 
             {errorMessage && (
-              <div className="p-3 bg-rose-950/50 border border-rose-800 rounded-lg text-rose-200 text-xs leading-relaxed flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+              <div className="p-3 bg-[var(--danger-bg)] border border-[var(--danger-text)]/30 rounded-[var(--radius-md)] text-[var(--danger-text)] text-xs leading-relaxed flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-[var(--danger-text)] shrink-0 mt-0.5" />
                 <div>{errorMessage}</div>
               </div>
             )}
@@ -157,86 +157,86 @@ export const VaultSelector: React.FC = () => {
             <form onSubmit={handleAddVault} className="space-y-3.5 text-xs">
               {/* GitHub URL Quick Paste */}
               <div>
-                <label className="block text-slate-400 font-medium mb-1 flex items-center gap-1">
-                  <Link className="w-3.5 h-3.5 text-indigo-400" /> Paste GitHub Repository URL
+                <label className="block text-[var(--text-muted)] font-medium mb-1 flex items-center gap-1">
+                  <Link className="w-3.5 h-3.5 text-[var(--accent-text)]" /> Paste GitHub Repository URL
                 </label>
                 <input
                   type="url"
                   placeholder="https://github.com/owner/repository"
                   value={repoUrl}
                   onChange={(e) => handleUrlChange(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500 font-mono text-xs"
+                  className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-mono text-xs"
                 />
               </div>
 
               <div className="relative flex py-1 items-center">
-                <div className="flex-grow border-t border-slate-800"></div>
-                <span className="flex-shrink mx-2 text-[10px] text-slate-500 font-mono uppercase">Or Enter Manually</span>
-                <div className="flex-grow border-t border-slate-800"></div>
+                <div className="flex-grow border-t border-[var(--border-subtle)]"></div>
+                <span className="flex-shrink mx-2 text-[10px] text-[var(--text-subtle)] font-mono uppercase">Or Enter Manually</span>
+                <div className="flex-grow border-t border-[var(--border-subtle)]"></div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-400 font-medium mb-1">GitHub Owner</label>
+                  <label className="block text-[var(--text-muted)] font-medium mb-1">GitHub Owner</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. shreyansh-singh74"
                     value={owner}
                     onChange={(e) => setOwner(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500 font-mono"
+                    className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-400 font-medium mb-1">Repository Name</label>
+                  <label className="block text-[var(--text-muted)] font-medium mb-1">Repository Name</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. gem"
                     value={repo}
                     onChange={(e) => setRepo(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500 font-mono"
+                    className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-mono"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-400 font-medium mb-1">Display Label</label>
+                  <label className="block text-[var(--text-muted)] font-medium mb-1">Display Label</label>
                   <input
                     type="text"
                     placeholder="e.g. My Gem Brain"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500 font-sans"
+                    className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-sans"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-400 font-medium mb-1">Branch (Optional)</label>
+                  <label className="block text-[var(--text-muted)] font-medium mb-1">Branch (Optional)</label>
                   <input
                     type="text"
                     placeholder="Auto-discover"
                     value={branch}
                     onChange={(e) => setBranch(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500 font-mono"
+                    className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-mono"
                   />
                 </div>
               </div>
 
               {/* Token Input Field */}
               <div className="pt-1">
-                <label className="block text-slate-400 font-medium mb-1 flex items-center justify-between">
+                <label className="block text-[var(--text-muted)] font-medium mb-1 flex items-center justify-between">
                   <span className="flex items-center gap-1">
-                    <Key className="w-3.5 h-3.5 text-indigo-400" /> GitHub Token (PAT)
+                    <Key className="w-3.5 h-3.5 text-[var(--accent-text)]" /> GitHub Token (PAT)
                   </span>
-                  <span className="text-[10px] text-slate-500 font-normal">Increases rate limit to 5,000/hr</span>
+                  <span className="text-[10px] text-[var(--text-subtle)] font-normal">Increases rate limit to 5,000/hr</span>
                 </label>
                 <input
                   type="password"
                   placeholder="ghp_... (Required if rate limit is reached or repo is private)"
                   value={patToken}
                   onChange={(e) => setPatToken(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500 font-mono text-xs"
+                  className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-mono text-xs"
                 />
               </div>
 
@@ -245,14 +245,14 @@ export const VaultSelector: React.FC = () => {
                   type="button"
                   onClick={() => setShowAddModal(false)}
                   disabled={isSubmitting}
-                  className="px-3 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors"
+                  className="px-3 py-2 rounded-[var(--radius-md)] bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-colors shadow-lg shadow-indigo-600/20 disabled:opacity-50 flex items-center gap-2"
+                  className="px-4 py-2 rounded-[var(--radius-md)] bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--text-on-accent)] font-medium transition-colors disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                 >
                   {isSubmitting ? 'Fetching & Syncing...' : 'Add & Sync Vault'}
                 </button>

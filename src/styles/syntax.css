@@ -1,0 +1,85 @@
+/* ==========================================
+   POCKETVAULT DESIGN SYSTEM - CODE & SYNTAX
+   ========================================== */
+
+:root,
+[data-theme="dark"] {
+  --code-bg: var(--surface-card);
+  --code-header-bg: var(--surface-sidebar);
+  --code-text: #E4E4E4;
+  --code-keyword: #C678DD;
+  --code-function: #61AFEF;
+  --code-string: #98C379;
+  --code-number: #D19A66;
+  --code-comment: #5C6370;
+  --code-operator: #56B6C2;
+  --code-variable: #E06C75;
+}
+
+[data-theme="light"] {
+  --code-bg: #F8F9FA;
+  --code-header-bg: #F1F3F5;
+  --code-text: #24292E;
+  --code-keyword: #D73A49;
+  --code-function: #6F42C1;
+  --code-string: #032F62;
+  --code-number: #005CC5;
+  --code-comment: #6A737D;
+  --code-operator: #D73A49;
+  --code-variable: #E36209;
+}
+
+/* Inline Code */
+.prose :not(pre) > code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+  background-color: var(--code-bg);
+  color: var(--accent-text);
+  padding: 0.2em 0.4em;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-subtle);
+  word-break: break-word;
+}
+
+/* Code Block Container */
+.code-block-wrapper {
+  margin-top: var(--prose-gap);
+  margin-bottom: var(--prose-gap);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  background-color: var(--code-bg);
+}
+
+.code-block-header {
+  background-color: var(--code-header-bg);
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.code-block-content {
+  padding: var(--space-4);
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--font-sm);
+  line-height: var(--leading-normal);
+  color: var(--code-text);
+  background-color: var(--code-bg);
+}
+
+/* Syntax Token Classes */
+.tok-keyword { color: var(--code-keyword); font-weight: 500; }
+.tok-function { color: var(--code-function); }
+.tok-string { color: var(--code-string); }
+.tok-number { color: var(--code-number); }
+.tok-comment { color: var(--code-comment); font-style: italic; }
+.tok-operator { color: var(--code-operator); }
+.tok-variable { color: var(--code-variable); }

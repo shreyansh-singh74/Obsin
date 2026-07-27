@@ -1,0 +1,112 @@
+/* ==========================================
+   POCKETVAULT DESIGN SYSTEM - MULTI-THEME ENGINE
+   ========================================== */
+
+/* Dark Theme (Default) */
+:root,
+[data-theme="dark"] {
+  /* Surfaces */
+  --surface-page: var(--primitive-gray-0);       /* #191919 */
+  --surface-sidebar: var(--primitive-gray-100);  /* #202020 */
+  --surface-card: var(--primitive-gray-200);     /* #252525 */
+  --surface-input: var(--primitive-gray-200);    /* #252525 */
+  --surface-modal: var(--primitive-gray-100);    /* #202020 */
+  --surface-popover: var(--primitive-gray-200);  /* #252525 */
+  --surface-hover: var(--primitive-gray-300);    /* #2A2A2A */
+  --surface-selected: var(--primitive-gray-400); /* #303030 */
+
+  /* Typography */
+  --text-primary: var(--primitive-gray-800);    /* #E4E4E4 */
+  --text-secondary: var(--primitive-gray-700);  /* #B8B8B8 */
+  --text-muted: var(--primitive-gray-600);      /* #949494 */
+  --text-subtle: var(--primitive-gray-500);     /* #737373 */
+  --text-on-accent: #FFFFFF;
+
+  /* Icons */
+  --icon-primary: var(--primitive-gray-800);    /* #E4E4E4 */
+  --icon-secondary: var(--primitive-gray-700);  /* #B8B8B8 */
+  --icon-muted: var(--primitive-gray-500);      /* #737373 */
+
+  /* Borders */
+  --border-subtle: var(--primitive-border-1);   /* #2B2B2B */
+  --border-default: var(--primitive-border-2);  /* #373737 */
+  --border-strong: var(--primitive-gray-500);   /* #737373 */
+
+  /* Accent (Purple - Interactive Only) */
+  --accent: var(--primitive-purple-500);
+  --accent-hover: var(--primitive-purple-400);
+  --accent-soft: var(--primitive-purple-soft);
+  --accent-soft-hover: var(--primitive-purple-soft-hover);
+  --accent-text: var(--primitive-purple-300);
+
+  /* Status Roles */
+  --success: var(--primitive-green-500);
+  --success-bg: var(--primitive-green-soft);
+  --success-text: var(--primitive-green-500);
+
+  --warning: var(--primitive-yellow-500);
+  --warning-bg: var(--primitive-yellow-soft);
+  --warning-text: var(--primitive-yellow-500);
+
+  --danger: var(--primitive-red-500);
+  --danger-bg: var(--primitive-red-soft);
+  --danger-text: var(--primitive-red-500);
+
+  --info: var(--primitive-blue-500);
+  --info-bg: var(--primitive-blue-soft);
+  --info-text: var(--primitive-blue-500);
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  /* Surfaces */
+  --surface-page: var(--primitive-light-gray-0);      /* #FFFFFF */
+  --surface-sidebar: var(--primitive-light-gray-100); /* #FAFAFA */
+  --surface-card: var(--primitive-light-gray-200);    /* #F4F4F5 */
+  --surface-input: var(--primitive-light-gray-200);   /* #F4F4F5 */
+  --surface-modal: var(--primitive-light-gray-0);     /* #FFFFFF */
+  --surface-popover: var(--primitive-light-gray-0);   /* #FFFFFF */
+  --surface-hover: var(--primitive-light-gray-300);   /* #E4E4E7 */
+  --surface-selected: var(--primitive-light-gray-400);/* #D4D4D8 */
+
+  /* Typography */
+  --text-primary: var(--primitive-light-gray-900);   /* #18181B */
+  --text-secondary: var(--primitive-light-gray-700); /* #3F3F46 */
+  --text-muted: var(--primitive-light-gray-600);     /* #71717A */
+  --text-subtle: var(--primitive-light-gray-500);    /* #A1A1AA */
+  --text-on-accent: #FFFFFF;
+
+  /* Icons */
+  --icon-primary: var(--primitive-light-gray-900);
+  --icon-secondary: var(--primitive-light-gray-700);
+  --icon-muted: var(--primitive-light-gray-500);
+
+  /* Borders */
+  --border-subtle: var(--primitive-light-border-1);  /* #E4E4E7 */
+  --border-default: var(--primitive-light-border-2); /* #D4D4D8 */
+  --border-strong: var(--primitive-light-gray-500);  /* #A1A1AA */
+
+  /* Accent */
+  --accent: var(--primitive-purple-500);
+  --accent-hover: var(--primitive-purple-400);
+  --accent-soft: rgba(124, 58, 237, 0.08);
+  --accent-soft-hover: rgba(124, 58, 237, 0.16);
+  --accent-text: var(--primitive-purple-500);
+
+  /* Status Roles */
+  --success: #0D9488;
+  --success-bg: rgba(13, 148, 136, 0.1);
+  --success-text: #0D9488;
+
+  --warning: #D97706;
+  --warning-bg: rgba(217, 119, 6, 0.1);
+  --warning-text: #B45309;
+
+  --danger: #E11D48;
+  --danger-bg: rgba(225, 29, 72, 0.1);
+  --danger-text: #E11D48;
+
+  --info: #2563EB;
+  --info-bg: rgba(37, 99, 235, 0.1);
+  --info-text: #2563EB;
+}

@@ -1,0 +1,109 @@
+/* ==========================================
+   POCKETVAULT DESIGN SYSTEM - PRIMITIVE TOKENS
+   ========================================== */
+
+:root {
+  /* Dark Primitives */
+  --primitive-gray-0: #191919;
+  --primitive-gray-100: #202020;
+  --primitive-gray-200: #252525;
+  --primitive-gray-300: #2A2A2A;
+  --primitive-gray-400: #303030;
+  --primitive-gray-500: #737373;
+  --primitive-gray-600: #949494;
+  --primitive-gray-700: #B8B8B8;
+  --primitive-gray-800: #E4E4E4;
+  --primitive-gray-900: #F5F5F5;
+
+  --primitive-border-1: #2B2B2B;
+  --primitive-border-2: #373737;
+
+  /* Light Primitives */
+  --primitive-light-gray-0: #FFFFFF;
+  --primitive-light-gray-100: #FAFAFA;
+  --primitive-light-gray-200: #F4F4F5;
+  --primitive-light-gray-300: #E4E4E7;
+  --primitive-light-gray-400: #D4D4D8;
+  --primitive-light-gray-500: #A1A1AA;
+  --primitive-light-gray-600: #71717A;
+  --primitive-light-gray-700: #3F3F46;
+  --primitive-light-gray-800: #27272A;
+  --primitive-light-gray-900: #18181B;
+
+  --primitive-light-border-1: #E4E4E7;
+  --primitive-light-border-2: #D4D4D8;
+
+  /* Accent Brand Primitives (Interactive only) */
+  --primitive-purple-500: #7C3AED;
+  --primitive-purple-400: #8B5CF6;
+  --primitive-purple-300: #A78BFA;
+  --primitive-purple-soft: rgba(124, 58, 237, 0.12);
+  --primitive-purple-soft-hover: rgba(124, 58, 237, 0.22);
+
+  /* Status Role Primitives */
+  --primitive-green-500: #4DAB9A;
+  --primitive-green-soft: rgba(77, 171, 154, 0.12);
+  --primitive-yellow-500: #FFCD57;
+  --primitive-yellow-soft: rgba(255, 205, 87, 0.12);
+  --primitive-red-500: #E76E55;
+  --primitive-red-soft: rgba(231, 110, 85, 0.12);
+  --primitive-blue-500: #5B8DEF;
+  --primitive-blue-soft: rgba(91, 141, 239, 0.12);
+
+  /* Spacing Scale */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+  --space-16: 4rem;    /* 64px */
+
+  /* Typography Scale */
+  --font-xs: 0.6875rem;  /* 11px */
+  --font-sm: 0.8125rem;  /* 13px */
+  --font-base: 0.9375rem;/* 15px */
+  --font-lg: 1.125rem;   /* 18px */
+  --font-xl: 1.375rem;   /* 22px */
+  --font-2xl: 1.75rem;   /* 28px */
+  --font-3xl: 2.125rem;  /* 34px */
+
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-reading: 1.8;
+
+  /* Border Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Elevation Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
+
+  /* Opacity Tokens */
+  --opacity-disabled: 0.4;
+  --opacity-muted: 0.65;
+  --opacity-hover: 0.85;
+
+  /* Z-Index Tokens */
+  --z-base: 0;
+  --z-sticky: 100;
+  --z-dropdown: 200;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-toast: 1000;
+  --z-tooltip: 1100;
+
+  /* Focus Tokens */
+  --focus-ring: var(--primitive-purple-500);
+  --focus-offset: 2px;
+}
