@@ -69,7 +69,7 @@ export function LandingPage() {
 
                   <div className="relative z-20 ml-[-7%] w-[27%] min-w-[220px] max-w-[350px] self-end">
                     <Android className="drop-shadow-[0_28px_55px_rgba(0,0,0,0.42)]">
-                      {/* <AndroidPreview /> */}
+                      <AndroidPreview />
                     </Android>
                   </div>
                 </div>
