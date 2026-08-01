@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { ChevronDown, Github, Globe, Instagram, Linkedin, Youtube, X } from "lucide-react";
 import { Safari } from "@/components/ui/safari";
 import logoMark from "../../assets/logo.svg";
+import BatLogoMaker from "../../assets/2.svg";
 
 export function LandingPage() {
   const [progress, setProgress] = useState(0);
@@ -60,9 +62,9 @@ export function LandingPage() {
                 <nav className="flex items-center gap-2 text-[0.95rem] text-white/72">
                   <a
                     href="/app"
-                    className="inline-flex min-h-10 items-center rounded-full bg-white px-4 py-2 font-medium text-black transition-colors hover:bg-white/90"
+                    className="inline-flex min-h-10 items-center rounded-full bg-white px-4 py-2 font-medium text-black transition-colors hover:bg-white/90 -mt-10"
                   >
-                    Open Vault
+                    Connect Vault
                   </a>
                 </nav>
               </header>
@@ -77,13 +79,13 @@ export function LandingPage() {
                   </p>
                   <a
                     href="/app"
-                    className="mt-7 inline-flex min-h-15 w-full max-w-[377px] items-center justify-center rounded-[7px] bg-[#8A35F2] px-6 py-4 text-center text-xl font-medium leading-tight text-white transition-colors hover:bg-[#7c2ee0] focus:outline-none focus:ring-2 focus:ring-[#9b55ff] focus:ring-offset-2 focus:ring-offset-[#0b0b0b] sm:mt-8 sm:w-auto sm:px-6"
+                    className="mt-7 inline-flex min-h-15 w-full max-w-94.25 items-center justify-center rounded-[7px] bg-[#8A35F2] px-6 py-4 text-center text-xl font-medium leading-tight text-white transition-colors hover:bg-[#7c2ee0] focus:outline-none focus:ring-2 focus:ring-[#9b55ff] focus:ring-offset-2 focus:ring-offset-[#0b0b0b] sm:mt-8 sm:w-auto sm:px-6"
                   >
                     Get Started
                   </a>
                 </div>
 
-                <div className="relative flex min-h-0 items-end justify-start overflow-hidden pb-1 [container-type:size] md:pb-3">
+                <div className="relative flex min-h-0 items-end justify-start overflow-hidden pb-1 @container-size md:pb-3">
                   <div
                     className="relative flex select-text"
                     style={{ width: "min(100%, calc(100cqh * 1203 / 753), 960px)" }}
@@ -105,36 +107,63 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="relative z-30 -mt-[35vh] min-h-screen bg-black px-6 py-24 text-white">
+      <section className="relative z-30 mt-[-35vh] min-h-screen bg-black px-6 py-24 text-white">
         <h2 className="text-4xl font-semibold">Next thing comes here</h2>
         <p className="mt-4 max-w-xl text-white/70">
           This section appears after the white panel moves up and shrinks.
         </p>
       </section>
 
-      <footer className="relative z-30 border-t border-white/10 bg-black px-6 py-10 text-white">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <a href="/" className="flex items-center gap-3 text-white">
-            <img
-              src={logoMark}
-              alt="Obsin"
-              className="h-10 w-10 shrink-0"
-            />
-            <div>
-              <p className="text-sm font-semibold tracking-tight">Obsin</p>
-              <p className="mt-1 max-w-md text-sm text-white/60">
-                Read, search, and access your vault from anywhere.
-              </p>
-            </div>
-          </a>
-
-          <a
-            href="/app"
-            className="inline-flex w-fit items-center rounded-full border border-white/15 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/6"
-          >
-            Open Vault
-          </a>
+      <footer className="relative z-30">
+        <div className=" px-6 pb-12 pt-10 sm:px-8 lg:px-10">
+          <div className="mx-auto max-w-6xl">
+            <a className="flex justify-center items-center gap-3">
+              <img
+                src={BatLogoMaker}
+                alt="Obsin"
+                className="w-200 h-auto -mt-160 -mb-160"
+              />
+            </a>
+          </div>
         </div>
+
+        <div className="mt-40 px-6 py-10 sm:px-8 lg:px-10">
+  <div className="mx-auto flex max-w-6xl items-start justify-between">
+    {/* Left */}
+    <div className="space-y-4">
+      <p className="text-sm text-white/60">Follow us</p>
+
+      <div className="flex gap-10">
+        <a href="#" className="text-white/90 transition hover:text-white">
+          Twitter
+        </a>
+
+        <a href="#" className="text-white/90 transition hover:text-white">
+          GitHub
+        </a>
+      </div>
+    </div>
+
+    {/* Right */}
+    <div className="flex flex-col items-end gap-8">
+      <div className="flex gap-6">
+        <a href="#" className="text-white/90 transition hover:text-white">
+          Terms
+        </a>
+
+        <a href="#" className="text-white/90 transition hover:text-white">
+          Privacy
+        </a>
+
+        <a href="#" className="text-white/90 transition hover:text-white">
+          Data Controls
+        </a>
+      </div>
+
+      <p className="text-sm text-white/55">© 2026 Obsin</p>
+    </div>
+  </div>
+</div>
       </footer>
     </main>
   );
