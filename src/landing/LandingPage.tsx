@@ -134,11 +134,11 @@ export function LandingPage() {
       <p className="text-sm text-white/60">Follow us</p>
 
       <div className="flex gap-10">
-        <a href="#" className="text-white/90 transition hover:text-white">
+        <a href="https://x.com/ShreyanshWorks" className="text-white/90 transition hover:text-white">
           Twitter
         </a>
 
-        <a href="#" className="text-white/90 transition hover:text-white">
+        <a href="https://github.com/shreyansh-singh74/Obsin" className="text-white/90 transition hover:text-white">
           GitHub
         </a>
       </div>
