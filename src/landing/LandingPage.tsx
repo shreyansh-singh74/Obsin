@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Android } from "@/components/ui/android";
 import { Safari } from "@/components/ui/safari";
 
 export function LandingPage() {
@@ -39,38 +38,35 @@ export function LandingPage() {
               willChange: "transform, opacity",
             }}
           >
-            <div className="mx-auto flex h-full max-w-6xl flex-col px-6 py-10 md:px-12">
-              <div className="pt-4 md:pt-8">
-                <h1 className="max-w-4xl text-5xl font-semibold leading-[1.03] tracking-tight text-[#E5E7EB] md:text-7xl">
+            <div className="mx-auto grid h-full max-w-6xl grid-rows-[auto_minmax(0,1fr)] gap-6 px-5 py-7 sm:px-6 sm:py-8 md:px-12 md:py-10 lg:gap-8">
+              <div className="max-w-4xl pt-2 md:pt-6">
+                <h1 className="max-w-full whitespace-nowrap text-[clamp(1.5rem,5vw,4.5rem)] font-semibold leading-[1.02] tracking-tight text-[#E5E7EB]">
                   Your knowledge. Everywhere.
                 </h1>
-                <p className="mt-6 max-w-2xl text-2xl leading-tight text-[#9CA3AF] md:text-4xl">
+                <p className="mt-5 max-w-[17em] text-[clamp(1.35rem,3.25vw,2.25rem)] leading-tight text-[#9CA3AF]">
                   Read, search, and access your Obsidian vault from any browser.
                 </p>
                 <a
                   href="/app"
-                  className="mt-10 inline-flex h-14 items-center justify-center bg-[#5B8CFF] px-7 text-base font-semibold text-white transition-colors hover:bg-[#4f7de6] focus:outline-none focus:ring-2 focus:ring-[#5B8CFF] focus:ring-offset-2 focus:ring-offset-[#262626]"
+                  className="mt-7 inline-flex min-h-15 w-full max-w-[377px] items-center justify-center rounded-[7px] bg-[#8A35F2] px-6 py-4 text-center text-xl font-medium leading-tight text-white transition-colors hover:bg-[#7c2ee0] focus:outline-none focus:ring-2 focus:ring-[#9b55ff] focus:ring-offset-2 focus:ring-offset-[#262626] sm:mt-8 sm:w-auto sm:px-6"
                 >
                   Get Started
                 </a>
               </div>
 
-              <div className="relative mt-8 flex min-h-0 flex-1 items-end justify-center pb-2 pt-4 md:mt-auto md:pb-4 md:pt-8">
-                <div className="relative flex w-full max-w-[1180px] items-end justify-end select-text">
-                  <div className="relative w-[88%] max-w-[940px]">
+              <div className="relative flex min-h-0 items-end justify-start overflow-hidden pb-1 [container-type:size] md:pb-3">
+                <div
+                  className="relative flex select-text"
+                  style={{ width: "min(100%, calc(100cqh * 1203 / 753), 960px)" }}
+                >
+                  <div className="relative w-full">
                     <Safari
                       url="pocketvault.local/vault/daily-notes"
                       mode="default"
-                      className="drop-shadow-[0_22px_45px_rgba(0,0,0,0.35)]"
+                      className="drop-shadow-[0_22px_45px_rgba(0,0,0,0.01)]"
                     >
                       <ObsidianPreview />
                     </Safari>
-                  </div>
-
-                  <div className="relative z-20 ml-[-7%] w-[27%] min-w-[220px] max-w-[350px] self-end">
-                    <Android className="drop-shadow-[0_28px_55px_rgba(0,0,0,0.42)]">
-                      <AndroidPreview />
-                    </Android>
                   </div>
                 </div>
               </div>
@@ -90,163 +86,178 @@ export function LandingPage() {
 }
 
 function ObsidianPreview() {
-  const navItems = ["Inbox", "Projects", "References", "Books", "Archive"];
+  const folders = [
+    ["›", "Clippings"],
+    ["›", "Daily"],
+    ["⌄", "Ideas"],
+    ["›", "Meta"],
+    ["›", "Projects"],
+    ["›", "References"],
+  ];
+
   const notes = [
-    ["Jul 30, 2026", "Browser reading workflow..."],
-    ["Research capture", "Links, highlights, backlinks"],
-    ["Project map", "Ideas connected by topic"],
+    "Evergreen notes",
+    "Calmness is a superpower",
+    "Travel",
+    "Creativity is combinatorial",
+    "Emergence",
+    "Recipes",
+    "Books",
+    "Health",
+    "What if it were easy",
+    "Tools",
   ];
 
   return (
     <div
-      className="grid size-full grid-cols-[22%_25%_53%] bg-[#0F1117] text-[#D7DDE8]"
-      style={{ fontSize: "clamp(5px, 1.2cqw, 16px)" }}
+      className="grid size-full grid-cols-[27%_42%_31%] grid-rows-[6.2%_93.8%] bg-[#1e1e1e] text-[#d4d4d4]"
+      style={{ fontSize: "clamp(5.5px, 1.22cqw, 15px)" }}
     >
-      <aside className="flex min-w-0 flex-col bg-[#1A1D24] px-[1.5em] py-[1.5em]">
-        <div className="rounded-[0.45em] bg-[#242A36] px-[1.1em] py-[0.9em] text-[1em] font-bold text-[#E5E7EB]">
-          PocketVault
+      <div className="col-span-3 grid grid-cols-[27%_42%_31%] border-b border-[#333] bg-[#242424] text-[0.82em] text-[#aaa]">
+        <div className="flex items-center gap-[0.75em] border-r border-[#343434] px-[1em]">
+          {/* <span className="size-[0.92em] rounded-full bg-[#ff5f57]" />
+          <span className="size-[0.92em] rounded-full bg-[#ffbd2e]" />
+          <span className="size-[0.92em] rounded-full bg-[#28c840]" />
+          <span className="ml-[0.7em] rounded-[0.25em] border border-[#6c6c6c] px-[0.42em] py-[0.22em] text-[0.9em]">
+            □
+          </span>
+          <span>⌕</span>
+          <span>⌁</span> */}
         </div>
-        <div className="mt-[1.6em] rounded-[0.45em] bg-[#283246] px-[1.1em] py-[0.9em] text-[0.85em] font-semibold text-[#9DB7FF]">
-          Daily notes
-        </div>
-        <div className="mt-[1.4em] space-y-[1em] px-[1.1em] text-[0.8em] text-[#9CA3AF]">
-          {navItems.map((item) => (
-            <p key={item}>{item}</p>
-          ))}
-        </div>
-        <div className="mt-auto flex items-center gap-[0.8em] rounded-[0.6em] bg-[#202632] px-[1.1em] py-[0.9em]">
-          <span className="size-[1.2em] rounded-full bg-[#5B8CFF]" />
-          <div>
-            <p className="text-[0.8em] font-bold text-[#E5E7EB]">Synced</p>
-            <p className="mt-[0.35em] text-[0.65em] text-[#9CA3AF]">12 vault changes</p>
+        <div className="flex min-w-0 items-center border-r border-[#343434]">
+          <div className="flex h-full min-w-0 items-center bg-[#1f1f1f] px-[1.15em] text-[#ddd]">
+            <span className="truncate">Writing is telepathy</span>
+            <span className="ml-[0.8em] text-[#777]">×</span>
           </div>
+          <div className="min-w-0 px-[1.1em] text-[#777]">
+            <span className="truncate">Evergreen notes</span>
+          </div>
+          <span className="ml-auto px-[1em] text-[1.2em] text-[#777]">+</span>
         </div>
-      </aside>
+        <div className="flex min-w-0 items-center px-[1.1em]">
+          <span className="mr-[0.65em] text-[1.05em] text-[#aaa]">⌘</span>
+          <span className="truncate text-[#d0d0d0]">Graph of Writing is t...</span>
+          <span className="ml-auto text-[1.25em] text-[#777]">+</span>
+        </div>
+      </div>
 
-      <aside className="min-w-0 bg-[#151820] px-[1.5em] py-[1.5em]">
-        <div className="rounded-[0.45em] bg-[#242A36] px-[1.1em] py-[0.9em] text-[0.8em] text-[#9CA3AF]">
-          Search notes...
-        </div>
-        <h2 className="mt-[2em] text-[1em] font-bold text-[#E5E7EB]">Daily Notes</h2>
-        <div className="mt-[1.4em] space-y-[1.1em]">
-          {notes.map(([title, body], index) => (
-            <div
-              key={title}
-              className={`rounded-[0.6em] px-[1.1em] py-[1em] ${index === 0 ? "bg-[#243048]" : "bg-[#1D222D]"}`}
-            >
-              <p className="text-[0.8em] font-bold text-[#E5E7EB]">{title}</p>
-              <p className="mt-[0.6em] text-[0.65em] text-[#9CA3AF]">{body}</p>
+      <aside className="min-w-0 border-r border-[#343434] bg-[#262626] text-[#b7b7b7]">
+        <div className="space-y-[0.32em] px-[0.8em] py-[0.8em]">
+          {folders.map(([icon, label]) => (
+            <div key={label} className="flex items-center gap-[0.42em] text-[0.92em]">
+              <span className="w-[0.8em] text-[#8b8b8b]">{icon}</span>
+              <span>{label}</span>
             </div>
           ))}
+          <div className="ml-[0.1em] rounded-[0.28em] bg-[#363636] px-[2.1em] py-[0.45em] text-[#e2e2e2]">
+            Writing is telepathy
+          </div>
+        </div>
+
+        <div className="space-y-[0.78em] px-[1.9em] text-[0.86em] leading-none text-[#aaa]">
+          {notes.map((note) => (
+            <p key={note} className="truncate">
+              {note}
+            </p>
+          ))}
+        </div>
+        <div className="mt-[1.25em] border-t border-[#3a3a3a] px-[1.05em] py-[0.72em] text-[0.9em] text-[#d0d0d0]">
+          ↕ Notes
+          <span className="float-right text-[#9a9a9a]">? ⚙</span>
         </div>
       </aside>
 
-      <article className="min-w-0 px-[2em] py-[2em]">
-        <p className="text-[0.8em] font-bold text-[#5B8CFF]">
-          vault/daily-notes/2026-07-30.md
-        </p>
-        <h2 className="mt-[1.1em] text-[2.15em] font-extrabold leading-tight text-[#F4F7FB]">
-          Daily reading list
+      <article className="min-w-0 overflow-hidden border-r border-[#343434] bg-[#1e1e1e] px-[3.8em] py-[2.8em]">
+        <h2 className="max-w-[8em] text-[2.55em] font-bold leading-[1.08] text-[#e7e7e7]">
+          Writing is telepathy
         </h2>
-        <p className="mt-[1em] text-[0.95em] leading-relaxed text-[#AAB2C0]">
-          A browser-first view of the notes already living in your Obsidian vault.
+        <div className="mt-[1em] inline-flex rounded-[0.7em] bg-[#332c52] px-[0.65em] py-[0.2em] text-[0.9em] text-[#b79cff]">
+          #evergreen
+        </div>
+        <p className="mt-[0.9em] text-[1em] text-[#bdbdbd]">
+          From <span className="border-b border-[#9f86ff] text-[#b79cff]">On Writing</span>
         </p>
-        <div className="my-[1.7em] h-px bg-[#2D3442]" />
-        <h3 className="text-[1.2em] font-bold text-[#E5E7EB]">Today</h3>
-        <ul className="mt-[1em] space-y-[0.9em] text-[0.9em] leading-relaxed">
-          <li>Finish highlights from the distributed systems article.</li>
-          <li>Connect ideas to [[Offline-first sync]] and [[Local search]].</li>
-          <li>Review backlinks before publishing the research note.</li>
+
+        <h3 className="mt-[0.85em] max-w-[11em] text-[1.8em] font-bold leading-[1.08] text-[#e1e1e1]">
+          Ideas can travel through time and space
+        </h3>
+        <p className="mt-[0.8em] max-w-[20em] text-[1.08em] leading-[1.38] text-[#b8b8b8]">
+          Ideas can travel through space without being uttered out loud. The
+          process of telepathy requires two places:
+        </p>
+        <ul className="mt-[0.75em] max-w-[20.5em] list-disc space-y-[0.65em] pl-[1.35em] text-[1em] leading-[1.34] text-[#c7c7c7]">
+          <li>
+            <strong>A sending place</strong>, a transmission place — where the
+            writer sends ideas, such as a desk
+          </li>
+          <li>
+            <strong>A receiving place</strong> — where the reader receives the
+            ideas/imagery such as a couch, a comfortable chair, in bed
+          </li>
         </ul>
-        <div className="mt-[1.8em] max-w-[24em] rounded-[0.7em] border border-[#2F3B52] bg-[#182033] px-[1.3em] py-[1em]">
-          <p className="text-[0.8em] font-bold text-[#9DB7FF]">Linked note</p>
-          <p className="mt-[0.5em] text-[0.9em]">Offline-first sync</p>
-        </div>
-        <div className="my-[1.7em] h-px bg-[#2D3442]" />
-        <h3 className="text-[1.2em] font-bold text-[#E5E7EB]">Backlinks</h3>
-        <div className="mt-[1em] inline-block rounded-[0.6em] bg-[#1B202B] px-[1.3em] py-[0.85em] text-[0.8em] text-[#AAB2C0]">
-          3 references from Research capture
-        </div>
+        <h3 className="mt-[1.05em] text-[1.45em] font-bold text-[#e1e1e1]">Quote</h3>
       </article>
+
+      <GraphPreview />
     </div>
   );
 }
 
-function AndroidPreview() {
-  const stats = [
-    ["12", "notes today"],
-    ["4", "open backlinks"],
-    ["98%", "offline ready"],
+function GraphPreview() {
+  const nodes = [
+    [18, 38, 2.5], [32, 30, 2.3], [43, 41, 2.4], [60, 30, 2.2],
+    [69, 48, 4.2], [79, 36, 2.6], [91, 28, 2.3], [86, 56, 4.3],
+    [74, 70, 2.2], [57, 74, 2.1], [41, 68, 4.1], [24, 64, 2.5],
+    [20, 51, 2.1], [35, 52, 2.1], [49, 56, 2.3], [57, 44, 2.2],
+    [73, 25, 2.6], [86, 20, 2.3], [95, 46, 2.2], [96, 68, 5.2],
+    [82, 78, 2.4], [91, 82, 2.3], [84, 90, 2.2], [58, 24, 2.4],
   ];
 
-  const cards = [
-    ["Continue reading", "Distributed systems notes are synced and ready."],
-    ["Capture idea", "Save a thought to the inbox in two taps."],
-    ["Search vault", "Jump to any note without leaving the current view."],
+  const greenNodes = new Set([3, 9, 17, 18]);
+  const brightNodes = new Set([4, 7, 10, 19]);
+
+  const edges = [
+    [0, 1], [0, 10], [1, 2], [1, 12], [2, 3], [2, 10], [2, 14],
+    [3, 5], [4, 5], [4, 7], [4, 10], [4, 14], [5, 6], [5, 16],
+    [6, 17], [7, 8], [7, 18], [7, 20], [8, 19], [8, 20], [9, 10],
+    [10, 11], [10, 13], [11, 12], [13, 14], [14, 15], [15, 23],
+    [16, 17], [18, 19], [19, 20], [20, 21], [21, 22],
   ];
 
   return (
-    <div
-      className="flex size-full flex-col bg-[#0C0F14] text-[#E5EAF2]"
-      style={{ fontSize: "clamp(5.5px, 1.35cqw, 15px)" }}
-    >
-      <div className="flex items-center gap-[0.8em] border-b border-white/6 px-[1.2em] py-[1.1em]">
-        <div className="size-[0.85em] rounded-full bg-[#5B8CFF] shadow-[0_0_0_0.45em_rgba(91,140,255,0.16)]" />
-        <div>
-          <p className="text-[0.9em] font-bold text-[#F4F7FB]">PocketVault</p>
-          <p className="mt-[0.2em] text-[0.68em] text-[#8B95A7]">Mobile companion</p>
-        </div>
-        <div className="ml-auto rounded-full bg-white/6 px-[0.8em] py-[0.42em] text-[0.66em] font-semibold text-[#B8C0D0]">
-          Live
-        </div>
+    <aside className="relative min-w-0 overflow-hidden bg-[#1e1e1e]">
+      <svg viewBox="0 0 100 100" className="absolute inset-0 size-full">
+        {edges.map(([from, to]) => (
+          <line
+            key={`${from}-${to}`}
+            x1={nodes[from][0]}
+            y1={nodes[from][1]}
+            x2={nodes[to][0]}
+            y2={nodes[to][1]}
+            stroke="#4a4a4a"
+            strokeWidth="0.45"
+          />
+        ))}
+        {nodes.map(([cx, cy, r], index) => (
+          <circle
+            key={`${cx}-${cy}`}
+            cx={cx}
+            cy={cy}
+            r={r}
+            fill={
+              greenNodes.has(index)
+                ? "#20c45a"
+                : brightNodes.has(index)
+                  ? "#f1f1f1"
+                  : "#a9a9a9"
+            }
+          />
+        ))}
+      </svg>
+      <div className="absolute bottom-[1em] right-[1em] flex gap-[0.6em] rounded-[0.35em] border border-[#3a3a3a] bg-[#222] px-[0.9em] py-[0.5em] text-[0.78em] text-[#777]">
+        <span>1 backlink</span>
+        <span>206 words</span>
       </div>
-
-      <div className="px-[1.2em] pb-[1em] pt-[1.05em]">
-        <div className="rounded-[1.2em] border border-white/6 bg-gradient-to-br from-[#12213A] to-[#0F1726] px-[1em] py-[0.95em] shadow-[0_12px_34px_rgba(0,0,0,0.28)]">
-          <p className="text-[0.7em] font-semibold uppercase tracking-[0.18em] text-[#8B95A7]">
-            Today
-          </p>
-          <p className="mt-[0.55em] text-[1.08em] font-bold leading-tight text-[#F4F7FB]">
-            Read and sync from the vault on mobile.
-          </p>
-          <p className="mt-[0.7em] text-[0.72em] leading-relaxed text-[#AAB2C0]">
-            Keep the browser open on desktop and continue the same note on your phone.
-          </p>
-        </div>
-
-        <div className="mt-[0.85em] grid grid-cols-3 gap-[0.55em]">
-          {stats.map(([value, label]) => (
-            <div key={label} className="rounded-[1em] bg-white/5 px-[0.7em] py-[0.72em] text-center">
-              <p className="text-[0.95em] font-bold text-[#F4F7FB]">{value}</p>
-              <p className="mt-[0.22em] text-[0.58em] text-[#9AA5B8]">{label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="px-[1.2em] pb-[1.1em]">
-        <div className="space-y-[0.72em]">
-          {cards.map(([title, body], index) => (
-            <div
-              key={title}
-              className={`rounded-[1.05em] border px-[1em] py-[0.86em] ${index === 0 ? "border-[#27406D] bg-[#12213A]" : "border-white/6 bg-[#111622]"}`}
-            >
-              <p className="text-[0.82em] font-bold text-[#F4F7FB]">{title}</p>
-              <p className="mt-[0.35em] text-[0.68em] leading-relaxed text-[#AAB2C0]">{body}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-auto border-t border-white/6 px-[1.2em] py-[1em]">
-        <div className="flex items-center justify-between rounded-[1em] bg-white/5 px-[0.95em] py-[0.85em]">
-          <div>
-            <p className="text-[0.72em] font-semibold text-[#8B95A7]">Sync status</p>
-            <p className="mt-[0.24em] text-[0.84em] font-bold text-[#F4F7FB]">Up to date</p>
-          </div>
-          <div className="h-[0.78em] w-[2.1em] rounded-full bg-[#5B8CFF] shadow-[0_0_0_0.35em_rgba(91,140,255,0.14)]" />
-        </div>
-      </div>
-    </div>
+    </aside>
   );
 }
