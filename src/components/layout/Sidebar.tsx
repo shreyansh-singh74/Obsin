@@ -78,7 +78,7 @@ export const Sidebar: React.FC = () => {
             </div>
 
             <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-              PocketVault accesses public repositories freely. For private repositories or higher GitHub API rate limits (5,000 req/hr), add a PAT with <code className="text-[var(--accent-text)] font-mono">repo</code> read access.
+              Obsin accesses public repositories freely. For private repositories or higher GitHub API rate limits (5,000 req/hr), add a PAT with <code className="text-[var(--accent-text)] font-mono">repo</code> read access.
             </p>
 
             <form onSubmit={handleSaveToken} className="space-y-3 text-xs">

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Safari } from "@/components/ui/safari";
+import logoMark from "../../assets/logo.svg";
 
 export function LandingPage() {
   const [progress, setProgress] = useState(0);
@@ -28,7 +29,7 @@ export function LandingPage() {
       <section className="relative h-[135vh] bg-black">
         <div className="sticky top-0 z-20 h-screen overflow-visible bg-black p-2">
           <div
-            className="h-full w-full overflow-hidden bg-[#262626] transition-transform duration-75 ease-out"
+            className="relative h-full w-full overflow-hidden bg-[#0b0b0b] transition-transform duration-75 ease-out"
             style={{
               transform: `translateY(${translateY}px) scale(${scale})`,
               opacity,
@@ -38,35 +39,64 @@ export function LandingPage() {
               willChange: "transform, opacity",
             }}
           >
-            <div className="mx-auto grid h-full max-w-6xl grid-rows-[auto_minmax(0,1fr)] gap-6 px-5 py-7 sm:px-6 sm:py-8 md:px-12 md:py-10 lg:gap-8">
-              <div className="max-w-4xl pt-2 md:pt-6">
-                <h1 className="max-w-full whitespace-nowrap text-[clamp(1.5rem,5vw,4.5rem)] font-semibold leading-[1.02] tracking-tight text-[#E5E7EB]">
-                  Your knowledge. Everywhere.
-                </h1>
-                <p className="mt-5 max-w-[17em] text-[clamp(1.35rem,3.25vw,2.25rem)] leading-tight text-[#9CA3AF]">
-                  Read, search, and access your Obsidian vault from any browser.
-                </p>
-                <a
-                  href="/app"
-                  className="mt-7 inline-flex min-h-15 w-full max-w-[377px] items-center justify-center rounded-[7px] bg-[#8A35F2] px-6 py-4 text-center text-xl font-medium leading-tight text-white transition-colors hover:bg-[#7c2ee0] focus:outline-none focus:ring-2 focus:ring-[#9b55ff] focus:ring-offset-2 focus:ring-offset-[#262626] sm:mt-8 sm:w-auto sm:px-6"
-                >
-                  Get Started
+            <div
+              className="pointer-events-none fixed inset-0 opacity-[0.08]"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle, rgba(255,255,255,.5) 0.6px, transparent 0.7px)",
+                backgroundSize: "4px 4px",
+              }}
+            />
+            <div className="relative z-10 mx-auto h-full max-w-6xl px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6">
+              <header className="pointer-events-auto absolute left-4 right-4 top-4 z-30 flex items-center justify-between px-1 sm:left-6 sm:right-6 md:left-8 md:right-8">
+                <a href="/" className="flex items-center gap-3 text-white">
+                  <img
+                    src={logoMark}
+                    alt="Obsin"
+                    className="h-24 w-24 shrink-0 sm:h-28 sm:w-28 md:h-32 md:w-32 -mt-8"
+                  />
                 </a>
-              </div>
 
-              <div className="relative flex min-h-0 items-end justify-start overflow-hidden pb-1 [container-type:size] md:pb-3">
-                <div
-                  className="relative flex select-text"
-                  style={{ width: "min(100%, calc(100cqh * 1203 / 753), 960px)" }}
-                >
-                  <div className="relative w-full">
-                    <Safari
-                      url="pocketvault.local/vault/daily-notes"
-                      mode="default"
-                      className="drop-shadow-[0_22px_45px_rgba(0,0,0,0.01)]"
-                    >
-                      <ObsidianPreview />
-                    </Safari>
+                <nav className="flex items-center gap-2 text-[0.95rem] text-white/72">
+                  <a
+                    href="/app"
+                    className="inline-flex min-h-10 items-center rounded-full bg-white px-4 py-2 font-medium text-black transition-colors hover:bg-white/90"
+                  >
+                    Open Vault
+                  </a>
+                </nav>
+              </header>
+
+              <div className="grid h-full grid-rows-[auto_minmax(0,1fr)] gap-6 pt-16 lg:gap-8 lg:pt-18">
+                <div className="max-w-4xl pt-2 md:pt-6">
+                  <h1 className="max-w-full whitespace-nowrap text-[clamp(1.5rem,5vw,4.5rem)] font-semibold leading-[1.02] tracking-tight text-[#E5E7EB]">
+                    Your knowledge. Everywhere.
+                  </h1>
+                  <p className="mt-5 max-w-[17em] text-[clamp(1.35rem,3.25vw,2.25rem)] leading-tight text-[#9CA3AF]">
+                    Read, search, and access your Obsidian vault from any browser.
+                  </p>
+                  <a
+                    href="/app"
+                    className="mt-7 inline-flex min-h-15 w-full max-w-[377px] items-center justify-center rounded-[7px] bg-[#8A35F2] px-6 py-4 text-center text-xl font-medium leading-tight text-white transition-colors hover:bg-[#7c2ee0] focus:outline-none focus:ring-2 focus:ring-[#9b55ff] focus:ring-offset-2 focus:ring-offset-[#0b0b0b] sm:mt-8 sm:w-auto sm:px-6"
+                  >
+                    Get Started
+                  </a>
+                </div>
+
+                <div className="relative flex min-h-0 items-end justify-start overflow-hidden pb-1 [container-type:size] md:pb-3">
+                  <div
+                    className="relative flex select-text"
+                    style={{ width: "min(100%, calc(100cqh * 1203 / 753), 960px)" }}
+                  >
+                    <div className="relative w-full">
+                      <Safari
+                        url="obsin.local/vault/daily-notes"
+                        mode="default"
+                        className="drop-shadow-[0_22px_45px_rgba(0,0,0,0.01)]"
+                      >
+                        <ObsidianPreview />
+                      </Safari>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -81,6 +111,31 @@ export function LandingPage() {
           This section appears after the white panel moves up and shrinks.
         </p>
       </section>
+
+      <footer className="relative z-30 border-t border-white/10 bg-black px-6 py-10 text-white">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <a href="/" className="flex items-center gap-3 text-white">
+            <img
+              src={logoMark}
+              alt="Obsin"
+              className="h-10 w-10 shrink-0"
+            />
+            <div>
+              <p className="text-sm font-semibold tracking-tight">Obsin</p>
+              <p className="mt-1 max-w-md text-sm text-white/60">
+                Read, search, and access your vault from anywhere.
+              </p>
+            </div>
+          </a>
+
+          <a
+            href="/app"
+            className="inline-flex w-fit items-center rounded-full border border-white/15 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/6"
+          >
+            Open Vault
+          </a>
+        </div>
+      </footer>
     </main>
   );
 }

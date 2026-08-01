@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "pocketvault",
+      "name": "obsin",
       "dependencies": {
         "@types/unist": "^3.0.3",
         "clsx": "^2.1.1",

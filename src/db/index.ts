@@ -9,7 +9,7 @@ import type {
   UserSettings,
 } from '@/types';
 
-export class PocketVaultDB extends Dexie {
+export class ObsinDB extends Dexie {
   vaults!: Table<VaultConfig, string>;
   notes!: Table<Note, [string, string]>; // Composite PK [vaultId, path]
   wikiLinkMap!: Table<WikiLinkMap, [string, string]>; // Composite PK [vaultId, slug]
@@ -19,7 +19,7 @@ export class PocketVaultDB extends Dexie {
   userSettings!: Table<UserSettings, string>; // PK id ('default')
 
   constructor() {
-    super('PocketVaultDB');
+    super('ObsinDB');
 
     this.version(1).stores({
       vaults: 'id, lastOpened',
@@ -33,4 +33,4 @@ export class PocketVaultDB extends Dexie {
   }
 }
 
-export const db = new PocketVaultDB();
+export const db = new ObsinDB();

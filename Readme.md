@@ -1,18 +1,18 @@
-# PocketVault
+# Obsin
 
 > A local-first web reader for your Obsidian vault — powered by GitHub, no subscription required.
 
-PocketVault lets you read, search, and lightly edit your Obsidian notes from any browser. Your notes stay in your GitHub repository. PocketVault never touches a server of its own — it syncs directly to your browser's local storage.
+Obsin lets you read, search, and lightly edit your Obsidian notes from any browser. Your notes stay in your GitHub repository. Obsin never touches a server of its own — it syncs directly to your browser's local storage.
 
 ---
 
-## Why PocketVault?
+## Why Obsin?
 
 Obsidian is great on desktop, but reading notes on mobile or a shared machine usually means paying for Obsidian Sync or running your own server.
 
-PocketVault solves this without either:
+Obsin solves this without either:
 
-| Problem | PocketVault's answer |
+| Problem | Obsin's answer |
 |---|---|
 | Notes only on one device | GitHub is the source of truth |
 | Needs internet every time | IndexedDB stores everything locally |
@@ -24,9 +24,9 @@ PocketVault solves this without either:
 
 ## Core Principles
 
-**GitHub is the source of truth.** PocketVault reads your vault from a GitHub repository. GitHub handles storage, versioning, backup, and sync. Your notes never touch PocketVault's infrastructure.
+**GitHub is the source of truth.** Obsin reads your vault from a GitHub repository. GitHub handles storage, versioning, backup, and sync. Your notes never touch Obsin's infrastructure.
 
-**The browser is the database.** On first open, PocketVault syncs your vault into IndexedDB via Dexie. Every subsequent open is instant and works offline. Incremental sync only downloads what changed (by comparing file SHAs).
+**The browser is the database.** On first open, Obsin syncs your vault into IndexedDB via Dexie. Every subsequent open is instant and works offline. Incremental sync only downloads what changed (by comparing file SHAs).
 
 **Reading first.** The primary flow is: open → search → read → close — in seconds. Editing is supported but intentionally minimal (quick fixes only, not a replacement for Obsidian).
 
@@ -157,7 +157,7 @@ The following are explicitly deferred and not part of the initial release:
 
 A user should be able to:
 
-1. Open PocketVault in a browser
+1. Open Obsin in a browser
 2. Search for a note (e.g. "docker")
 3. Read it — with wiki-links, images, and callouts rendering correctly
 4. Navigate offline after the initial sync

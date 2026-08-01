@@ -5,13 +5,13 @@ export type Theme = 'dark' | 'light';
 
 export const ThemeSwitcher: React.FC = () => {
   const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem('pocketvault_theme') as Theme) || 'dark';
+    return (localStorage.getItem('obsin_theme') as Theme) || 'dark';
   });
 
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
-    localStorage.setItem('pocketvault_theme', theme);
+    localStorage.setItem('obsin_theme', theme);
   }, [theme]);
 
   return (

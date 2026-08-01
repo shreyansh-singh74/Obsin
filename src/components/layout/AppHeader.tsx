@@ -2,7 +2,8 @@ import React from 'react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { SyncStatusBadge } from '@/components/sync/SyncStatusBadge';
 import { ThemeSwitcher } from './ThemeSwitcher';
-import { Search, Database } from 'lucide-react';
+import { Search } from 'lucide-react';
+import logoMark from '../../../assets/logo.svg';
 
 interface AppHeaderProps {
   onOpenSearch: () => void;
@@ -15,12 +16,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
       <div className="flex items-center gap-3">
         <SidebarTrigger />
 
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-[var(--accent-soft)] text-[var(--accent-text)] rounded-[var(--radius-md)] border border-[var(--accent-soft)]">
-            <Database className="w-4 h-4" />
-          </div>
-          <span className="font-bold text-sm tracking-tight text-[var(--text-primary)] hidden sm:inline">PocketVault</span>
-        </div>
+        <a href="/" className="flex items-center gap-2">
+          <img src={logoMark} alt="Obsin" className="h-19 w-19 shrink-0" />
+        </a>
       </div>
 
       {/* Center: Search Trigger Bar */}

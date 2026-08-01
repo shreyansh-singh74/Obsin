@@ -6,7 +6,7 @@ interface AuthState {
   clearToken: () => void;
 }
 
-const STORAGE_KEY = 'pocketvault_gh_token';
+const STORAGE_KEY = 'obsin_gh_token';
 
 export const useAuthStore = create<AuthState>((set) => ({
   token: localStorage.getItem(STORAGE_KEY) || '',
