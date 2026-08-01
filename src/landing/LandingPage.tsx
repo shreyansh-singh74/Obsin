@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { ChevronDown, Github, Globe, Instagram, Linkedin, Youtube, X } from "lucide-react";
 import { Safari } from "@/components/ui/safari";
 import logoMark from "../../assets/logo.svg";
 import BatLogoMaker from "../../assets/2.svg";
