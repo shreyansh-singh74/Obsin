@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Safari } from "@/components/ui/safari";
-import logoMark from "../../assets/logo.svg";
-import BatLogoMaker from "../../assets/2.svg";
+import { Highlighter } from "@/components/ui/highlighter";
+import { MiniPlayer } from "@/components/ui/video-player";
+import logoMark from "@/assets/logo.svg";
+import BatLogoMaker from "@/assets/2.svg";
 
 export function LandingPage() {
   const [progress, setProgress] = useState(0);
@@ -28,7 +30,7 @@ export function LandingPage() {
   return (
     <main className="bg-[#1e1e1e4d]">
       <section className="relative h-[135vh] bg-black">
-        <div className="sticky top-0 z-20 h-screen overflow-visible bg-black p-2">
+        <div className="sticky top-0 z-20 h-screen overflow-visible bg-[#1B1B1B] p-2">
           <div
             className="relative h-full w-full overflow-hidden bg-[#0b0b0b] transition-transform duration-75 ease-out"
             style={{
@@ -106,11 +108,24 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="relative z-30 mt-[-35vh] min-h-screen bg-black px-6 py-24 text-white">
-        <h2 className="text-4xl font-semibold">Next thing comes here</h2>
-        <p className="mt-4 max-w-xl text-white/70">
-          This section appears after the white panel moves up and shrinks.
-        </p>
+      <section className="relative z-30 min-h-screen bg-[#1B1B1B] px-6 text-white">
+        <div className="mx-auto max-w-6xl">
+          <h2 className="text-4xl font-semibold leading-tight">
+            Built for <Highlighter action="highlight" color="#8353a2">Obsidian</Highlighter> &{" "}
+            <Highlighter action="highlight" color="black">.md</Highlighter> Files
+          </h2>
+          <p className="mt-4 max-w-xl text-white/70">
+            Your Obsidian.  Now in every browser.
+          </p>
+
+          <div className="mt-10 overflow-hidden rounded-[28px] border border-white/10 bg-black shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
+            <MiniPlayer
+              className="w-full"
+              src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+              poster="https://picsum.photos/seed/flower/1280/720"
+            />
+          </div>
+        </div>
       </section>
 
       <footer className="relative z-30">
@@ -127,42 +142,42 @@ export function LandingPage() {
         </div>
 
         <div className="mt-40 px-6 py-10 sm:px-8 lg:px-10">
-  <div className="mx-auto flex max-w-6xl items-start justify-between">
-    {/* Left */}
-    <div className="space-y-4">
-      <p className="text-sm text-white/60">Follow us</p>
+          <div className="mx-auto flex max-w-6xl items-start justify-between">
+            {/* Left */}
+            <div className="space-y-4">
+              <p className="text-sm text-white/60">Follow us</p>
 
-      <div className="flex gap-10">
-        <a href="https://x.com/ShreyanshWorks" className="text-white/90 transition hover:text-white">
-          Twitter
-        </a>
+              <div className="flex gap-10">
+                <a href="https://x.com/ShreyanshWorks" className="text-white/90 transition hover:text-white">
+                  Twitter
+                </a>
 
-        <a href="https://github.com/shreyansh-singh74/Obsin" className="text-white/90 transition hover:text-white">
-          GitHub
-        </a>
-      </div>
-    </div>
+                <a href="https://github.com/shreyansh-singh74/Obsin" className="text-white/90 transition hover:text-white">
+                  GitHub
+                </a>
+              </div>
+            </div>
 
-    {/* Right */}
-    <div className="flex flex-col items-end gap-8">
-      <div className="flex gap-6">
-        <a href="#" className="text-white/90 transition hover:text-white">
-          Terms
-        </a>
+            {/* Right */}
+            <div className="flex flex-col items-end gap-8">
+              <div className="flex gap-6">
+                <a href="#" className="text-white/90 transition hover:text-white">
+                  Terms
+                </a>
 
-        <a href="#" className="text-white/90 transition hover:text-white">
-          Privacy
-        </a>
+                <a href="#" className="text-white/90 transition hover:text-white">
+                  Privacy
+                </a>
 
-        <a href="#" className="text-white/90 transition hover:text-white">
-          Data Controls
-        </a>
-      </div>
+                <a href="#" className="text-white/90 transition hover:text-white">
+                  Data Controls
+                </a>
+              </div>
 
-      <p className="text-sm text-white/55">© 2026 Obsin</p>
-    </div>
-  </div>
-</div>
+              <p className="text-sm text-white/55">© 2026 Obsin</p>
+            </div>
+          </div>
+        </div>
       </footer>
     </main>
   );

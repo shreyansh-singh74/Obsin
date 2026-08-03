@@ -3,7 +3,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { SyncStatusBadge } from '@/components/sync/SyncStatusBadge';
 import { ThemeSwitcher } from './ThemeSwitcher';
 import { Search } from 'lucide-react';
-import logoMark from '../../../assets/logo.svg';
+import logoMark from '@/assets/logo.svg';
 
 interface AppHeaderProps {
   onOpenSearch: () => void;
