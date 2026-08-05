@@ -1,4 +1,13 @@
 import { useEffect, useState } from "react";
+import {
+  CloudOff,
+  FileText,
+  FolderOpen,
+  Github,
+  Link2,
+  Search,
+} from "lucide-react";
+import type { ComponentType, SVGProps } from "react";
 import { Safari } from "@/components/ui/safari";
 import { Highlighter } from "@/components/ui/highlighter";
 import { MiniPlayer } from "@/components/ui/video-player";
@@ -126,22 +135,24 @@ export function LandingPage() {
             />
           </div>
         </div>
+      <CoreFeatures />
       </section>
 
-      <footer className="relative z-30">
+
+      <footer className="relative z-30 pt-10">
         <div className=" px-6 pb-12 pt-10 sm:px-8 lg:px-10">
-          <div className="mx-auto max-w-6xl">
-            <a className="flex justify-center items-center gap-3">
+          {/*<div className="mx-auto max-w-6xl">*/}
+            <a className="flex justify-center items-center">
               <img
                 src={BatLogoMaker}
                 alt="Obsin"
                 className="w-200 h-auto -mt-160 -mb-160"
               />
             </a>
-          </div>
+          {/*</div>*/}
         </div>
 
-        <div className="mt-40 px-6 py-10 sm:px-8 lg:px-10">
+        <div className="mt-20 px-6 py-10 sm:px-8 lg:px-10">
           <div className="mx-auto flex max-w-6xl items-start justify-between">
             {/* Left */}
             <div className="space-y-4">
@@ -180,6 +191,276 @@ export function LandingPage() {
         </div>
       </footer>
     </main>
+  );
+}
+
+type FeatureIcon = ComponentType<SVGProps<SVGSVGElement>>;
+
+interface Feature {
+  icon: FeatureIcon;
+  title: string;
+  line: string;
+}
+
+const primaryFeatures: Feature[] = [
+  {
+    icon: CloudOff,
+    title: "Offline First",
+    line: "Read your vault anywhere, even without a connection.",
+  },
+  {
+    icon: Search,
+    title: "Instant Search",
+    line: "Find any note the moment you start typing.",
+  },
+];
+
+const secondaryFeatures: Feature[] = [
+  {
+    icon: Github,
+    title: "GitHub Sync",
+    line: "Keep your browser vault in step with GitHub.",
+  },
+  {
+    icon: FileText,
+    title: "Markdown Support",
+    line: "Callouts, math, tasks — everything renders.",
+  },
+  {
+    icon: Link2,
+    title: "Wiki Links",
+    line: "Follow [[links]] between your notes.",
+  },
+  {
+    icon: FolderOpen,
+    title: "Folder Navigation",
+    line: "Browse your vault exactly like Obsidian.",
+  },
+];
+
+function CoreFeatures() {
+  return (
+    <section className="relative z-30 bg-[#1B1B1B] px-6 py-24 text-white sm:py-32">
+      <div className="mx-auto max-w-6xl">
+        <p className="text-sm font-medium uppercase tracking-[0.2em] text-[#8A35F2]">
+          Core features
+        </p>
+        <h2 className="mt-3 max-w-xl text-4xl font-semibold leading-tight">
+          Read, search, and stay in sync anywhere.
+        </h2>
+        <p className="mt-4 max-w-xl text-white/60">
+          Everything in your Obsidian vault, working in the browser.
+        </p>
+
+        <div className="mt-16 grid gap-6 md:grid-cols-2">
+          {primaryFeatures.map((feature) => (
+            <FeatureCard key={feature.title} feature={feature} large />
+          ))}
+        </div>
+
+        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {secondaryFeatures.map((feature) => (
+            <FeatureCard key={feature.title} feature={feature} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FeatureCard({
+  feature,
+  large = false,
+}: {
+  feature: Feature;
+  large?: boolean;
+}) {
+  const Icon = feature.icon;
+  return (
+    <article
+      className={
+        "group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 p-6 transition-colors hover:border-white/20 hover:bg-white/[0.02] " +
+        (large ? "sm:p-8" : "")
+      }
+    >
+      <div className="flex items-start gap-3.5">
+        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#8A35F2]/10 text-[#8A35F2]">
+          <Icon className="size-4.5" strokeWidth={1.75} />
+        </span>
+        <h3 className="pt-1 text-base font-medium leading-snug text-white">
+          {feature.title}
+        </h3>
+      </div>
+
+      <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-white/55">
+        {feature.line}
+      </p>
+
+      <div className="mt-auto pt-6">
+        <div className="mb-4 h-px bg-white/10" />
+        <div className="overflow-hidden rounded-lg bg-black/20">
+          <FeaturePreview title={feature.title} />
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function FeaturePreview({ title }: { title: string }) {
+  switch (title) {
+    case "Offline First":
+      return <OfflinePreview />;
+    case "Instant Search":
+      return <SearchPreview />;
+    case "GitHub Sync":
+      return <SyncPreview />;
+    case "Markdown Support":
+      return <MarkdownPreview />;
+    case "Wiki Links":
+      return <WikiLinksPreview />;
+    default:
+      return <FolderPreview />;
+  }
+}
+
+function OfflinePreview() {
+  return (
+    <div className="space-y-2 p-4 text-sm">
+      <div className="flex items-center gap-2 text-[#20c45a]">
+        <span className="size-1.5 rounded-full bg-[#20c45a]" />
+        <span className="font-medium">✓ Cached locally</span>
+      </div>
+      <p className="text-white/55">Vault cached on this device</p>
+      <div className="inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.03] px-2 py-1 text-xs text-white/50">
+        Last sync · Just now
+      </div>
+    </div>
+  );
+}
+
+function SearchPreview() {
+  const results = [
+    "Daily Notes",
+    "Ideas",
+    "Projects",
+    "Reading List",
+    "Telepathy",
+    "Evergreen Notes",
+  ];
+  const [query, setQuery] = useState("");
+
+  const filtered = results.filter((r) =>
+    r.toLowerCase().includes(query.toLowerCase()),
+  );
+
+  return (
+    <div className="p-3">
+      <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-[#1c1c1c] px-3 py-2">
+        <Search className="size-3.5 text-white/40" strokeWidth={2} />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search notes…"
+          className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/30"
+        />
+      </div>
+      <div className="mt-2 space-y-0.5">
+        {filtered.map((r) => (
+          <div
+            key={r}
+            className="flex items-center justify-between rounded-md px-2 py-1 text-sm text-white/70"
+          >
+            <span>{r}</span>
+            <span className="text-[#8A35F2]">→</span>
+          </div>
+        ))}
+        {filtered.length === 0 && (
+          <p className="px-2 py-1 text-sm text-white/35">No matches</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SyncPreview() {
+  const nodes = ["GitHub", "Vault", "Browser"];
+  return (
+    <div className="flex items-center justify-between p-4 text-sm">
+      {nodes.map((node, i) => (
+        <div
+          key={node}
+          className="flex flex-1 items-center justify-center gap-3"
+        >
+          <span className="rounded-md border border-white/10 bg-[#1c1c1c] px-2.5 py-1 text-white/70">
+            {node}
+          </span>
+          {i < nodes.length - 1 && (
+            <span className="animate-pulse text-[#8A35F2]">→</span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MarkdownPreview() {
+  return (
+    <div className="space-y-2.5 p-4 text-sm">
+      <div className="rounded-md border-l-2 border-[#8A35F2] bg-[#8A35F2]/10 px-3 py-2 text-white/70">
+        <span className="font-medium text-[#c9a8ff]">Tip</span> — Use callouts
+        to break up long notes.
+      </div>
+      <div className="flex items-center gap-2 text-white/70">
+        <span className="grid size-4 place-items-center rounded border border-white/20 bg-[#8A35F2]/15">
+          <span className="text-white/80">✓</span>
+        </span>
+        Render task lists as checkboxes
+      </div>
+      <div className="font-mono text-white/60">y = mx + b</div>
+    </div>
+  );
+}
+
+function WikiLinksPreview() {
+  const path = ["Ideas", "Telepathy", "Evergreen"];
+  return (
+    <div className="flex items-center gap-2 p-4 text-sm">
+      {path.map((step, i) => (
+        <div key={step} className="flex items-center gap-2">
+          <span className="text-[#c9a8ff] underline decoration-[#8A35F2]/50 underline-offset-4">
+            {step}
+          </span>
+          {i < path.length - 1 && <span className="text-white/30">→</span>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function FolderPreview() {
+  const tree = [
+    { label: "Daily", items: ["2024-12-20"] },
+    { label: "Ideas", items: ["Telepathy"] },
+    { label: "Projects", items: ["Obsin"] },
+    { label: "Reading List", items: ["On Writing"] },
+  ];
+  return (
+    <div className="space-y-1.5 p-4 text-sm">
+      {tree.map((folder) => (
+        <div key={folder.label}>
+          <div className="flex items-center gap-2 text-white/75">
+            <span className="text-white/35">▸</span>
+            <FolderOpen className="size-3.5 text-white/40" strokeWidth={2} />
+            <span>{folder.label}</span>
+          </div>
+          <div className="ml-[1.1rem] space-y-1 border-l border-white/10 pl-3 text-white/45">
+            {folder.items.map((item) => (
+              <div key={item}>{item}</div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
