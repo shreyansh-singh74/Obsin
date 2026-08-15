@@ -1,0 +1,356 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/store/useAuthStore';
+import { fetchAuthenticationUser } from '@/engine/github/auth';
+import { RepoSelector } from '@/components/sync/RepoSelector';
+import {
+  requestDeviceCode,
+  pollForAccessToken,
+  getGitHubClientId,
+  DeviceCodeResponse,
+} from '@/engine/github/deviceAuth';
+import {
+  Github,
+  Key,
+  LogIn,
+  Loader2,
+  ArrowLeft,
+  LogOut,
+  Copy,
+  Check,
+  ExternalLink,
+  X,
+} from 'lucide-react';
+import logoMark from '@/assets/logo.svg';
+
+export const AuthPage: React.FC = () => {
+  const [tokenInput, setTokenInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOAuthLoading, setIsOAuthLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Device Flow State
+  const [deviceFlowData, setDeviceFlowData] = useState<DeviceCodeResponse | null>(null);
+  const [copiedCode, setCopiedCode] = useState(false);
+
+  const { user, setAuth, clearToken } = useAuthStore();
+  const navigate = useNavigate();
+
+  // Check URL query parameters for OAuth callback signal or error
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const oauthOk = searchParams.get('oauth');
+    const urlError = searchParams.get('error');
+
+    // Always clean URL immediately — never leave sensitive params in history
+    window.history.replaceState({}, '', '/auth');
+
+    if (urlError) {
+      setError(decodeURIComponent(urlError));
+      return;
+    }
+
+    if (oauthOk === 'ok') {
+      // Retrieve the token from the one-time HttpOnly handoff cookie via server endpoint
+      setIsLoading(true);
+      fetch('/api/auth/token', { credentials: 'same-origin' })
+        .then(async (res) => {
+          const data = await res.json();
+          if (!res.ok || !data.access_token) {
+            throw new Error(data.error || 'OAuth handoff failed — token not found');
+          }
+          return data.access_token as string;
+        })
+        .then(async (token) => {
+          const userProfile = await fetchAuthenticationUser(token);
+          setAuth(token, userProfile);
+        })
+        .catch((err) => {
+          setError(err.message || 'Failed to authenticate OAuth user');
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [setAuth]);
+
+  // Resilient Adaptive Polling Effect for Device Flow
+  useEffect(() => {
+    if (!deviceFlowData) return;
+
+    const clientId = getGitHubClientId();
+    if (!clientId) return;
+
+    let timeoutId: NodeJS.Timeout | null = null;
+    let currentIntervalSec = deviceFlowData.interval || 5;
+
+    const poll = async () => {
+      try {
+        const res = await pollForAccessToken(clientId, deviceFlowData.device_code);
+        console.log('GitHub Device Flow polling status:', res);
+
+        if (res.access_token) {
+          setDeviceFlowData(null);
+          setIsLoading(true);
+
+          const userProfile = await fetchAuthenticationUser(res.access_token);
+          setAuth(res.access_token, userProfile);
+          setIsLoading(false);
+          return;
+        }
+
+        if (res.error === 'slow_down') {
+          currentIntervalSec = res.interval || (currentIntervalSec + 5);
+        } else if (res.error && res.error !== 'authorization_pending') {
+          setDeviceFlowData(null);
+          setError(res.error_description || res.error);
+          return;
+        }
+      } catch (err: any) {
+        console.warn('Device flow poll error:', err);
+      }
+
+      timeoutId = setTimeout(poll, currentIntervalSec * 1000);
+    };
+
+    timeoutId = setTimeout(poll, currentIntervalSec * 1000);
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [deviceFlowData, setAuth]);
+
+  // Initiate GitHub Device Authorization Grant Flow (100% Client-Side OAuth)
+  const handleGitHubDeviceOAuth = async () => {
+    const clientId = getGitHubClientId();
+
+    if (!clientId) {
+      setIsOAuthLoading(true);
+      setError(null);
+      try {
+        const res = await fetch('/api/auth/login');
+        const contentType = res.headers.get('content-type');
+        if (res.ok && contentType && contentType.includes('application/json')) {
+          const data = await res.json();
+          if (data.authorizeUrl) {
+            window.location.href = data.authorizeUrl;
+            return;
+          }
+        }
+        throw new Error('OAuth Client ID is missing. Please add GITHUB_CLIENT_ID to your .env file.');
+      } catch (err: any) {
+        setError(err.message || 'Could not initiate GitHub OAuth');
+      } finally {
+        setIsOAuthLoading(false);
+      }
+      return;
+    }
+
+    setIsOAuthLoading(true);
+    setError(null);
+
+    try {
+      const deviceData = await requestDeviceCode(clientId);
+      setDeviceFlowData(deviceData);
+    } catch (err: any) {
+      setError(err.message || 'Failed to initiate GitHub Device Flow');
+    } finally {
+      setIsOAuthLoading(false);
+    }
+  };
+
+  const handleCopyUserCode = () => {
+    if (deviceFlowData?.user_code) {
+      navigator.clipboard.writeText(deviceFlowData.user_code);
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
+    }
+  };
+
+  const cancelDeviceFlow = () => {
+    setDeviceFlowData(null);
+  };
+
+  const handlePatSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!tokenInput.trim()) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const userProfile = await fetchAuthenticationUser(tokenInput.trim());
+      setAuth(tokenInput.trim(), userProfile);
+    } catch (err: any) {
+      setError(err.message || 'Failed to authenticate. Check your token.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0b0b0b] text-white flex flex-col items-center justify-center p-4">
+      {/* Top Header Link */}
+      <a href="/" className="absolute top-6 left-6 flex items-center gap-2 text-sm text-white/60 hover:text-white">
+        <ArrowLeft className="w-4 h-4" /> Back to Home
+      </a>
+
+      <div className="w-full max-w-lg bg-[#161616] border border-white/10 rounded-2xl p-8 shadow-2xl relative">
+        {/* Brand */}
+        <div className="flex flex-col items-center text-center mb-6">
+          <img src={logoMark} alt="Obsin" className="h-16 w-16 mb-2" />
+          <h1 className="text-2xl font-bold">Connect to Obsin</h1>
+          <p className="text-sm text-white/60 mt-1">
+            {user ? 'Select your Obsidian vault repository' : 'Sign in with GitHub to access your Obsidian vaults'}
+          </p>
+        </div>
+
+        {/* Authenticated Flow: Repo Selector */}
+        {user ? (
+          <div className="space-y-6">
+            {/* Connected Profile Bar */}
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
+              <div className="flex items-center gap-3">
+                <img src={user.avatar_url} alt={user.login} className="w-9 h-9 rounded-full" />
+                <div>
+                  <h3 className="text-sm font-medium text-white">{user.name || user.login}</h3>
+                  <p className="text-[11px] text-white/50">@{user.login}</p>
+                </div>
+              </div>
+              <button
+                onClick={clearToken}
+                className="flex items-center gap-1 px-2.5 py-1 text-xs rounded-md bg-white/5 hover:bg-red-500/20 hover:text-red-300 text-white/60 transition-colors cursor-pointer"
+                title="Sign Out"
+              >
+                <LogOut className="w-3.5 h-3.5" /> Sign Out
+              </button>
+            </div>
+
+            {/* Repository Selector */}
+            <RepoSelector onVaultSelected={() => navigate('/app')} />
+          </div>
+        ) : (
+          /* Unauthenticated Flow: OAuth & PAT */
+          <div className="space-y-6">
+            {error && (
+              <div className="p-3 text-xs rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+                {error}
+              </div>
+            )}
+
+            {/* Device Flow Verification Overlay */}
+            {deviceFlowData ? (
+              <div className="p-6 rounded-xl bg-white/5 border border-[#8A35F2]/40 space-y-5 text-center relative">
+                <button
+                  onClick={cancelDeviceFlow}
+                  className="absolute top-3 right-3 text-white/50 hover:text-white cursor-pointer"
+                  title="Cancel"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+
+                <div>
+                  <h3 className="text-sm font-semibold text-white">Authorize Obsin on GitHub</h3>
+                  <p className="text-xs text-white/60 mt-1">
+                    Copy the verification code below and enter it on GitHub:
+                  </p>
+                </div>
+
+                {/* User Code Box */}
+                <div className="flex items-center justify-center gap-3 py-3 px-4 bg-black/60 rounded-xl border border-white/10 font-mono text-2xl tracking-widest text-[#8A35F2] font-bold">
+                  <span>{deviceFlowData.user_code}</span>
+                  <button
+                    onClick={handleCopyUserCode}
+                    className="p-1.5 rounded-md hover:bg-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
+                    title="Copy Code"
+                  >
+                    {copiedCode ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                  </button>
+                </div>
+
+                <a
+                  href={deviceFlowData.verification_uri}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-[#8A35F2] hover:bg-[#7c2ee0] text-white font-medium text-sm transition-colors"
+                >
+                  Open GitHub Verification <ExternalLink className="w-4 h-4" />
+                </a>
+
+                <div className="flex items-center justify-center gap-2 text-xs text-white/50 pt-2">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#8A35F2]" />
+                  <span>Waiting for authorization on GitHub...</span>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Primary GitHub OAuth Button */}
+                <button
+                  onClick={handleGitHubDeviceOAuth}
+                  disabled={isOAuthLoading || isLoading}
+                  className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-white hover:bg-white/90 text-black font-semibold text-sm transition-all cursor-pointer shadow-lg disabled:opacity-50"
+                >
+                  {isOAuthLoading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin text-black" /> Connecting to GitHub...
+                    </>
+                  ) : (
+                    <>
+                      <Github className="h-5 w-5" /> Sign in with GitHub
+                    </>
+                  )}
+                </button>
+
+                {/* Divider */}
+                <div className="relative flex items-center justify-center">
+                  <div className="w-full border-t border-white/10" />
+                  <span className="absolute bg-[#161616] px-3 text-xs text-white/40 font-medium uppercase tracking-wider">
+                    Or use access token
+                  </span>
+                </div>
+
+                {/* Secondary PAT Form */}
+                <form onSubmit={handlePatSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-white/70 mb-2">
+                      Personal Access Token (PAT)
+                    </label>
+                    <div className="relative">
+                      <Key className="absolute left-3.5 top-3 h-4 w-4 text-white/40" />
+                      <input
+                        type="password"
+                        placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                        value={tokenInput}
+                        onChange={(e) => setTokenInput(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg bg-black/40 border border-white/10 focus:outline-none focus:border-[#8A35F2] text-white font-mono placeholder:text-white/20"
+                      />
+                    </div>
+                    <p className="text-[11px] text-white/40 mt-1.5">
+                      Requires <code className="font-mono text-white/60">repo</code> & <code className="font-mono text-white/60">read:user</code> permissions.
+                    </p>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading || isOAuthLoading || !tokenInput.trim()}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-[#8A35F2] hover:bg-[#7c2ee0] text-white font-medium text-sm transition-colors disabled:opacity-50 cursor-pointer"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" /> Validating Token...
+                      </>
+                    ) : (
+                      <>
+                        <LogIn className="h-4 w-4" /> Connect with Token
+                      </>
+                    )}
+                  </button>
+                </form>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

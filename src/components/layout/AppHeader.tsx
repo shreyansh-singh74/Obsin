@@ -2,14 +2,24 @@ import React from 'react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { SyncStatusBadge } from '@/components/sync/SyncStatusBadge';
 import { ThemeSwitcher } from './ThemeSwitcher';
-import { Search } from 'lucide-react';
+import { Search, LogOut } from 'lucide-react';
 import logoMark from '@/assets/logo.svg';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useNavigate } from 'react-router-dom';
 
 interface AppHeaderProps {
   onOpenSearch: () => void;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
+  const { user, clearToken } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    clearToken();
+    navigate('/auth');
+  };
+
   return (
     <header className="h-14 border-b border-[var(--border-subtle)] bg-[var(--surface-sidebar)] px-4 flex items-center justify-between z-[var(--z-sticky)] select-none transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]">
       {/* Left: Sidebar Toggle Button & Brand Logo */}
@@ -33,10 +43,30 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
         </kbd>
       </button>
 
-      {/* Right: Sync Badge & Theme Controls */}
+      {/* Right: Sync Badge, Theme Controls & User Profile */}
       <div className="flex items-center gap-3">
         <SyncStatusBadge />
         <ThemeSwitcher />
+
+        {user && (
+          <div className="flex items-center gap-2 border-l border-[var(--border-subtle)] pl-3">
+            <img
+              src={user.avatar_url}
+              alt={user.login}
+              className="w-7 h-7 rounded-full border border-[var(--border-subtle)]"
+            />
+            <span className="text-xs font-medium text-[var(--text-primary)] hidden sm:inline-block">
+              {user.login}
+            </span>
+            <button
+              onClick={handleSignOut}
+              className="p-1 rounded hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hover:text-red-400 transition-colors cursor-pointer"
+              title="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
     </header>
   );

@@ -71,7 +71,7 @@ export function LandingPage() {
 
                 <nav className="flex items-center gap-2 text-[0.95rem] text-white/72">
                   <a
-                    href="/app"
+                    href="/auth"
                     className="inline-flex min-h-10 items-center rounded-full bg-white px-4 py-2 font-medium text-black transition-colors hover:bg-white/90 -mt-10"
                   >
                     Connect Vault
@@ -88,7 +88,7 @@ export function LandingPage() {
                     Read, search, and access your Obsidian vault from any browser.
                   </p>
                   <a
-                    href="/app"
+                    href="/auth"
                     className="mt-7 inline-flex min-h-15 w-full max-w-94.25 items-center justify-center rounded-[7px] bg-[#8A35F2] px-6 py-4 text-center text-xl font-medium leading-tight text-white transition-colors hover:bg-[#7c2ee0] focus:outline-none focus:ring-2 focus:ring-[#9b55ff] focus:ring-offset-2 focus:ring-offset-[#0b0b0b] sm:mt-8 sm:w-auto sm:px-6"
                   >
                     Get Started
@@ -135,20 +135,20 @@ export function LandingPage() {
             />
           </div>
         </div>
-      <CoreFeatures />
+        <CoreFeatures />
       </section>
 
 
       <footer className="relative z-30 pt-10">
         <div className=" px-6 pb-12 pt-10 sm:px-8 lg:px-10">
           {/*<div className="mx-auto max-w-6xl">*/}
-            <a className="flex justify-center items-center">
-              <img
-                src={BatLogoMaker}
-                alt="Obsin"
-                className="w-200 h-auto -mt-160 -mb-160"
-              />
-            </a>
+          <a className="flex justify-center items-center">
+            <img
+              src={BatLogoMaker}
+              alt="Obsin"
+              className="w-200 h-auto -mt-160 -mb-160"
+            />
+          </a>
           {/*</div>*/}
         </div>
 

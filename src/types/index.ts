@@ -61,3 +61,30 @@ export interface UserSettings {
   activeVaultId: string;
   lastOpenedPath?: string;
 }
+
+export interface GithubUser {
+  login: string;
+  name: string | null;
+  avatar_url: string;
+  html_url: string;
+}
+
+export interface GitHubRepo {
+  id: number;
+  name: string;
+  full_name: string;
+  owner: {
+    login: string;
+    avatar_url: string;
+  };
+  private: boolean;
+  html_url: string;
+  description: string | null;
+  default_branch: string;
+  updated_at: string;
+}
+
+export interface GitHubBranch {
+  name: string;
+  protected: boolean;
+}

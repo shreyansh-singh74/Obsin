@@ -6,6 +6,7 @@ import path from 'path';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  envPrefix: ['VITE_'],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -14,5 +15,12 @@ export default defineConfig({
   server: {
     port: 3000,
     host: true,
+    proxy: {
+      '/github-oauth': {
+        target: 'https://github.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/github-oauth/, ''),
+      },
+    },
   },
 });
