@@ -9,14 +9,6 @@ export default {
       return new Response('Method Not Allowed', { status: 405 });
     }
 
-    const clientId = process.env.GITHUB_CLIENT_ID;
-    if (!clientId) {
-      return new Response(JSON.stringify({ error: 'server_misconfigured', error_description: 'GITHUB_CLIENT_ID is not set' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
     try {
       const body = await request.text();
 

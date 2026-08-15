@@ -55,7 +55,7 @@ export default {
       return redirectError('Missing authorization code');
     }
 
-    const clientId = process.env.GITHUB_CLIENT_ID;
+    const clientId = process.env.GITHUB_CLIENT_ID || process.env.VITE_GITHUB_CLIENT_ID;
     const clientSecret = process.env.GITHUB_CLIENT_SECRET;
     if (!clientId || !clientSecret) {
       return redirectError('OAuth is not configured on server');

@@ -14,7 +14,7 @@ export default {
       return new Response('Method Not Allowed', { status: 405 });
     }
 
-    const clientId = process.env.GITHUB_CLIENT_ID;
+    const clientId = process.env.GITHUB_CLIENT_ID || process.env.VITE_GITHUB_CLIENT_ID;
     const clientSecret = process.env.GITHUB_CLIENT_SECRET;
     if (!clientId || !clientSecret) {
       return new Response(
