@@ -15,18 +15,20 @@ export interface AccessTokenResponse {
   interval?: number;
 }
 
-const GITHUB_OAUTH_BASE = import.meta.env.DEV ? '/github-oauth' : 'https://github.com';
-
 export function getGitHubClientId(): string | null {
   return import.meta.env.VITE_GITHUB_CLIENT_ID || null;
 }
 
 /**
- * Step 1: Request Device and User Verification Codes from GitHub
+ * Step 1: Request Device and User Verification Codes from GitHub.
+ * In dev: goes through Vite proxy → GitHub (bypasses CORS in browser).
+ * In prod: goes through our Vercel serverless proxy → GitHub (no CORS issue).
  */
 export async function requestDeviceCode(clientId: string): Promise<DeviceCodeResponse> {
-  const url = `${GITHUB_OAUTH_BASE}/login/device/code`;
-  
+  const url = import.meta.env.DEV
+    ? '/github-oauth/login/device/code'
+    : '/api/github/device-code';
+
   const params = new URLSearchParams({
     client_id: clientId,
     scope: 'repo read:user',
@@ -51,13 +53,17 @@ export async function requestDeviceCode(clientId: string): Promise<DeviceCodeRes
 }
 
 /**
- * Step 2: Poll GitHub for Access Token authorization
+ * Step 2: Poll GitHub for Access Token authorization.
+ * In dev: goes through Vite proxy → GitHub.
+ * In prod: goes through our Vercel serverless proxy → GitHub.
  */
 export async function pollForAccessToken(
   clientId: string,
   deviceCode: string
 ): Promise<AccessTokenResponse> {
-  const url = `${GITHUB_OAUTH_BASE}/login/oauth/access_token`;
+  const url = import.meta.env.DEV
+    ? '/github-oauth/login/oauth/access_token'
+    : '/api/github/access-token';
 
   const params = new URLSearchParams({
     client_id: clientId,
