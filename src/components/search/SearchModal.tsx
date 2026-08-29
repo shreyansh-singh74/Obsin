@@ -79,14 +79,17 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="p-1 rounded-[var(--radius-sm)] hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+              className="p-2.5 rounded-[var(--radius-sm)] hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center md:min-w-0 md:min-h-0 md:p-1"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5 md:w-4 md:h-4" />
             </button>
           )}
-          <span className="text-[10px] font-mono text-[var(--text-subtle)] border border-[var(--border-subtle)] px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--surface-page)]">
+          <button
+            onClick={onClose}
+            className="hidden md:flex text-[10px] font-mono text-[var(--text-subtle)] border border-[var(--border-subtle)] px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--surface-page)]"
+          >
             ESC
-          </span>
+          </button>
         </div>
 
         {/* Search Results List */}

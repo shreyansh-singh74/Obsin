@@ -65,7 +65,12 @@ export const SidebarProvider: React.FC<SidebarProviderProps> = ({
   // Window resize handler for mobile responsiveness
   useEffect(() => {
     function handleResize() {
-      setIsMobile(window.innerWidth < 768);
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      // Auto-collapse sidebar when entering mobile viewport
+      if (mobile) {
+        setOpenState(false);
+      }
     }
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -215,9 +220,9 @@ export const SidebarTrigger: React.FC<{ className?: string }> = ({ className = '
     <button
       onClick={toggleSidebar}
       title={open ? 'Collapse Sidebar (⌘B)' : 'Expand Sidebar (⌘B)'}
-      className={`p-1.5 rounded-[var(--radius-md)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-all duration-[var(--duration-fast)] cursor-pointer ${className}`}
+      className={`p-2.5 rounded-[var(--radius-md)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-all duration-[var(--duration-fast)] cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center ${className}`}
     >
-      <PanelLeft className="w-4 h-4" />
+      <PanelLeft className="w-5 h-5" />
     </button>
   );
 };

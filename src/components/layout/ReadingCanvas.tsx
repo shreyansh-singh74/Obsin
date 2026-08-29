@@ -36,34 +36,34 @@ export const ReadingCanvas: React.FC = () => {
   return (
     <div className="flex-1 overflow-y-auto bg-[var(--surface-page)] flex flex-col transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]">
       {/* Top Breadcrumb Bar */}
-      <div className="border-b border-[var(--border-subtle)] px-6 py-3 bg-[var(--surface-sidebar)] text-xs font-mono text-[var(--text-secondary)] flex items-center justify-between sticky top-0 backdrop-blur z-[var(--z-sticky)]">
-        <div className="flex items-center gap-1.5 truncate max-w-xl">
-          <span className="text-[var(--accent-text)] font-semibold">{activeVault.name}</span>
+      <div className="border-b border-[var(--border-subtle)] px-4 md:px-6 py-2.5 md:py-3 bg-[var(--surface-sidebar)] text-xs md:text-xs font-mono text-[var(--text-secondary)] flex items-center justify-between sticky top-0 backdrop-blur z-[var(--z-sticky)]">
+        <div className="flex items-center gap-1.5 min-w-0 overflow-x-auto scrollbar-none max-w-full">
+          <span className="text-[var(--accent-text)] font-semibold shrink-0">{activeVault.name}</span>
           {pathParts.map((part, i) => (
             <React.Fragment key={i}>
-              <span className="text-[var(--text-subtle)]">/</span>
-              <span className={i === pathParts.length - 1 ? 'text-[var(--text-primary)] font-medium truncate' : 'text-[var(--text-muted)] truncate'}>
+              <span className="text-[var(--text-subtle)] shrink-0">/</span>
+              <span className={`shrink-0 ${i === pathParts.length - 1 ? 'text-[var(--text-primary)] font-medium' : 'text-[var(--text-muted)]'}`}>
                 {part}
               </span>
             </React.Fragment>
           ))}
         </div>
 
-        <div className="flex items-center gap-3 text-[10px] text-[var(--text-muted)] shrink-0">
-          <span className="flex items-center gap-1">
+        <div className="flex items-center gap-3 text-[10px] text-[var(--text-muted)] shrink-0 pl-3">
+          <span className="hidden sm:flex items-center gap-1">
             <Clock className="w-3 h-3 text-[var(--icon-muted)]" /> {Math.ceil(activeNote.content.split(/\s+/).length / 200)} min read
           </span>
-          <span className="flex items-center gap-1 font-mono text-[var(--accent-text)]">
+          <span className="hidden sm:flex items-center gap-1 font-mono text-[var(--accent-text)]">
             SHA: {activeNote.sha.substring(0, 7)}
           </span>
         </div>
       </div>
 
       {/* Reading Document Canvas Container (Responsive Max-Width: min(740px, 100%)) */}
-      <main className="flex-1 reading-canvas-container px-6 py-10">
+      <main className="flex-1 reading-canvas-container px-4 md:px-6 py-6 md:py-10">
         {/* Title Header */}
         <div className="space-y-4 mb-8 pb-6 border-b border-[var(--border-subtle)]">
-          <h1 className="text-3xl font-extrabold text-[var(--text-primary)] tracking-tight leading-tight">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[var(--text-primary)] tracking-tight leading-tight">
             {activeNote.name}
           </h1>
 
@@ -92,7 +92,7 @@ export const ReadingCanvas: React.FC = () => {
         </div>
 
         {/* On-Demand Raw Markdown Renderer */}
-        <MarkdownRenderer content={activeNote.content} noteName={activeNote.name} />
+        <MarkdownRenderer content={activeNote.content} notePath={activeNote.path} noteName={activeNote.name} />
       </main>
     </div>
   );

@@ -58,6 +58,13 @@ export async function fetchGitHubApi(
     } catch {
       // Ignore JSON parse error
     }
+
+    // Handle token expiration (401) — auto-redirect to auth
+    if (response.status === 401 && token) {
+      const { handleTokenExpired } = await import('./session');
+      handleTokenExpired();
+    }
+
     throw new GitHubApiError(errorMsg, response.status, rateLimit);
   }
 

@@ -6,14 +6,21 @@ import { ChevronRight, ChevronDown, Folder, FolderOpen, FileText } from 'lucide-
 interface FileTreeNodeProps {
   node: TreeNode;
   depth?: number;
+  /** Called when a note file is selected */
+  onNoteSelected?: () => void;
 }
 
-export const FileTreeNode: React.FC<FileTreeNodeProps> = ({ node, depth = 0 }) => {
+export const FileTreeNode: React.FC<FileTreeNodeProps> = ({ node, depth = 0, onNoteSelected }) => {
   const { activeNotePath, setActiveNotePath } = useVaultStore();
   const [isOpen, setIsOpen] = useState(false);
 
   const paddingLeft = `${depth * 12 + 12}px`;
   const isSelected = !node.isFolder && activeNotePath === node.path;
+
+  function handleNoteClick() {
+    setActiveNotePath(node.path);
+    onNoteSelected?.();
+  }
 
   if (node.isFolder) {
     return (
@@ -21,7 +28,7 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({ node, depth = 0 }) =
         <button
           onClick={() => setIsOpen(!isOpen)}
           style={{ paddingLeft }}
-          className="w-full text-left py-1.5 pr-3 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] rounded-[var(--radius-sm)] flex items-center justify-between transition-colors duration-[var(--duration-fast)] cursor-pointer group"
+          className="w-full text-left py-2 md:py-1.5 pr-3 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] rounded-[var(--radius-sm)] flex items-center justify-between transition-colors duration-[var(--duration-fast)] cursor-pointer group min-h-[44px] md:min-h-0"
         >
           <div className="flex items-center gap-1.5 truncate">
             {isOpen ? (
@@ -57,9 +64,9 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({ node, depth = 0 }) =
 
   return (
     <button
-      onClick={() => setActiveNotePath(node.path)}
+      onClick={handleNoteClick}
       style={{ paddingLeft }}
-      className={`w-full text-left py-1.5 pr-3 text-xs font-medium rounded-[var(--radius-sm)] flex items-center gap-2 transition-all duration-[var(--duration-fast)] cursor-pointer truncate ${
+      className={`w-full text-left py-2 md:py-1.5 pr-3 text-xs font-medium rounded-[var(--radius-sm)] flex items-center gap-2 transition-all duration-[var(--duration-fast)] cursor-pointer truncate min-h-[44px] md:min-h-0 ${
         isSelected
           ? 'bg-[var(--accent-soft)] text-[var(--text-primary)] font-semibold border-l-2 border-[var(--accent)]'
           : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useVaultStore } from '@/store/useVaultStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { executeVaultSync } from '@/engine/sync';
+import { setupSessionValidation } from '@/engine/github/session';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -13,6 +14,12 @@ export function AppShell() {
   const { activeVault, loadVaults, refreshNotes } = useVaultStore();
   const token = useAuthStore((state) => state.token);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // Validate token on mount and set up periodic checks
+  useEffect(() => {
+    const cleanup = setupSessionValidation();
+    return cleanup;
+  }, []);
 
   useEffect(() => {
     loadVaults();

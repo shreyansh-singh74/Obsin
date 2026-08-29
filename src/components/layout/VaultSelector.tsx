@@ -92,7 +92,7 @@ export const VaultSelector: React.FC = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         title={activeVault ? `Active Vault: ${activeVault.name}` : 'Select GitHub Vault'}
-        className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-[var(--radius-md)] bg-[var(--surface-input)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all duration-[var(--duration-fast)] cursor-pointer shadow-[var(--shadow-sm)] ${
+        className={`w-full flex items-center gap-2 px-2.5 py-2.5 md:py-1.5 rounded-[var(--radius-md)] bg-[var(--surface-input)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all duration-[var(--duration-fast)] cursor-pointer shadow-[var(--shadow-sm)] min-h-[44px] md:min-h-0 ${
           !isSidebarOpen ? 'justify-center px-0' : 'justify-between'
         }`}
       >
@@ -119,7 +119,7 @@ export const VaultSelector: React.FC = () => {
                   await setActiveVault(v);
                   setIsOpen(false);
                 }}
-                className="w-full px-3 py-2 text-left text-xs flex items-center justify-between hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer border-b border-[var(--border-subtle)] last:border-0"
+                className="w-full px-3 py-3 md:py-2 text-left text-xs flex items-center justify-between hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer border-b border-[var(--border-subtle)] last:border-0 min-h-[44px] md:min-h-0"
               >
                 <div className="truncate pr-2">
                   <span className="font-medium block truncate text-[var(--text-primary)]">{v.name}</span>
@@ -136,7 +136,7 @@ export const VaultSelector: React.FC = () => {
                 setShowAddModal(true);
                 setIsOpen(false);
               }}
-              className="w-full px-3 py-2.5 text-left text-xs text-[var(--accent-text)] hover:bg-[var(--surface-hover)] font-medium flex items-center gap-2 transition-colors cursor-pointer"
+              className="w-full px-3 py-3 md:py-2.5 text-left text-xs text-[var(--accent-text)] hover:bg-[var(--surface-hover)] font-medium flex items-center gap-2 transition-colors cursor-pointer min-h-[44px] md:min-h-0"
             >
               <Plus className="w-3.5 h-3.5" /> Add GitHub Repository
             </button>
@@ -170,7 +170,7 @@ export const VaultSelector: React.FC = () => {
                   placeholder="https://github.com/owner/repository"
                   value={repoUrl}
                   onChange={(e) => handleUrlChange(e.target.value)}
-                  className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-mono text-xs"
+                  className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-3 md:py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-mono text-xs min-h-[44px] md:min-h-0"
                 />
               </div>
 
@@ -189,7 +189,7 @@ export const VaultSelector: React.FC = () => {
                     placeholder="e.g. shreyansh-singh74"
                     value={owner}
                     onChange={(e) => setOwner(e.target.value)}
-                    className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-mono"
+                    className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-3 md:py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-mono min-h-[44px] md:min-h-0"
                   />
                 </div>
                 <div>
@@ -200,7 +200,7 @@ export const VaultSelector: React.FC = () => {
                     placeholder="e.g. gem"
                     value={repo}
                     onChange={(e) => setRepo(e.target.value)}
-                    className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-mono"
+                    className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-3 md:py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-mono min-h-[44px] md:min-h-0"
                   />
                 </div>
               </div>
@@ -213,7 +213,7 @@ export const VaultSelector: React.FC = () => {
                     placeholder="e.g. My Gem Brain"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-sans"
+                    className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-3 md:py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-sans min-h-[44px] md:min-h-0"
                   />
                 </div>
                 <div>
@@ -223,7 +223,7 @@ export const VaultSelector: React.FC = () => {
                     placeholder="Auto-discover"
                     value={branch}
                     onChange={(e) => setBranch(e.target.value)}
-                    className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-mono"
+                    className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-3 md:py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-mono min-h-[44px] md:min-h-0"
                   />
                 </div>
               </div>
@@ -240,7 +240,7 @@ export const VaultSelector: React.FC = () => {
                   placeholder="ghp_... (Required if rate limit is reached or repo is private)"
                   value={patToken}
                   onChange={(e) => setPatToken(e.target.value)}
-                  className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-mono text-xs"
+                  className="w-full bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] px-3 py-3 md:py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--focus-ring)] font-mono text-xs min-h-[44px] md:min-h-0"
                 />
               </div>
 
@@ -249,14 +249,14 @@ export const VaultSelector: React.FC = () => {
                   type="button"
                   onClick={() => setShowAddModal(false)}
                   disabled={isSubmitting}
-                  className="px-3 py-2 rounded-[var(--radius-md)] bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+                  className="px-4 py-3 md:py-2 rounded-[var(--radius-md)] bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer min-h-[44px] md:min-h-0"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 rounded-[var(--radius-md)] bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--text-on-accent)] font-medium transition-colors disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-3 md:py-2 rounded-[var(--radius-md)] bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--text-on-accent)] font-medium transition-colors disabled:opacity-50 flex items-center gap-2 cursor-pointer min-h-[44px] md:min-h-0"
                 >
                   {isSubmitting ? 'Fetching & Syncing...' : 'Add & Sync Vault'}
                 </button>

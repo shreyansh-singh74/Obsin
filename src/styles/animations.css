@@ -37,3 +37,12 @@
 .animate-pop-in {
   animation: popIn var(--duration-normal) var(--ease-decelerate) forwards;
 }
+
+@keyframes drawerIn {
+  from { transform: translateX(-100%); opacity: 0.5; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-drawer-in {
+  animation: drawerIn var(--duration-normal) var(--ease-decelerate) forwards;
+}

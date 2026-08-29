@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { fetchAuthenticationUser } from '@/engine/github/auth';
@@ -32,6 +32,11 @@ export const AuthPage: React.FC = () => {
   // Device Flow State
   const [deviceFlowData, setDeviceFlowData] = useState<DeviceCodeResponse | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [deviceFlowCountdown, setDeviceFlowCountdown] = useState(0);
+
+  // Popup OAuth state
+  const popupRef = useRef<Window | null>(null);
+  const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const { user, setAuth, clearToken } = useAuthStore();
   const navigate = useNavigate();
@@ -64,6 +69,11 @@ export const AuthPage: React.FC = () => {
         .then(async (token) => {
           const userProfile = await fetchAuthenticationUser(token);
           setAuth(token, userProfile);
+          // If this page opened as a popup, send the token back to the parent window
+          if (window.opener && !window.opener.closed) {
+            window.opener.postMessage({ type: 'obsin-oauth-complete', token, user: userProfile }, '*');
+            window.close();
+          }
         })
         .catch((err) => {
           setError(err.message || 'Failed to authenticate OAuth user');
@@ -74,14 +84,42 @@ export const AuthPage: React.FC = () => {
     }
   }, [setAuth]);
 
+  // Countdown timer for device flow expiry
+  useEffect(() => {
+    if (!deviceFlowData) {
+      setDeviceFlowCountdown(0);
+      return;
+    }
+
+    const expiresAt = Date.now() + (deviceFlowData.expires_in || 900) * 1000;
+    setDeviceFlowCountdown(Math.max(0, Math.floor((expiresAt - Date.now()) / 1000)));
+
+    const timer = setInterval(() => {
+      const remaining = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
+      setDeviceFlowCountdown(remaining);
+      if (remaining <= 0) {
+        clearInterval(timer);
+        setDeviceFlowData(null);
+        setError('Device code expired. Please try again.');
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [deviceFlowData]);
+
   // Resilient Adaptive Polling Effect for Device Flow
   useEffect(() => {
-    if (!deviceFlowData) return;
+    if (!deviceFlowData) {
+      if (pollTimerRef.current) {
+        clearTimeout(pollTimerRef.current);
+        pollTimerRef.current = null;
+      }
+      return;
+    }
 
     const clientId = getGitHubClientId();
     if (!clientId) return;
 
-    let timeoutId: NodeJS.Timeout | null = null;
     let currentIntervalSec = deviceFlowData.interval || 5;
 
     const poll = async () => {
@@ -110,15 +148,43 @@ export const AuthPage: React.FC = () => {
         console.warn('Device flow poll error:', err);
       }
 
-      timeoutId = setTimeout(poll, currentIntervalSec * 1000);
+      pollTimerRef.current = setTimeout(poll, currentIntervalSec * 1000);
     };
 
-    timeoutId = setTimeout(poll, currentIntervalSec * 1000);
+    pollTimerRef.current = setTimeout(poll, currentIntervalSec * 1000);
 
     return () => {
-      if (timeoutId) clearTimeout(timeoutId);
+      if (pollTimerRef.current) {
+        clearTimeout(pollTimerRef.current);
+        pollTimerRef.current = null;
+      }
     };
   }, [deviceFlowData, setAuth]);
+
+  // Listen for OAuth token from popup window (postMessage from child)
+  useEffect(() => {
+    function handleOAuthMessage(event: MessageEvent) {
+      if (event.data?.type === 'obsin-oauth-complete' && event.data.token) {
+        const { token: receivedToken, user: receivedUser } = event.data;
+        setAuth(receivedToken, receivedUser);
+        // Close the popup if still open
+        if (popupRef.current && !popupRef.current.closed) {
+          popupRef.current.close();
+        }
+      }
+    }
+    window.addEventListener('message', handleOAuthMessage);
+    return () => window.removeEventListener('message', handleOAuthMessage);
+  }, [setAuth]);
+
+  // Cleanup popup reference on unmount
+  useEffect(() => {
+    return () => {
+      if (popupRef.current && !popupRef.current.closed) {
+        popupRef.current.close();
+      }
+    };
+  }, []);
 
   // Initiate GitHub Device Authorization Grant Flow (100% Client-Side OAuth)
   const handleGitHubDeviceOAuth = async () => {
@@ -133,7 +199,16 @@ export const AuthPage: React.FC = () => {
         if (res.ok && contentType && contentType.includes('application/json')) {
           const data = await res.json();
           if (data.authorizeUrl) {
-            window.location.href = data.authorizeUrl;
+            // Open in popup instead of redirecting the whole page
+            const popup = window.open(
+              data.authorizeUrl,
+              'github-oauth',
+              'width=600,height=700,scrollbars=yes,resizable=yes'
+            );
+            popupRef.current = popup;
+
+            // Token arrives via postMessage from the popup — no polling needed
+
             return;
           }
         }
@@ -186,6 +261,12 @@ export const AuthPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const formatCountdown = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -268,11 +349,28 @@ export const AuthPage: React.FC = () => {
                   </button>
                 </div>
 
+                {/* Countdown Timer */}
+                <div className="flex items-center justify-center gap-2 text-xs">
+                  <span className="text-white/50">Expires in</span>
+                  <span className={`font-mono font-bold ${deviceFlowCountdown < 60 ? 'text-red-400' : 'text-[#8A35F2]'}`}>
+                    {formatCountdown(deviceFlowCountdown)}
+                  </span>
+                </div>
+
                 <a
                   href={deviceFlowData.verification_uri}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-[#8A35F2] hover:bg-[#7c2ee0] text-white font-medium text-sm transition-colors"
+                  onClick={(e) => {
+                    // Open in popup instead of new tab to keep polling alive
+                    e.preventDefault();
+                    window.open(
+                      deviceFlowData.verification_uri,
+                      'github-device-auth',
+                      'width=600,height=700,scrollbars=yes,resizable=yes'
+                    );
+                  }}
+                  className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-[#8A35F2] hover:bg-[#7c2ee0] text-white font-medium text-sm transition-colors cursor-pointer"
                 >
                   Open GitHub Verification <ExternalLink className="w-4 h-4" />
                 </a>
