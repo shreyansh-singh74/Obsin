@@ -68,13 +68,10 @@ Files under `api/` export `default { async fetch(request): Response }` (Web-stan
 - Deployment target is **Vercel** (`vercel.json` — SPA rewrite to `index.html`, strict CSP that only allows `connect-src https://api.github.com`, and `no-store` on `/api/*`).
 - When adding markdown syntax, the plugin (remark, in `engine/markdown/`) and the React renderer mapping (in `MarkdownRenderer.tsx`) must be updated together.
 
-## Documentation Drift (be aware)
+## Documentation Notes
 
-`Readme.md` predates the current implementation and is wrong in two places:
-
-- It says auth/hosting use a **Cloudflare Worker + Cloudflare Pages**. The actual implementation is **Vercel serverless functions** (`api/`, `vercel.json`).
-- It lists `gray-matter` for frontmatter; the code uses **`js-yaml`**.
+`README.md` is the canonical public documentation. `Readme.md` is intentionally just a pointer to avoid duplicate README content drifting out of date.
 
 ## Not Yet Implemented
 
-The README lists **quick edit / commit changes back to GitHub**, but write-back does not exist yet — `engine/github/contents.ts` only reads. Implementing it means a new Contents-API `PUT` (base64-encode body, pass the current blob SHA) plus UI.
+GitHub write-back / quick edit support does not exist yet — `engine/github/contents.ts` only reads. Implementing it means a new Contents-API `PUT` (base64-encode body, pass the current blob SHA) plus UI.

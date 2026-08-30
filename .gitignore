@@ -9,6 +9,7 @@ lerna-debug.log*
 
 # Diagnostic data
 .workbox
+coverage/
 
 # Dependencies
 node_modules/
@@ -19,11 +20,15 @@ node_modules/
 dist/
 dist-ssr/
 *.local
+.vercel/
 
 # Environment variables
 .env
 .env.local
 .env.*.local
+
+# Local tool artifacts
+.freebuff/
 
 # Editor directories and files
 .vscode/*
