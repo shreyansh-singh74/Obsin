@@ -1,18 +1,13 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   CloudOff,
-  FileText,
   FolderOpen,
   Github,
-  Link2,
-  Search,
 } from "lucide-react";
-import type { ComponentType, SVGProps } from "react";
 import { Safari } from "@/components/ui/safari";
 import { Highlighter } from "@/components/ui/highlighter";
 import { MiniPlayer } from "@/components/ui/video-player";
 import logoMark from "@/assets/logo.svg";
-import BatLogoMaker from "@/assets/2.svg";
 
 export function LandingPage() {
   const [progress, setProgress] = useState(0);
@@ -139,54 +134,54 @@ export function LandingPage() {
       </section>
 
 
-      <footer className="relative z-30 pt-10">
-        <div className=" px-6 pb-12 pt-10 sm:px-8 lg:px-10">
-          {/*<div className="mx-auto max-w-6xl">*/}
-          <a className="flex justify-center items-center">
-            <img
-              src={BatLogoMaker}
-              alt="Obsin"
-              className="w-200 h-auto -mt-160 -mb-160"
-            />
-          </a>
-          {/*</div>*/}
-        </div>
 
-        <div className="mt-20 px-6 py-10 sm:px-8 lg:px-10">
-          <div className="mx-auto flex max-w-6xl items-start justify-between">
-            {/* Left */}
-            <div className="space-y-4">
-              <p className="text-sm text-white/60">Follow us</p>
+      <footer className="relative z-30 border-t border-white/5 bg-[#111]">
+        <div className="mx-auto max-w-6xl px-6 py-16 sm:px-8 lg:px-10">
+          {/* Top: Logo + tagline */}
+          <div className="flex flex-col items-center text-center mb-12">
+            <img src={logoMark} alt="Obsin" className="h-14 w-14 mb-4 opacity-80" />
+            <p className="text-sm text-white/40 max-w-xs">
+              Your Obsidian vault, accessible from any browser. Open source.
+            </p>
+          </div>
 
-              <div className="flex gap-10">
-                <a href="https://x.com/ShreyanshWorks" className="text-white/90 transition hover:text-white">
-                  Twitter
-                </a>
-
-                <a href="https://github.com/shreyansh-singh74/Obsin" className="text-white/90 transition hover:text-white">
-                  GitHub
-                </a>
+          {/* Middle: Link columns */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 mb-12">
+            {/* Product */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-white/30">Product</h4>
+              <div className="space-y-2">
+                <a href="#features" className="block text-sm text-white/60 hover:text-white transition-colors">Features</a>
+                <a href="/auth" className="block text-sm text-white/60 hover:text-white transition-colors">Get Started</a>
+                <a href="#" className="block text-sm text-white/60 hover:text-white transition-colors">Changelog</a>
               </div>
             </div>
 
-            {/* Right */}
-            <div className="flex flex-col items-end gap-8">
-              <div className="flex gap-6">
-                <a href="#" className="text-white/90 transition hover:text-white">
-                  Terms
-                </a>
-
-                <a href="#" className="text-white/90 transition hover:text-white">
-                  Privacy
-                </a>
-
-                <a href="#" className="text-white/90 transition hover:text-white">
-                  Data Controls
-                </a>
+            {/* Community */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-white/30">Community</h4>
+              <div className="space-y-2">
+                <a href="https://github.com/shreyansh-singh74/Obsin" target="_blank" rel="noopener noreferrer" className="block text-sm text-white/60 hover:text-white transition-colors">GitHub</a>
+                <a href="https://x.com/ShreyanshWorks" target="_blank" rel="noopener noreferrer" className="block text-sm text-white/60 hover:text-white transition-colors">Twitter / X</a>
+                <a href="https://github.com/shreyansh-singh74/Obsin/issues" target="_blank" rel="noopener noreferrer" className="block text-sm text-white/60 hover:text-white transition-colors">Report a Bug</a>
               </div>
-
-              <p className="text-sm text-white/55">© 2026 Obsin</p>
             </div>
+
+            {/* Legal */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-white/30">Legal</h4>
+              <div className="space-y-2">
+                <a href="#" className="block text-sm text-white/60 hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" className="block text-sm text-white/60 hover:text-white transition-colors">Terms of Service</a>
+                <a href="#" className="block text-sm text-white/60 hover:text-white transition-colors">License (MIT)</a>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom: Copyright + divider */}
+          <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-xs text-white/30">© 2026 Obsin. Built with care.</p>
+            <p className="text-xs text-white/20 font-mono">v0.1.0</p>
           </div>
         </div>
       </footer>
@@ -194,273 +189,203 @@ export function LandingPage() {
   );
 }
 
-type FeatureIcon = ComponentType<SVGProps<SVGSVGElement>>;
+
+// --- Feature type and preview components ---
 
 interface Feature {
-  icon: FeatureIcon;
+  icon: React.ReactNode;
   title: string;
-  line: string;
-}
-
-const primaryFeatures: Feature[] = [
-  {
-    icon: CloudOff,
-    title: "Offline First",
-    line: "Read your vault anywhere, even without a connection.",
-  },
-  {
-    icon: Search,
-    title: "Instant Search",
-    line: "Find any note the moment you start typing.",
-  },
-];
-
-const secondaryFeatures: Feature[] = [
-  {
-    icon: Github,
-    title: "GitHub Sync",
-    line: "Keep your browser vault in step with GitHub.",
-  },
-  {
-    icon: FileText,
-    title: "Markdown Support",
-    line: "Callouts, math, tasks — everything renders.",
-  },
-  {
-    icon: Link2,
-    title: "Wiki Links",
-    line: "Follow [[links]] between your notes.",
-  },
-  {
-    icon: FolderOpen,
-    title: "Folder Navigation",
-    line: "Browse your vault exactly like Obsidian.",
-  },
-];
-
-function CoreFeatures() {
-  return (
-    <section className="relative z-30 bg-[#1B1B1B] px-6 py-24 text-white sm:py-32">
-      <div className="mx-auto max-w-6xl">
-        <p className="text-sm font-medium uppercase tracking-[0.2em] text-[#8A35F2]">
-          Core features
-        </p>
-        <h2 className="mt-3 max-w-xl text-4xl font-semibold leading-tight">
-          Read, search, and stay in sync anywhere.
-        </h2>
-        <p className="mt-4 max-w-xl text-white/60">
-          Everything in your Obsidian vault, working in the browser.
-        </p>
-
-        <div className="mt-16 grid gap-6 md:grid-cols-2">
-          {primaryFeatures.map((feature) => (
-            <FeatureCard key={feature.title} feature={feature} large />
-          ))}
-        </div>
-
-        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {secondaryFeatures.map((feature) => (
-            <FeatureCard key={feature.title} feature={feature} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function FeatureCard({
-  feature,
-  large = false,
-}: {
-  feature: Feature;
-  large?: boolean;
-}) {
-  const Icon = feature.icon;
-  return (
-    <article
-      className={
-        "group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 p-6 transition-colors hover:border-white/20 hover:bg-white/[0.02] " +
-        (large ? "sm:p-8" : "")
-      }
-    >
-      <div className="flex items-start gap-3.5">
-        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#8A35F2]/10 text-[#8A35F2]">
-          <Icon className="size-4.5" strokeWidth={1.75} />
-        </span>
-        <h3 className="pt-1 text-base font-medium leading-snug text-white">
-          {feature.title}
-        </h3>
-      </div>
-
-      <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-white/55">
-        {feature.line}
-      </p>
-
-      <div className="mt-auto pt-6">
-        <div className="mb-4 h-px bg-white/10" />
-        <div className="overflow-hidden rounded-lg bg-black/20">
-          <FeaturePreview title={feature.title} />
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function FeaturePreview({ title }: { title: string }) {
-  switch (title) {
-    case "Offline First":
-      return <OfflinePreview />;
-    case "Instant Search":
-      return <SearchPreview />;
-    case "GitHub Sync":
-      return <SyncPreview />;
-    case "Markdown Support":
-      return <MarkdownPreview />;
-    case "Wiki Links":
-      return <WikiLinksPreview />;
-    default:
-      return <FolderPreview />;
-  }
+  description: string;
+  preview?: React.ReactNode;
+  className?: string;
 }
 
 function OfflinePreview() {
   return (
-    <div className="space-y-2 p-4 text-sm">
-      <div className="flex items-center gap-2 text-[#20c45a]">
-        <span className="size-1.5 rounded-full bg-[#20c45a]" />
-        <span className="font-medium">✓ Cached locally</span>
-      </div>
-      <p className="text-white/55">Vault cached on this device</p>
-      <div className="inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.03] px-2 py-1 text-xs text-white/50">
-        Last sync · Just now
+    <div className="flex items-center gap-3 bg-dark-800/60 rounded-lg px-4 py-3 mt-4 border border-dark-700/50">
+      <span className="inline-block h-2.5 w-2.5 rounded-full bg-green-400 shrink-0" />
+      <div className="text-sm">
+        <span className="text-green-400 font-medium">Cached locally</span>
+        <span className="text-gray-500 ml-2">· Last sync: Just now</span>
       </div>
     </div>
   );
 }
 
 function SearchPreview() {
-  const results = [
-    "Daily Notes",
-    "Ideas",
-    "Projects",
-    "Reading List",
-    "Telepathy",
-    "Evergreen Notes",
-  ];
-  const [query, setQuery] = useState("");
-
-  const filtered = results.filter((r) =>
-    r.toLowerCase().includes(query.toLowerCase()),
-  );
-
   return (
-    <div className="p-3">
-      <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-[#1c1c1c] px-3 py-2">
-        <Search className="size-3.5 text-white/40" strokeWidth={2} />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search notes…"
-          className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/30"
-        />
+    <div className="mt-4 rounded-xl border border-dark-700/60 bg-dark-900/70 p-3 space-y-0.5">
+      <div className="flex items-center gap-2 text-xs text-gray-500 px-2 pb-2 border-b border-dark-700/40">
+        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        <span>Search notes...</span>
       </div>
-      <div className="mt-2 space-y-0.5">
-        {filtered.map((r) => (
-          <div
-            key={r}
-            className="flex items-center justify-between rounded-md px-2 py-1 text-sm text-white/70"
-          >
-            <span>{r}</span>
-            <span className="text-[#8A35F2]">→</span>
-          </div>
-        ))}
-        {filtered.length === 0 && (
-          <p className="px-2 py-1 text-sm text-white/35">No matches</p>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function SyncPreview() {
-  const nodes = ["GitHub", "Vault", "Browser"];
-  return (
-    <div className="flex items-center justify-between p-4 text-sm">
-      {nodes.map((node, i) => (
-        <div
-          key={node}
-          className="flex flex-1 items-center justify-center gap-3"
-        >
-          <span className="rounded-md border border-white/10 bg-[#1c1c1c] px-2.5 py-1 text-white/70">
-            {node}
-          </span>
-          {i < nodes.length - 1 && (
-            <span className="animate-pulse text-[#8A35F2]">→</span>
-          )}
+      {["Daily Notes", "Ideas", "Projects", "Reading List"].map((n) => (
+        <div key={n} className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm hover:bg-dark-700/50 transition-colors cursor-pointer group">
+          <span className="text-gray-200">{n}</span>
+          <svg className="h-3.5 w-3.5 text-gray-600 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
         </div>
       ))}
     </div>
   );
 }
 
+function SyncPreview() {
+  const icons = [
+    { label: "GitHub", icon: <Github className="h-5 w-5 text-gray-300" /> },
+    { label: "Vault", icon: <FolderOpen className="h-5 w-5 text-purple-400" /> },
+    { label: "Browser", icon: <CloudOff className="h-5 w-5 text-primary-400" /> },
+  ];
+  return (
+    <div className="mt-4 flex items-center justify-center gap-0">
+      {icons.map((n, i) => (
+        <React.Fragment key={n.label}>
+          <div className="flex flex-col items-center gap-1.5">
+            <div className="w-12 h-12 rounded-xl bg-dark-700/80 border border-dark-600/50 flex items-center justify-center">
+              {n.icon}
+            </div>
+            <span className="text-xs text-gray-400 font-medium">{n.label}</span>
+          </div>
+          {i < icons.length - 1 && (
+            <svg className="h-4 w-4 text-primary-500 mx-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
 function MarkdownPreview() {
   return (
-    <div className="space-y-2.5 p-4 text-sm">
-      <div className="rounded-md border-l-2 border-[#8A35F2] bg-[#8A35F2]/10 px-3 py-2 text-white/70">
-        <span className="font-medium text-[#c9a8ff]">Tip</span> — Use callouts
-        to break up long notes.
+    <div className="mt-4 space-y-3 text-sm">
+      <div className="bg-primary-500/10 border border-primary-500/20 rounded-lg px-4 py-3 text-primary-200">
+        <span className="text-primary-400 font-medium">Tip</span> — Use callouts to break up long notes.
       </div>
-      <div className="flex items-center gap-2 text-white/70">
-        <span className="grid size-4 place-items-center rounded border border-white/20 bg-[#8A35F2]/15">
-          <span className="text-white/80">✓</span>
+      <div className="flex items-center gap-2 text-gray-300">
+        <span className="h-4 w-4 rounded border border-primary-500 bg-primary-500/20 flex items-center justify-center">
+          <svg className="h-2.5 w-2.5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
         </span>
-        Render task lists as checkboxes
+        <span>Render task lists as checkboxes</span>
       </div>
-      <div className="font-mono text-white/60">y = mx + b</div>
+      <div className="font-mono text-gray-400 text-center py-2">
+        y = mx + b
+      </div>
     </div>
   );
 }
 
 function WikiLinksPreview() {
-  const path = ["Ideas", "Telepathy", "Evergreen"];
   return (
-    <div className="flex items-center gap-2 p-4 text-sm">
-      {path.map((step, i) => (
-        <div key={step} className="flex items-center gap-2">
-          <span className="text-[#c9a8ff] underline decoration-[#8A35F2]/50 underline-offset-4">
-            {step}
-          </span>
-          {i < path.length - 1 && <span className="text-white/30">→</span>}
-        </div>
+    <div className="mt-4 flex items-center gap-2 text-sm flex-wrap">
+      {["Ideas", "Telepathy", "Projects"].map((link, i) => (
+        <React.Fragment key={link}>
+          <span className="text-primary-400 hover:text-primary-300 cursor-pointer transition-colors">[[{link}]]</span>
+          {i < 2 && <svg className="h-3 w-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>}
+        </React.Fragment>
       ))}
     </div>
   );
 }
 
 function FolderPreview() {
-  const tree = [
-    { label: "Daily", items: ["2024-12-20"] },
-    { label: "Ideas", items: ["Telepathy"] },
-    { label: "Projects", items: ["Obsin"] },
-    { label: "Reading List", items: ["On Writing"] },
+  const items = [
+    { name: "Daily", indent: 0 },
+    { name: "2024-12-20", indent: 1 },
+    { name: "Ideas", indent: 0 },
+    { name: "Projects", indent: 0 },
+    { name: "Reading List", indent: 0 },
+    { name: "On Writing", indent: 1 },
   ];
   return (
-    <div className="space-y-1.5 p-4 text-sm">
-      {tree.map((folder) => (
-        <div key={folder.label}>
-          <div className="flex items-center gap-2 text-white/75">
-            <span className="text-white/35">▸</span>
-            <FolderOpen className="size-3.5 text-white/40" strokeWidth={2} />
-            <span>{folder.label}</span>
-          </div>
-          <div className="ml-[1.1rem] space-y-1 border-l border-white/10 pl-3 text-white/45">
-            {folder.items.map((item) => (
-              <div key={item}>{item}</div>
-            ))}
-          </div>
+    <div className="mt-4 space-y-0.5 text-sm">
+      {items.map((item) => (
+        <div key={item.name} className={`flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-dark-700/50 transition-colors cursor-pointer ${item.indent ? "text-gray-500" : "text-gray-300 font-medium"}`}>
+          <svg className={`h-4 w-4 shrink-0 ${item.indent ? "text-gray-600" : "text-primary-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+          <span className="truncate">{item.name}</span>
         </div>
       ))}
     </div>
+  );
+}
+
+const features: Feature[] = [
+  {
+    icon: <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg>,
+    title: "Offline First",
+    description: "Read your vault anywhere, even without a connection.",
+    preview: <OfflinePreview />,
+    className: "md:col-span-1",
+  },
+  {
+    icon: <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>,
+    title: "Instant Search",
+    description: "Find any note the moment you start typing.",
+    preview: <SearchPreview />,
+    className: "md:col-span-1",
+  },
+  {
+    icon: <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>,
+    title: "GitHub Sync",
+    description: "Keep your browser vault in step with GitHub.",
+    preview: <SyncPreview />,
+    className: "md:col-span-1",
+  },
+  {
+    icon: <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
+    title: "Markdown Support",
+    description: "Callouts, math, tasks — everything renders.",
+    preview: <MarkdownPreview />,
+    className: "md:col-span-1",
+  },
+  {
+    icon: <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>,
+    title: "Wiki Links",
+    description: "Follow [[links]] between your notes.",
+    preview: <WikiLinksPreview />,
+    className: "sm:col-span-1 lg:col-span-2",
+  },
+  {
+    icon: <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>,
+    title: "Folder Navigation",
+    description: "Browse your vault exactly like Obsidian.",
+    preview: <FolderPreview />,
+    className: "sm:col-span-1 lg:col-span-2",
+  },
+];
+
+function FeatureCard({ feature }: { feature: Feature }) {
+  return (
+    <div className={`group relative rounded-2xl border border-dark-700/50 bg-dark-800/30 p-6 flex flex-col transition-all duration-200 hover:border-dark-600/60 hover:bg-dark-800/50 ${feature.className ?? ""}`}>
+      <div className="flex items-center gap-3 mb-2">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-500/10 text-primary-400">
+          {feature.icon}
+        </span>
+        <h3 className="text-base font-semibold text-white">{feature.title}</h3>
+      </div>
+      <p className="text-sm text-gray-400 leading-relaxed mb-1">{feature.description}</p>
+      {feature.preview}
+    </div>
+  );
+}
+
+function CoreFeatures() {
+  return (
+    <section id="features" className="relative py-24 sm:py-32 bg-dark-900/50">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center mb-16">
+          <p className="text-sm font-semibold uppercase tracking-widest text-primary-400 mb-3">Core Features</p>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+            Read, search, and stay in sync anywhere.
+          </h2>
+          <p className="mt-4 text-lg text-gray-400">
+            Everything in your Obsidian vault, working in the browser.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          {features.map((f) => (
+            <FeatureCard key={f.title} feature={f} />
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 

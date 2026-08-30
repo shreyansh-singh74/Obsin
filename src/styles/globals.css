@@ -24,12 +24,21 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border-default);
+  background: rgba(128, 128, 128, 0.4);
   border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--border-strong);
+  background: rgba(128, 128, 128, 0.7);
+}
+
+/* Light mode scrollbar */
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.3);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 100, 100, 0.5);
 }
 
 /* Body Reset */

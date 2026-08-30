@@ -104,8 +104,8 @@ export const Sidebar: React.FC<{ children: React.ReactNode; className?: string }
   return (
     <aside
       data-state={open ? 'expanded' : 'collapsed'}
-      className={`border-r border-[var(--border-subtle)] bg-[var(--surface-sidebar)] flex flex-col h-full shrink-0 select-none transition-all duration-[var(--duration-fast)] ease-[var(--ease-standard)] ${
-        open ? 'w-64' : 'w-16'
+      className={`border-r border-[var(--border-default)] bg-[var(--surface-sidebar)] flex flex-col h-full shrink-0 select-none transition-all duration-[var(--duration-fast)] ease-[var(--ease-standard)] ${
+        open ? 'w-60' : 'w-14'
       } ${className}`}
     >
       {children}
@@ -119,7 +119,7 @@ export const SidebarHeader: React.FC<{ children: React.ReactNode; className?: st
   className = '',
 }) => {
   return (
-    <div className={`p-3 border-b border-[var(--border-subtle)] flex items-center justify-between shrink-0 ${className}`}>
+    <div className={`p-3 border-b border-[var(--border-default)]/60 flex items-center justify-between shrink-0 ${className}`}>
       {children}
     </div>
   );
@@ -130,7 +130,7 @@ export const SidebarContent: React.FC<{ children: React.ReactNode; className?: s
   children,
   className = '',
 }) => {
-  return <div className={`flex-1 overflow-y-auto p-2 space-y-3 ${className}`}>{children}</div>;
+  return <div className={`flex-1 overflow-y-auto scrollbar-none p-2 space-y-3 ${className}`}>{children}</div>;
 };
 
 /* Sticky Bottom Footer */
@@ -139,7 +139,7 @@ export const SidebarFooter: React.FC<{ children: React.ReactNode; className?: st
   className = '',
 }) => {
   return (
-    <div className={`p-3 border-t border-[var(--border-subtle)] flex items-center justify-between shrink-0 bg-[var(--surface-sidebar)] ${className}`}>
+    <div className={`p-3 border-t border-[var(--border-default)]/60 flex items-center justify-between shrink-0 bg-[var(--surface-sidebar)] ${className}`}>
       {children}
     </div>
   );
@@ -203,8 +203,8 @@ export const SidebarMenuButton: React.FC<{
       title={title}
       className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-medium rounded-[var(--radius-sm)] transition-all duration-[var(--duration-fast)] cursor-pointer ${
         isActive
-          ? 'bg-[var(--accent-soft)] text-[var(--text-primary)] font-semibold border-l-2 border-[var(--accent)]'
-          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
+          ? 'bg-[var(--accent-soft)] text-[var(--text-primary)] font-semibold'
+          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]/70'
       } ${!open ? 'justify-center px-0' : ''} ${className}`}
     >
       {children}

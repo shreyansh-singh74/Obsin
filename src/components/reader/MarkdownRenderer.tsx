@@ -6,6 +6,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
 import { remarkWikiLinks, remarkCallouts, remarkWikiImages } from '@/engine/markdown';
 import { WikiLink } from './WikiLink';
+import { Copy, Check } from 'lucide-react';
 import { Callout } from './Callout';
 import { Backlinks } from './Backlinks';
 import { resolveImageUrl, type ImageResolveContext } from '@/engine/github/images';
@@ -109,6 +110,56 @@ interface MarkdownRendererProps {
   );
 };
 
+
+/** CodeBlock with copy button and language label */
+const CodeBlock: React.FC<{ language: string; code: string }> = ({ language, code }) => {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+      const ta = document.createElement('textarea');
+      ta.value = code;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
+
+  return (
+    <div className="my-4 rounded-[var(--radius-md)] border border-[var(--border-subtle)] overflow-hidden bg-[#0d0d0d]">
+      {/* Header bar */}
+      <div className="flex items-center justify-between px-3 py-1.5 bg-[var(--surface-card)] border-b border-[var(--border-subtle)]">
+        <span className="text-[10px] font-mono font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+          {language}
+        </span>
+        <button
+          onClick={handleCopy}
+          className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+          title="Copy code"
+        >
+          {copied ? (
+            <><Check className="w-3 h-3 text-emerald-400" /> <span className="text-emerald-400">Copied</span></>
+          ) : (
+            <><Copy className="w-3 h-3" /> Copy</>
+          )}
+        </button>
+      </div>
+      {/* Code content */}
+      <pre className="p-4 overflow-x-auto text-[13px] leading-relaxed font-mono text-[var(--text-secondary)]">
+        <code>{code}</code>
+      </pre>
+    </div>
+  );
+};
+
 export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, noteName, className = '' }) => {
   return (
     <div className={`prose ${className}`}>
@@ -149,19 +200,12 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, not
           code({ node, inline, className: codeClass, children, ...props }: any) {
             const match = /language-(\w+)/.exec(codeClass || '');
             if (!inline && match) {
-              return (
-                <div className="code-block-wrapper">
-                  <div className="code-block-header">
-                    <span>{match[1].toUpperCase()}</span>
-                  </div>
-                  <pre className="code-block-content">
-                    <code>{children}</code>
-                  </pre>
-                </div>
-              );
+              const codeText = String(children).replace(/\n$/, '');
+              return <CodeBlock language={match[1]} code={codeText} />;
             }
+            // Inline code
             return (
-              <code {...props}>
+              <code className="px-1.5 py-0.5 rounded-md bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--accent-text)] font-mono text-[0.85em]" {...props}>
                 {children}
               </code>
             );

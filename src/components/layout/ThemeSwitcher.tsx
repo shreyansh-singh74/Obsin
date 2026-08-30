@@ -15,29 +15,29 @@ export const ThemeSwitcher: React.FC = () => {
   }, [theme]);
 
   return (
-    <div className="flex items-center bg-[var(--surface-input)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] p-1 gap-0.5 shadow-inner">
+    <div className="flex items-center bg-[var(--surface-card)] border border-[var(--border-default)] rounded-[var(--radius-md)] p-0.5 gap-0.5">
       <button
         onClick={() => setTheme('dark')}
-        title="Dark Obsidian Theme"
-        className={`p-2 md:p-1.5 rounded-[var(--radius-sm)] transition-all duration-[var(--duration-fast)] ease-[var(--ease-standard)] cursor-pointer min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center ${
+        title="Dark Theme"
+        className={`relative p-2 md:p-1.5 rounded-[var(--radius-sm)] transition-all duration-300 ease-[var(--ease-standard)] cursor-pointer min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center ${
           theme === 'dark'
-            ? 'bg-[var(--accent)] text-[var(--text-on-accent)] shadow-[var(--shadow-sm)]'
+            ? 'bg-[var(--accent)] text-[var(--text-on-accent)] shadow-[0_1px_4px_rgba(124,58,237,0.3)]'
             : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
         }`}
       >
-        <Moon className="w-4 h-4 md:w-3.5 md:h-3.5" />
+        <Moon className={`w-4 h-4 md:w-3.5 md:h-3.5 transition-transform duration-300 ${theme === 'dark' ? 'scale-100' : 'scale-90'}`} />
       </button>
 
       <button
         onClick={() => setTheme('light')}
-        title="Light Paper Theme"
-        className={`p-2 md:p-1.5 rounded-[var(--radius-sm)] transition-all duration-[var(--duration-fast)] ease-[var(--ease-standard)] cursor-pointer min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center ${
+        title="Light Theme"
+        className={`relative p-2 md:p-1.5 rounded-[var(--radius-sm)] transition-all duration-300 ease-[var(--ease-standard)] cursor-pointer min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center ${
           theme === 'light'
-            ? 'bg-[var(--accent)] text-[var(--text-on-accent)] shadow-[var(--shadow-sm)]'
+            ? 'bg-[var(--accent)] text-[var(--text-on-accent)] shadow-[0_1px_4px_rgba(124,58,237,0.3)]'
             : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
         }`}
       >
-        <Sun className="w-4 h-4 md:w-3.5 md:h-3.5" />
+        <Sun className={`w-4 h-4 md:w-3.5 md:h-3.5 transition-transform duration-300 ${theme === 'light' ? 'scale-100' : 'scale-90'}`} />
       </button>
     </div>
   );

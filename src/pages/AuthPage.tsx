@@ -270,18 +270,21 @@ export const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0b0b] text-white flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0b0b0b] text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Subtle background gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(124,58,237,0.08)_0%,_transparent_60%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(124,58,237,0.04)_0%,_transparent_50%)] pointer-events-none" />
       {/* Top Header Link */}
       <a href="/" className="absolute top-6 left-6 flex items-center gap-2 text-sm text-white/60 hover:text-white">
         <ArrowLeft className="w-4 h-4" /> Back to Home
       </a>
 
-      <div className="w-full max-w-lg bg-[#161616] border border-white/10 rounded-2xl p-8 shadow-2xl relative">
+      <div className="w-full max-w-lg bg-[#161616]/90 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-8 shadow-[0_0_80px_rgba(124,58,237,0.06)] relative z-10">
         {/* Brand */}
-        <div className="flex flex-col items-center text-center mb-6">
-          <img src={logoMark} alt="Obsin" className="h-16 w-16 mb-2" />
-          <h1 className="text-2xl font-bold">Connect to Obsin</h1>
-          <p className="text-sm text-white/60 mt-1">
+        <div className="flex flex-col items-center text-center mb-7">
+          <img src={logoMark} alt="Obsin" className="h-14 w-14 mb-3 opacity-90" />
+          <h1 className="text-xl font-bold tracking-tight">Connect to Obsin</h1>
+          <p className="text-sm text-white/50 mt-1.5 leading-relaxed">
             {user ? 'Select your Obsidian vault repository' : 'Sign in with GitHub to access your Obsidian vaults'}
           </p>
         </div>
@@ -290,7 +293,7 @@ export const AuthPage: React.FC = () => {
         {user ? (
           <div className="space-y-6">
             {/* Connected Profile Bar */}
-            <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
               <div className="flex items-center gap-3">
                 <img src={user.avatar_url} alt={user.login} className="w-9 h-9 rounded-full" />
                 <div>
@@ -300,7 +303,7 @@ export const AuthPage: React.FC = () => {
               </div>
               <button
                 onClick={clearToken}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs rounded-md bg-white/5 hover:bg-red-500/20 hover:text-red-300 text-white/60 transition-colors cursor-pointer"
+                className="flex items-center gap-1 px-2.5 py-1 text-xs rounded-md bg-white/[0.04] hover:bg-red-500/15 hover:text-red-300 text-white/50 transition-all duration-200 cursor-pointer"
                 title="Sign Out"
               >
                 <LogOut className="w-3.5 h-3.5" /> Sign Out
@@ -321,7 +324,7 @@ export const AuthPage: React.FC = () => {
 
             {/* Device Flow Verification Overlay */}
             {deviceFlowData ? (
-              <div className="p-6 rounded-xl bg-white/5 border border-[#8A35F2]/40 space-y-5 text-center relative">
+              <div className="p-6 rounded-xl bg-[#8A35F2]/[0.06] border border-[#8A35F2]/20 space-y-5 text-center relative">
                 <button
                   onClick={cancelDeviceFlow}
                   className="absolute top-3 right-3 text-white/50 hover:text-white cursor-pointer"
@@ -362,7 +365,6 @@ export const AuthPage: React.FC = () => {
                   target="_blank"
                   rel="noreferrer"
                   onClick={(e) => {
-                    // Open in popup instead of new tab to keep polling alive
                     e.preventDefault();
                     window.open(
                       deviceFlowData.verification_uri,
@@ -370,7 +372,7 @@ export const AuthPage: React.FC = () => {
                       'width=600,height=700,scrollbars=yes,resizable=yes'
                     );
                   }}
-                  className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-[#8A35F2] hover:bg-[#7c2ee0] text-white font-medium text-sm transition-colors cursor-pointer"
+                  className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-[#8A35F2] hover:bg-[#7c2ee0] text-white font-medium text-sm transition-all duration-200 cursor-pointer shadow-[0_2px_12px_rgba(138,53,242,0.25)] hover:shadow-[0_4px_20px_rgba(138,53,242,0.35)]"
                 >
                   Open GitHub Verification <ExternalLink className="w-4 h-4" />
                 </a>
@@ -386,7 +388,7 @@ export const AuthPage: React.FC = () => {
                 <button
                   onClick={handleGitHubDeviceOAuth}
                   disabled={isOAuthLoading || isLoading}
-                  className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-white hover:bg-white/90 text-black font-semibold text-sm transition-all cursor-pointer shadow-lg disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-white hover:bg-white/90 text-black font-semibold text-sm transition-all duration-200 cursor-pointer shadow-[0_2px_16px_rgba(255,255,255,0.08)] hover:shadow-[0_4px_24px_rgba(255,255,255,0.12)] disabled:opacity-50"
                 >
                   {isOAuthLoading ? (
                     <>
@@ -400,10 +402,10 @@ export const AuthPage: React.FC = () => {
                 </button>
 
                 {/* Divider */}
-                <div className="relative flex items-center justify-center">
-                  <div className="w-full border-t border-white/10" />
-                  <span className="absolute bg-[#161616] px-3 text-xs text-white/40 font-medium uppercase tracking-wider">
-                    Or use access token
+                <div className="relative flex items-center justify-center py-1">
+                  <div className="w-full border-t border-white/[0.06]" />
+                  <span className="absolute bg-[#161616] px-3 text-[11px] text-white/30 font-medium uppercase tracking-widest">
+                    or token
                   </span>
                 </div>
 
@@ -420,7 +422,7 @@ export const AuthPage: React.FC = () => {
                         placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
                         value={tokenInput}
                         onChange={(e) => setTokenInput(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg bg-black/40 border border-white/10 focus:outline-none focus:border-[#8A35F2] text-white font-mono placeholder:text-white/20"
+                        className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg bg-black/40 border border-white/[0.08] focus:outline-none focus:border-[#8A35F2]/60 focus:ring-1 focus:ring-[#8A35F2]/20 text-white font-mono placeholder:text-white/20 transition-colors duration-200"
                       />
                     </div>
                     <p className="text-[11px] text-white/40 mt-1.5">
@@ -431,7 +433,7 @@ export const AuthPage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isLoading || isOAuthLoading || !tokenInput.trim()}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-[#8A35F2] hover:bg-[#7c2ee0] text-white font-medium text-sm transition-colors disabled:opacity-50 cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-[#8A35F2] hover:bg-[#7c2ee0] text-white font-medium text-sm transition-all duration-200 disabled:opacity-40 cursor-pointer shadow-[0_2px_12px_rgba(138,53,242,0.2)] hover:shadow-[0_4px_20px_rgba(138,53,242,0.3)]"
                   >
                     {isLoading ? (
                       <>

@@ -117,7 +117,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
         className={`absolute top-0 bottom-0 w-[85vw] max-w-[320px] bg-[var(--surface-sidebar)] border-[var(--border-subtle)] shadow-[var(--shadow-lg)] flex flex-col animate-drawer-in ${
           side === 'left'
             ? 'left-0 border-r'
-            : 'right-0 border-l'
+            : 'left-0 border-l'
         }`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}

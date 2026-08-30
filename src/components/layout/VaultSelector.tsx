@@ -92,7 +92,7 @@ export const VaultSelector: React.FC = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         title={activeVault ? `Active Vault: ${activeVault.name}` : 'Select GitHub Vault'}
-        className={`w-full flex items-center gap-2 px-2.5 py-2.5 md:py-1.5 rounded-[var(--radius-md)] bg-[var(--surface-input)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all duration-[var(--duration-fast)] cursor-pointer shadow-[var(--shadow-sm)] min-h-[44px] md:min-h-0 ${
+        className={`w-full flex items-center gap-2 px-2.5 py-2.5 md:py-1.5 rounded-[var(--radius-md)] bg-[var(--surface-card)] hover:bg-[var(--surface-hover)] border border-[var(--border-default)] text-xs font-medium text-[var(--text-primary)] transition-all duration-[var(--duration-fast)] cursor-pointer min-h-[44px] md:min-h-0 ${
           !isSidebarOpen ? 'justify-center px-0' : 'justify-between'
         }`}
       >
@@ -106,9 +106,9 @@ export const VaultSelector: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-64 bg-[var(--surface-popover)] border border-[var(--border-default)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] z-[var(--z-dropdown)] overflow-hidden py-1 animate-pop-in">
-          <div className="px-3 py-1.5 text-[10px] font-semibold text-[var(--text-subtle)] uppercase tracking-wider">
-            Connected Vaults ({vaults.length})
+        <div className="absolute top-full left-0 mt-1.5 w-64 bg-[var(--surface-popover)] border border-[var(--border-default)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] z-[var(--z-dropdown)] overflow-hidden py-1 animate-pop-in">
+          <div className="px-3 py-2 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border-subtle)]/50">
+            Vaults · {vaults.length}
           </div>
 
           <div className="max-h-56 overflow-y-auto">
@@ -119,7 +119,7 @@ export const VaultSelector: React.FC = () => {
                   await setActiveVault(v);
                   setIsOpen(false);
                 }}
-                className="w-full px-3 py-3 md:py-2 text-left text-xs flex items-center justify-between hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer border-b border-[var(--border-subtle)] last:border-0 min-h-[44px] md:min-h-0"
+                className="w-full px-3 py-3 md:py-2.5 text-left text-xs flex items-center justify-between hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all duration-[var(--duration-fast)] cursor-pointer min-h-[44px] md:min-h-0"
               >
                 <div className="truncate pr-2">
                   <span className="font-medium block truncate text-[var(--text-primary)]">{v.name}</span>
@@ -136,7 +136,7 @@ export const VaultSelector: React.FC = () => {
                 setShowAddModal(true);
                 setIsOpen(false);
               }}
-              className="w-full px-3 py-3 md:py-2.5 text-left text-xs text-[var(--accent-text)] hover:bg-[var(--surface-hover)] font-medium flex items-center gap-2 transition-colors cursor-pointer min-h-[44px] md:min-h-0"
+              className="w-full px-3 py-3 md:py-2.5 text-left text-xs text-[var(--accent-text)] hover:bg-[var(--accent-soft)] font-medium flex items-center gap-2 transition-all duration-[var(--duration-fast)] cursor-pointer min-h-[44px] md:min-h-0"
             >
               <Plus className="w-3.5 h-3.5" /> Add GitHub Repository
             </button>

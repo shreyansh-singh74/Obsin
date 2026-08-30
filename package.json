@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -20,6 +22,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cnfast": "^0.1.0",
+    "d3": "^7.9.0",
     "date-fns": "^4.4.0",
     "dexie": "^4.0.10",
     "dexie-react-hooks": "^1.1.7",
@@ -48,6 +51,10 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.7",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.6",
+    "@types/d3": "^7.4.3",
     "@types/flexsearch": "^0.7.6",
     "@types/js-yaml": "^4.0.9",
     "@types/katex": "^0.16.8",
@@ -56,8 +63,10 @@
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^30.0.1",
     "tailwindcss": "^4.0.7",
     "typescript": "^5.7.3",
-    "vite": "^6.1.1"
+    "vite": "^6.1.1",
+    "vitest": "^4.1.11"
   }
 }

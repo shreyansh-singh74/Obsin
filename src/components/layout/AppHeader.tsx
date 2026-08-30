@@ -1,83 +1,126 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { SyncStatusBadge } from '@/components/sync/SyncStatusBadge';
-import { ThemeSwitcher } from './ThemeSwitcher';
-import { Search, LogOut } from 'lucide-react';
-import logoMark from '@/assets/logo.svg';
+import { ProfileMenu } from './ProfileMenu';
+import { useVaultStore } from '@/store/useVaultStore';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useNavigate } from 'react-router-dom';
+import { executeVaultSync } from '@/engine/sync';
+import { ArrowLeft, ArrowRight, RefreshCw, Search } from 'lucide-react';
+import logoMark from '@/assets/logo.svg';
 
 interface AppHeaderProps {
-  onOpenSearch: () => void;
+  onOpenSearch?: () => void;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
-  const { user, clearToken } = useAuthStore();
-  const navigate = useNavigate();
+  const {
+    activeNotePath, activeVault, notes, refreshNotes,
+    navigateBack, navigateForward, canGoBack, canGoForward, expandFolderPath, setActiveNotePath,
+  } = useVaultStore();
+  const token = useAuthStore((s) => s.token);
+  const [isSyncing, setIsSyncing] = React.useState(false);
 
-  const handleSignOut = () => {
-    clearToken();
-    navigate('/auth');
-  };
+  async function handleSync() {
+    if (!activeVault || isSyncing) return;
+    setIsSyncing(true);
+    try {
+      await executeVaultSync(activeVault, token);
+      await refreshNotes();
+    } catch (err) {
+      console.error('Sync failed:', err);
+    } finally {
+      setIsSyncing(false);
+    }
+  }
+
+  const activeNote = useMemo(() => {
+    if (!notes || !activeNotePath) return null;
+    return notes.find((n) => n.path === activeNotePath) || null;
+  }, [notes, activeNotePath]);
+
+  const pathParts = activeNote ? activeNote.path.split('/') : [];
 
   return (
-    <header className="h-14 border-b border-[var(--border-subtle)] bg-[var(--surface-sidebar)] px-3 md:px-4 flex items-center justify-between z-[var(--z-sticky)] select-none transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]">
-      {/* Left: Sidebar Toggle & Brand Logo */}
-      <div className="flex items-center gap-2 shrink-0">
-        <button
-          onClick={onOpenSearch}
-          className="md:hidden p-2.5 rounded-[var(--radius-md)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-all min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
-          aria-label="Search notes"
-        >
-          <Search className="w-5 h-5" />
-        </button>
-
+    <header className="h-11 border-b border-[var(--border-subtle)] bg-[var(--surface-sidebar)] px-3 flex items-center z-[var(--z-sticky)] transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]">
+      {/* Left: Sidebar Toggle, Logo, Back/Forward */}
+      <div className="flex items-center gap-1.5 shrink-0">
         <SidebarTrigger />
-
-        <a href="/" className="flex items-center gap-2">
-          <img src={logoMark} alt="Obsin" className="h-10 w-10 md:h-19 md:w-19 shrink-0" />
+        <a href="/" className="flex items-center shrink-0">
+          <img src={logoMark} alt="Obsin" className="h-9 w-9 shrink-0" />
         </a>
-      </div>
-
-      {/* Center: Search Trigger Bar (hidden on mobile, shown on md+) */}
-      <button
-        onClick={onOpenSearch}
-        className="hidden md:flex items-center gap-3 px-3 py-1.5 rounded-[var(--radius-md)] bg-[var(--surface-input)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all duration-[var(--duration-fast)] cursor-pointer shadow-inner max-w-sm w-full mx-4"
-      >
-        <Search className="w-3.5 h-3.5 text-[var(--accent-text)] shrink-0" />
-        <span className="truncate flex-1 text-left">Search notes, headings, tags...</span>
-        <kbd className="text-[10px] font-mono text-[var(--text-subtle)] border border-[var(--border-subtle)] px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--surface-page)]">
-          ⌘K
-        </kbd>
-      </button>
-
-      {/* Spacer to push right items (visible on mobile where search bar is hidden) */}
-      <div className="flex-1 md:hidden" />
-
-      {/* Right: Sync Badge, Theme Controls & User Profile */}
-      <div className="flex items-center gap-2 md:gap-3 shrink-0">
-        <SyncStatusBadge />
-        <ThemeSwitcher />
-
-        {user && (
-          <div className="flex items-center gap-2 border-l border-[var(--border-subtle)] pl-2 md:pl-3">
-            <img
-              src={user.avatar_url}
-              alt={user.login}
-              className="w-8 h-8 md:w-7 md:h-7 rounded-full border border-[var(--border-subtle)]"
-            />
-            <span className="text-xs font-medium text-[var(--text-primary)] hidden sm:inline-block">
-              {user.login}
-            </span>
+        {activeNote && (
+          <div className="flex items-center gap-0.5 ml-1">
             <button
-              onClick={handleSignOut}
-              className="p-2.5 rounded hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hover:text-red-400 transition-colors cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
-              title="Sign Out"
+              onClick={navigateBack}
+              disabled={!canGoBack()}
+              className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--surface-hover)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              title="Go back"
             >
-              <LogOut className="w-4 h-4" />
+              <ArrowLeft className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+            </button>
+            <button
+              onClick={navigateForward}
+              disabled={!canGoForward()}
+              className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--surface-hover)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              title="Go forward"
+            >
+              <ArrowRight className="w-3.5 h-3.5 text-[var(--text-muted)]" />
             </button>
           </div>
         )}
+      </div>
+
+      {/* Center: Breadcrumb — centered */}
+      <div className="flex-1 flex justify-center min-w-0 px-4">
+        {activeNote && (
+          <nav className="flex items-center gap-1.5 text-[13px] text-[var(--text-muted)] min-w-0 overflow-hidden">
+            {pathParts.map((part, i) => {
+              const fullPath = pathParts.slice(0, i + 1).join('/');
+              const isLast = i === pathParts.length - 1;
+              const isFile = isLast && !activeNote?.path.endsWith('/');
+              return (
+                <React.Fragment key={i}>
+                  {i > 0 && <span className="text-[var(--text-subtle)]/40 shrink-0">/</span>}
+                  <button
+                    onClick={() => {
+                      if (isFile) {
+                        setActiveNotePath(fullPath);
+                      } else {
+                        expandFolderPath(fullPath);
+                      }
+                    }}
+                    className={`shrink-0 hover:text-[var(--text-primary)] transition-colors cursor-pointer truncate max-w-[120px] ${
+                      isLast ? 'text-[var(--text-primary)] font-medium' : 'text-[var(--text-muted)]'
+                    }`}
+                    title={fullPath}
+                  >
+                    {i === 0 ? activeVault?.name : part}
+                  </button>
+                </React.Fragment>
+              );
+            })}
+          </nav>
+        )}
+      </div>
+
+      {/* Right: Sync + Search + Profile */}
+      <div className="flex items-center gap-1.5 shrink-0">
+        <button
+          onClick={handleSync}
+          disabled={isSyncing || !activeVault}
+          className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer disabled:opacity-40"
+          title="Sync vault"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+        </button>
+        <button
+          onClick={onOpenSearch}
+          className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+          title="Search (⌘K)"
+        >
+          <Search className="w-3.5 h-3.5" />
+        </button>
+        
+        <ProfileMenu />
       </div>
     </header>
   );

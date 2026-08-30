@@ -3,15 +3,21 @@
    ========================================== */
 
 :root {
-  --prose-gap: var(--space-4);
+  --prose-gap: var(--space-3);
   --heading-gap: var(--space-6);
   --section-gap: var(--space-8);
+}
+
+/* Overflow Handling */
+.prose {
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* Reading Canvas Layout Container */
 .reading-canvas-container {
   width: 100%;
-  max-width: min(740px, 100%);
+  max-width: min(860px, 100%);
   margin-left: auto;
   margin-right: auto;
 }
@@ -21,7 +27,7 @@
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--text-primary);
   line-height: var(--leading-reading);
-  font-size: var(--font-base);
+  font-size: 15px;
 }
 
 .prose h1,
@@ -35,19 +41,16 @@
 }
 
 .prose h1 {
+  overflow-wrap: break-word;
   font-size: var(--font-2xl);
-  margin-top: var(--section-gap);
-  margin-bottom: var(--space-4);
-  padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--border-subtle);
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-3);
 }
 
 .prose h2 {
   font-size: var(--font-xl);
-  margin-top: var(--heading-gap);
-  margin-bottom: var(--space-3);
-  padding-bottom: var(--space-1);
-  border-bottom: 1px solid var(--border-subtle);
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-2);
 }
 
 .prose h3 {
@@ -57,7 +60,7 @@
 }
 
 .prose h4 {
-  font-size: var(--font-base);
+  font-size: 15px;
   margin-top: var(--space-4);
   margin-bottom: var(--space-2);
 }
@@ -65,7 +68,7 @@
 .prose p {
   margin-bottom: var(--prose-gap);
   color: var(--text-secondary);
-  line-height: var(--leading-reading);
+  line-height: 1.8;
 }
 
 .prose ul,
@@ -85,7 +88,7 @@
 }
 
 .prose li {
-  margin-bottom: var(--space-1);
+  margin-bottom: 2px;
   line-height: var(--leading-reading);
 }
 
@@ -105,6 +108,8 @@
 
 .prose table {
   width: 100%;
+  display: block;
+  overflow-x: auto;
   margin-top: var(--prose-gap);
   margin-bottom: var(--prose-gap);
   border-collapse: separate;
@@ -142,6 +147,7 @@
 /* Premium Image Styling */
 .prose img {
   max-width: 100%;
+  min-width: 0;
   height: auto;
   margin-top: var(--space-4);
   margin-bottom: var(--space-2);
@@ -164,4 +170,39 @@
   margin-bottom: var(--section-gap);
   border: none;
   border-top: 1px solid var(--border-subtle);
+}
+
+/* Code Blocks */
+.prose code-block-wrapper {
+  margin-top: var(--prose-gap);
+  margin-bottom: var(--prose-gap);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  background: #0d0d0d;
+}
+
+.prose code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: var(--surface-card);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 10px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.prose code-block-content {
+  white-space: pre;
+  padding: 16px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.6;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  color: var(--text-secondary);
 }
