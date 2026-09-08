@@ -79,12 +79,12 @@ export const Callout: React.FC<CalloutProps> = ({ type, title, children }) => {
   }
 
   return (
-    <div className={`my-4 p-4 rounded-[var(--radius-md)] border ${borderClass} shadow-[var(--shadow-sm)] space-y-2`}>
+    <div className={`my-4 p-4 rounded-[var(--radius-md)] border ${borderClass} shadow-[var(--shadow-sm)] space-y-2 overflow-hidden min-w-0`}>
       <div className={`flex items-center gap-2 text-sm ${headerClass}`}>
         {icon}
         <span className="capitalize">{title}</span>
       </div>
-      <div className="text-sm leading-relaxed text-[var(--text-secondary)] pl-6 border-l border-[var(--border-subtle)]">
+      <div className="text-sm leading-relaxed text-[var(--text-secondary)] pl-6 border-l border-[var(--border-subtle)] min-w-0 overflow-hidden">
         {children}
       </div>
     </div>

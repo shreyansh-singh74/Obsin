@@ -60,6 +60,7 @@
   max-width: min(860px, 100%);
   margin-left: auto;
   margin-right: auto;
+  overflow: hidden;
 }
 
 /* Markdown Prose Rules */
@@ -144,6 +145,8 @@
   font-style: italic;
   border-top-right-radius: var(--radius-md);
   border-bottom-right-radius: var(--radius-md);
+  min-width: 0;
+  overflow-x: auto;
 }
 
 .prose table {
