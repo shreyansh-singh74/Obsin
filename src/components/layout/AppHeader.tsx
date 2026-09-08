@@ -69,18 +69,27 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
         )}
       </div>
 
-      {/* Center: Breadcrumb — centered; hidden on narrow screens where the
-          header can't fit toggle + nav + actions comfortably. */}
-      <div className="flex-1 flex justify-center min-w-0 px-4">
+      {/* Center: Breadcrumb — show last 2 segments on mobile, full on desktop */}
+      <div className="flex-1 flex justify-center min-w-0 px-2 sm:px-4">
         {activeNote && (
-          <nav className="flex items-center gap-1.5 text-[13px] text-[var(--text-muted)] min-w-0 overflow-hidden">
+          <nav className="hidden sm:flex items-center gap-1.5 text-[13px] text-[var(--text-muted)] min-w-0 overflow-hidden">
             {pathParts.map((part, i) => {
               const fullPath = pathParts.slice(0, i + 1).join('/');
               const isLast = i === pathParts.length - 1;
               const isFile = isLast && !activeNote?.path.endsWith('/');
+              const showOnMobile = i >= pathParts.length - 2;
+              const isFirstVisible = i === pathParts.length - 2;
+              // Show ellipsis before the first visible segment if there are hidden segments before it
+              const showEllipsis = isFirstVisible && i > 0;
               return (
                 <React.Fragment key={i}>
-                  {i > 0 && <span className="text-[var(--text-subtle)]/40 shrink-0">/</span>}
+                  {showEllipsis && (
+                    <>
+                      <span className="text-[var(--text-muted)] shrink-0 hidden md:inline">...</span>
+                      <span className="text-[var(--text-subtle)]/40 shrink-0 hidden md:inline">/</span>
+                    </>
+                  )}
+                  {i > 0 && !showEllipsis && <span className={`text-[var(--text-subtle)]/40 shrink-0 ${!showOnMobile ? 'hidden md:inline' : ''}`}>/</span>}
                   <button
                     onClick={() => {
                       if (isFile) {
@@ -89,9 +98,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
                         expandFolderPath(fullPath);
                       }
                     }}
-                    className={`shrink min-w-0 hover:text-[var(--text-primary)] transition-colors cursor-pointer truncate max-w-[120px] sm:shrink-0 ${
-                      isLast ? 'text-[var(--text-primary)] font-medium' : 'text-[var(--text-muted)]'
-                    }`}
+                    className={`shrink-0 hover:text-[var(--text-primary)] transition-colors cursor-pointer truncate max-w-[100px] md:max-w-[120px] ${
+                      !showOnMobile ? 'hidden md:inline-flex' : ''
+                    } ${isLast ? 'text-[var(--text-primary)] font-medium' : 'text-[var(--text-muted)]'}`}
                     title={fullPath}
                   >
                     {i === 0 ? activeVault?.name : part}
