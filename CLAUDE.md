@@ -40,7 +40,7 @@ Routes (`src/App.tsx`): `/` landing, `/auth`, `/app` (gated by `ProtectedRoute` 
 6. Rebuild the in-memory FlexSearch index.
 7. Write `syncMeta`.
 
-`AppShell` triggers this automatically whenever the active vault (or token) changes.
+`AppShell` triggers this automatically whenever the active vault (or token) changes — **but only when online**. Offline, local IndexedDB data renders immediately and sync is skipped (not failed); a single `isOnline` transition effect re-syncs when connectivity returns. `executeVaultSync` has a concurrency guard (one sync per vault at a time).
 
 ### Layers
 
@@ -50,6 +50,10 @@ Routes (`src/App.tsx`): `/` landing, `/auth`, `/app` (gated by `ProtectedRoute` 
 - **`src/db/`** — `index.ts` defines the Dexie schema (`ObsinDB`); `repository/*` are the only modules that touch tables. **Every table uses a composite key prefixed with `vaultId`** (`[vaultId+path]`, `[vaultId+slug]`, …) so multiple vaults stay isolated in one database.
 - **`src/store/`** — Zustand stores: `useAuthStore` (token + GitHub user, persisted to `localStorage`), `useVaultStore` (active vault, loaded notes, active note path), `useSyncStore` (sync stage/progress/errors).
 - **`src/utils/`** — `markdown.ts` parses frontmatter with **`js-yaml`** + a regex (not `gray-matter`); `slug.ts` normalizes wiki-link targets and paths to lowercase slugs used as map/backlink keys.
+- **Connectivity** — `useOnlineStatus()` (`src/hooks/useOnlineStatus.ts`) is the single source of truth for online/offline; reuse it instead of raw `navigator.onLine` listeners. The FlexSearch index is rebuilt from local notes on every `setActiveVault`/`refreshNotes`, so **search works offline**.
+- **Vault connect flow** — `connectVault()` (`src/engine/vaultConnect.ts`) is the ONE standardized routine (save → activate → sync-if-online → refresh). RepoSelector and VaultSelector must both use it; don't hand-roll new connect paths.
+- **Auth/profile flow** — AuthPage (`/auth`) is the only sign-in surface. Tokens set outside it (e.g. sidebar PAT) must either call `setAuth(token, user)` or rely on `useAuthStore.hydrateUser()` (called by AppShell on mount) to fetch the profile so the header avatar appears.
+- **Offline `/app` access** — `ProtectedRoute` admits users with a token OR (offline + local vault data). The PWA `start_url` is `/app` so installed apps open straight into the reader.
 
 Notes store **body markdown only** — frontmatter is stripped at parse time and its `tags`/`aliases`/`title` promoted onto the `Note` record. Wiki-links and backlinks resolve through the slug tables (`wikiMapRepo` slug→path, `backlinksRepo` targetSlug→sources) for O(1) lookup rather than scanning content at render time.
 

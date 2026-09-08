@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchUserRepos, fetchRepoBranches } from '@/engine/github/repos';
+import { connectVault } from '@/engine/vaultConnect';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useVaultStore } from '@/store/useVaultStore';
 import type { GitHubRepo, GitHubBranch, VaultConfig } from '@/types';
 import {
   FolderGit2,
@@ -21,7 +21,6 @@ interface RepoSelectorProps {
 
 export const RepoSelector: React.FC<RepoSelectorProps> = ({ onVaultSelected }) => {
   const token = useAuthStore((state) => state.token);
-  const setActiveVault = useVaultStore((state) => state.setActiveVault);
 
   const [repos, setRepos] = useState<GitHubRepo[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -85,10 +84,10 @@ export const RepoSelector: React.FC<RepoSelectorProps> = ({ onVaultSelected }) =
     };
 
     try {
-      await setActiveVault(newVault);
+      await connectVault(newVault, token || undefined);
       onVaultSelected(newVault);
     } catch (err: any) {
-      setError(err.message || 'Failed to set active vault.');
+      setError(err.message || 'Failed to connect vault.');
     } finally {
       setIsSubmitting(false);
     }

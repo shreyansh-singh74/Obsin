@@ -69,10 +69,11 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
         )}
       </div>
 
-      {/* Center: Breadcrumb — centered */}
+      {/* Center: Breadcrumb — centered; hidden on narrow screens where the
+          header can't fit toggle + nav + actions comfortably. */}
       <div className="flex-1 flex justify-center min-w-0 px-4">
         {activeNote && (
-          <nav className="flex items-center gap-1.5 text-[13px] text-[var(--text-muted)] min-w-0 overflow-hidden">
+          <nav className="hidden sm:flex items-center gap-1.5 text-[13px] text-[var(--text-muted)] min-w-0 overflow-hidden">
             {pathParts.map((part, i) => {
               const fullPath = pathParts.slice(0, i + 1).join('/');
               const isLast = i === pathParts.length - 1;

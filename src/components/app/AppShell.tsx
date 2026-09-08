@@ -3,6 +3,8 @@ import { useVaultStore } from '@/store/useVaultStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { executeVaultSync } from '@/engine/sync';
 import { setupSessionValidation } from '@/engine/github/session';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useSyncStore } from '@/store/useSyncStore';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -43,11 +45,14 @@ export function AppShell() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isGraphOpen, setIsGraphOpen] = useState(false);
 
-  // Validate token on mount and set up periodic checks
+  const isOnline = useOnlineStatus();
+
+  // Validate token on mount and set up periodic checks (only meaningful online)
   useEffect(() => {
+    if (!isOnline) return () => {};
     const cleanup = setupSessionValidation();
     return cleanup;
-  }, []);
+  }, [isOnline]);
 
   // Load vaults and navigate to hash-specified note on initial load
   useEffect(() => {
@@ -92,18 +97,29 @@ export function AppShell() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [activeVault, setActiveNotePath]);
 
-  // Automatically trigger sync when activeVault is loaded
+  // Standardized bootstrap: hydrate user → load vaults → activate vault →
+  // render from IndexedDB → sync in the background ONLY when online.
+  // Offline: local data renders immediately, sync is skipped (not failed).
   useEffect(() => {
-    if (activeVault) {
-      executeVaultSync(activeVault, token)
-        .then(() => {
-          refreshNotes();
-        })
-        .catch((err) => {
-          console.error('Initial vault sync error:', err);
-        });
-    }
-  }, [activeVault?.id, token]);
+    useAuthStore.getState().hydrateUser();
+  }, []);
+
+  // Background sync: runs when a vault activates OR when connectivity
+  // returns (the isOnline transition re-runs this single effect, so there
+  // is exactly one sync path — no double-sync on mount).
+  useEffect(() => {
+    if (!activeVault || !isOnline) return;
+    executeVaultSync(activeVault, token)
+      .then(() => {
+        refreshNotes();
+      })
+      .catch((err) => {
+        // Surface sync failures in the UI (SyncStatusBadge) instead of
+        // swallowing them — offline starts land here too if racing online.
+        console.error('Vault sync error:', err);
+        useSyncStore.getState().setSyncError(err?.message || 'Sync failed.');
+      });
+  }, [activeVault?.id, token, isOnline]);
 
   // Global Keyboard Shortcuts: Cmd+K / Ctrl+K (search), Cmd+G / Ctrl+G (graph)
   useEffect(() => {

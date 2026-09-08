@@ -22,12 +22,17 @@ import {
   X,
 } from 'lucide-react';
 import logoMark from '@/assets/logo.svg';
+import { UserAvatar } from '@/components/ui/UserAvatar';
+import { OfflineVaultList } from '@/components/sync/OfflineVaultList';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useVaultStore } from '@/store/useVaultStore';
 
 export const AuthPage: React.FC = () => {
   const [tokenInput, setTokenInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isOAuthLoading, setIsOAuthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isOffline = !useOnlineStatus();
 
   // Device Flow State
   const [deviceFlowData, setDeviceFlowData] = useState<DeviceCodeResponse | null>(null);
@@ -39,7 +44,13 @@ export const AuthPage: React.FC = () => {
   const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const { user, setAuth, clearToken } = useAuthStore();
+  const loadVaults = useVaultStore((s) => s.loadVaults);
   const navigate = useNavigate();
+
+  // Load IndexedDB vaults for the offline vault list.
+  useEffect(() => {
+    loadVaults();
+  }, [loadVaults]);
 
   // Check URL query parameters for OAuth callback signal or error
   useEffect(() => {
@@ -292,30 +303,44 @@ export const AuthPage: React.FC = () => {
         {/* Authenticated Flow: Repo Selector */}
         {user ? (
           <div className="space-y-6">
-            {/* Connected Profile Bar */}
-            <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-              <div className="flex items-center gap-3">
-                <img src={user.avatar_url} alt={user.login} className="w-9 h-9 rounded-full" />
-                <div>
-                  <h3 className="text-sm font-medium text-white">{user.name || user.login}</h3>
-                  <p className="text-[11px] text-white/50">@{user.login}</p>
+            {/* Offline: skip the repo selector entirely — network calls would just fail. */}
+            {isOffline ? (
+              <OfflineVaultList />
+            ) : (
+              <>
+                {/* Connected Profile Bar */}
+                <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                  <div className="flex items-center gap-3">
+                    <UserAvatar
+                      src={user.avatar_url}
+                      alt={user.login}
+                      fallbackLabel={user.name || user.login}
+                      className="w-9 h-9 rounded-full"
+                    />
+                    <div>
+                      <h3 className="text-sm font-medium text-white">{user.name || user.login}</h3>
+                      <p className="text-[11px] text-white/50">@{user.login}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={clearToken}
+                    className="flex items-center gap-1 px-2.5 py-1 text-xs rounded-md bg-white/[0.04] hover:bg-red-500/15 hover:text-red-300 text-white/50 transition-all duration-200 cursor-pointer"
+                    title="Sign Out"
+                  >
+                    <LogOut className="w-3.5 h-3.5" /> Sign Out
+                  </button>
                 </div>
-              </div>
-              <button
-                onClick={clearToken}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs rounded-md bg-white/[0.04] hover:bg-red-500/15 hover:text-red-300 text-white/50 transition-all duration-200 cursor-pointer"
-                title="Sign Out"
-              >
-                <LogOut className="w-3.5 h-3.5" /> Sign Out
-              </button>
-            </div>
 
-            {/* Repository Selector */}
-            <RepoSelector onVaultSelected={() => navigate('/app')} />
+                {/* Repository Selector */}
+                <RepoSelector onVaultSelected={() => navigate('/app')} />
+              </>
+            )}
           </div>
         ) : (
-          /* Unauthenticated Flow: OAuth & PAT */
+          /* Unauthenticated Flow: OAuth & PAT — with offline escape hatch */
           <div className="space-y-6">
+            {isOffline && <OfflineVaultList />}
+
             {error && (
               <div className="p-3 text-xs rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
                 {error}

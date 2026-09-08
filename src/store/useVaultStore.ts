@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { VaultConfig, Note } from '@/types';
 import { getNotesByVault } from '@/db/repository/notesRepo';
 import { getAllVaults, saveVault } from '@/db/repository/vaultsRepo';
+import { searchEngine } from '@/engine/search';
 
 interface VaultState {
   activeVault: VaultConfig | null;
@@ -54,6 +55,9 @@ export const useVaultStore = create<VaultState>((set, get) => ({
 
     try {
       const notes = await getNotesByVault(vault.id);
+      // Rebuild the in-memory search index from local data so search works
+      // even offline, before/without any sync.
+      searchEngine.indexVault(vault.id, notes);
       const firstNotePath = notes.length > 0 ? notes[0].path : null;
       const initialHistory = firstNotePath ? [firstNotePath] : [];
       set({ notes, activeNotePath: firstNotePath, isLoading: false, history: initialHistory, historyIndex: firstNotePath ? 0 : -1 });
@@ -160,6 +164,8 @@ export const useVaultStore = create<VaultState>((set, get) => ({
     const activeVault = get().activeVault;
     if (!activeVault) return;
     const notes = await getNotesByVault(activeVault.id);
+    // Keep the search index in step with refreshed notes.
+    searchEngine.indexVault(activeVault.id, notes);
     const currentActivePath = get().activeNotePath;
     const validPath = notes.some((n) => n.path === currentActivePath)
       ? currentActivePath

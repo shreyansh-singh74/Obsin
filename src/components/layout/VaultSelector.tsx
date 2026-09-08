@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { useVaultStore } from '@/store/useVaultStore';
 import { useAuthStore } from '@/store/useAuthStore';
-import { saveVault } from '@/db/repository/vaultsRepo';
-import { executeVaultSync } from '@/engine/sync';
+import { fetchAuthenticationUser } from '@/engine/github/auth';
+import { connectVault } from '@/engine/vaultConnect';
 import type { VaultConfig } from '@/types';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Database, Plus, Check, ChevronDown, FolderGit2, Link, Key, AlertTriangle } from 'lucide-react';
 
 export const VaultSelector: React.FC = () => {
-  const { activeVault, vaults, setActiveVault, loadVaults, refreshNotes } = useVaultStore();
-  const { token, setToken } = useAuthStore();
+  const { activeVault, vaults, setActiveVault } = useVaultStore();
+  const { token, setToken, setAuth } = useAuthStore();
   const { open: isSidebarOpen } = useSidebar();
   const [isOpen, setIsOpen] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -46,7 +46,15 @@ export const VaultSelector: React.FC = () => {
     }
 
     if (patToken.trim()) {
-      setToken(patToken.trim());
+      // Persist token AND profile so the header avatar shows for sidebar-connected users.
+      try {
+        const profile = await fetchAuthenticationUser(patToken.trim());
+        setAuth(patToken.trim(), profile);
+      } catch {
+        // Token may still be valid for repo access (e.g. fine-grained PAT without
+        // read:user) — fall back to token-only and let hydrateUser retry later.
+        setToken(patToken.trim());
+      }
     }
 
     setIsSubmitting(true);
@@ -61,12 +69,9 @@ export const VaultSelector: React.FC = () => {
     };
 
     try {
-      await saveVault(newVault);
-      await loadVaults();
-      await setActiveVault(newVault);
-
-      await executeVaultSync(newVault, activeToken);
-      await refreshNotes();
+      // Single standardized connect path: save → activate (loads local notes)
+      // → sync if online → refresh.
+      await connectVault(newVault, activeToken || undefined);
 
       setShowAddModal(false);
       setIsOpen(false);

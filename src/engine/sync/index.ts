@@ -12,6 +12,14 @@ import type { Note, VaultConfig, SyncMeta } from '@/types';
 export async function executeVaultSync(vault: VaultConfig, token?: string): Promise<Note[]> {
   const { setSyncStage, setProgress, setSyncError, resetSync } = useSyncStore.getState();
 
+  // Concurrency guard: never run two syncs for the same vault at once.
+  // Background sync (AppShell), manual sync (AppHeader), and connect flows
+  // can all race; subsequent calls while one is in-flight are dropped.
+  if (activeSyncs.has(vault.id)) {
+    return (await getNotesByVault(vault.id)) as Note[];
+  }
+  activeSyncs.add(vault.id);
+
   try {
     // Stage 1: Fetch Repository Tree & discover branch
     setSyncStage('fetching-tree', `Connecting to GitHub API for ${vault.owner}/${vault.repo}...`);
@@ -117,5 +125,9 @@ export async function executeVaultSync(vault: VaultConfig, token?: string): Prom
     console.error('Vault Sync Error:', err);
     setSyncError(err.message || 'Vault synchronization failed.');
     throw err;
+  } finally {
+    activeSyncs.delete(vault.id);
   }
 }
+
+const activeSyncs = new Set<string>();

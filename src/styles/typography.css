@@ -12,6 +12,46 @@
 .prose {
   overflow-wrap: break-word;
   word-break: break-word;
+  /* Flex-item blowout guard: prose may sit inside min-w-0 chains */
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Unbreakable content guards — long code lines, KaTeX, and tables must
+   scroll within the reading canvas instead of pushing the page wide. */
+.prose pre,
+.prose code-block-wrapper,
+.prose .code-block-content {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.katex-display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 0;
+}
+
+/* Visible scrollbar inside code blocks / math so clipped lines are
+   obviously scrollable on touch devices (global scrollbar is 6px subtle). */
+.prose pre::-webkit-scrollbar,
+.katex-display::-webkit-scrollbar {
+  height: 8px;
+}
+.prose pre::-webkit-scrollbar-thumb,
+.katex-display::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.55);
+  border-radius: var(--radius-full);
+}
+
+/* Headings and list items: allow aggressive wrapping of long tokens */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose li {
+  overflow-wrap: anywhere;
 }
 
 /* Reading Canvas Layout Container */

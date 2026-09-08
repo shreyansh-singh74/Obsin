@@ -1,21 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { WifiOff } from 'lucide-react';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useVaultStore } from '@/store/useVaultStore';
+import { getSyncMeta } from '@/db/repository/syncMetaRepo';
 
 export const OfflineBanner: React.FC = () => {
-  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const isOnline = useOnlineStatus();
+  const isOffline = !isOnline;
+  const activeVault = useVaultStore((s) => s.activeVault);
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
 
   useEffect(() => {
-    function handleOnline() {
-      setIsOffline(false);
+    if (!isOffline || !activeVault) {
+      setLastSyncTime(null);
+      return;
     }
-    function handleOffline() {
-      setIsOffline(true);
-    }
+    let cancelled = false;
+    getSyncMeta(activeVault.id).then((meta) => {
+      if (!cancelled) setLastSyncTime(meta?.lastSyncTime ?? null);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isOffline, activeVault]);
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    // Request persistent storage
+  // Request persistent storage when banner first mounts
+  useEffect(() => {
     if (navigator.storage && navigator.storage.persist) {
       navigator.storage.persist().then((persistent) => {
         if (persistent) {
@@ -23,11 +33,6 @@ export const OfflineBanner: React.FC = () => {
         }
       });
     }
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
   }, []);
 
   if (!isOffline) return null;
@@ -35,7 +40,10 @@ export const OfflineBanner: React.FC = () => {
   return (
     <div className="bg-[var(--warning-bg)] border-b border-[var(--warning-text)]/30 px-4 py-1.5 text-xs text-[var(--warning-text)] flex items-center justify-center gap-2 font-mono shadow-inner">
       <WifiOff className="w-3.5 h-3.5 text-[var(--warning-text)] shrink-0" />
-      <span>Offline Mode — Reading notes locally from IndexedDB</span>
+      <span>
+        Offline Mode — Reading notes locally from IndexedDB
+        {lastSyncTime ? ` · Last synced ${new Date(lastSyncTime).toLocaleString()}` : ''}
+      </span>
     </div>
   );
 };

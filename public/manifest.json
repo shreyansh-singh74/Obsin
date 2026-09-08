@@ -2,7 +2,7 @@
   "name": "Obsin",
   "short_name": "Obsin",
   "description": "Your Obsidian vault, accessible from any browser",
-  "start_url": "/",
+  "start_url": "/app",
   "display": "standalone",
   "background_color": "#0b0b0b",
   "theme_color": "#8A35F2",

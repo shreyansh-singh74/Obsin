@@ -1,5 +1,5 @@
-const CACHE_NAME = 'obsin-v1';
-const STATIC_CACHE = 'obsin-static-v1';
+const CACHE_NAME = 'obsin-v2';
+const STATIC_CACHE = 'obsin-static-v2';
 
 // Assets to precache on install
 const PRECACHE_URLS = [
