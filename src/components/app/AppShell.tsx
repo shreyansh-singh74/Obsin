@@ -143,7 +143,7 @@ export function AppShell() {
   return (
     <ErrorBoundary>
       <SidebarProvider>
-        <div className="h-screen w-screen bg-[var(--surface-page)] text-[var(--text-primary)] flex flex-col overflow-hidden font-sans transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]">
+        <div className="h-screen w-full bg-[var(--surface-page)] text-[var(--text-primary)] flex flex-col overflow-hidden font-sans transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]">
           {/* Offline Status Bar */}
           <OfflineBanner />
 

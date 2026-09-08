@@ -134,7 +134,7 @@ const CodeBlock: React.FC<{ language: string; code: string }> = ({ language, cod
   }
 
   return (
-    <div className="my-4 rounded-[var(--radius-md)] border border-[var(--border-subtle)] overflow-hidden bg-[#0d0d0d]">
+    <div className="my-4 rounded-[var(--radius-md)] border border-[var(--border-subtle)] overflow-hidden bg-[#0d0d0d] min-w-0">
       {/* Header bar */}
       <div className="flex items-center justify-between px-3 py-1.5 bg-[var(--surface-card)] border-b border-[var(--border-subtle)]">
         <span className="text-[10px] font-mono font-semibold text-[var(--text-muted)] uppercase tracking-wider">

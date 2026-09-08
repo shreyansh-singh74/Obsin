@@ -111,7 +111,7 @@ export const VaultSelector: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1.5 w-64 bg-[var(--surface-popover)] border border-[var(--border-default)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] z-[var(--z-dropdown)] overflow-hidden py-1 animate-pop-in">
+        <div className="absolute top-full left-0 mt-1.5 w-full max-w-64 bg-[var(--surface-popover)] border border-[var(--border-default)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] z-[var(--z-dropdown)] overflow-hidden py-1 animate-pop-in">
           <div className="px-3 py-2 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border-subtle)]/50">
             Vaults · {vaults.length}
           </div>

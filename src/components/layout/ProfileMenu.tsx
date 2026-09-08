@@ -63,7 +63,7 @@ export const ProfileMenu: React.FC = () => {
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute top-full right-0 mt-1.5 w-56 bg-[var(--surface-popover)] border border-[var(--border-default)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] z-[var(--z-dropdown)] overflow-hidden animate-pop-in">
+        <div className="absolute top-full right-0 mt-1.5 w-56 max-w-[calc(100vw-2rem)] bg-[var(--surface-popover)] border border-[var(--border-default)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] z-[var(--z-dropdown)] overflow-hidden animate-pop-in">
           {/* User info */}
           <div className="px-3 py-2.5 border-b border-[var(--border-subtle)]/50">
             <div className="flex items-center gap-2">

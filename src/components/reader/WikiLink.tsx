@@ -46,7 +46,7 @@ export const WikiLink: React.FC<WikiLinkProps> = ({ target, heading, children })
     return (
       <span
         title={`Unresolved wiki link: [[${target}]]`}
-        className="inline-flex items-center gap-1 text-[var(--text-subtle)] line-through underline-offset-2 decoration-[var(--danger-text)]/50 cursor-not-allowed bg-[var(--surface-card)] px-1.5 py-0.5 rounded-[var(--radius-xs)] text-xs border border-[var(--border-subtle)]"
+        className="inline-flex items-center gap-1 text-[var(--text-subtle)] line-through underline-offset-2 decoration-[var(--danger-text)]/50 cursor-not-allowed bg-[var(--surface-card)] px-1.5 py-0.5 rounded-[var(--radius-xs)] text-xs border border-[var(--border-subtle)] max-w-full break-all"
       >
         <AlertCircle className="w-3 h-3 text-[var(--danger-text)] shrink-0" />
         <span>{children}</span>
@@ -58,7 +58,7 @@ export const WikiLink: React.FC<WikiLinkProps> = ({ target, heading, children })
     <button
       onClick={handleClick}
       title={`Jump to ${target}${heading ? `#${heading}` : ''}`}
-      className="inline-flex items-center gap-1 text-[var(--accent-text)] hover:text-[var(--accent)] font-medium underline underline-offset-4 decoration-[var(--accent-soft)] hover:decoration-[var(--accent)] bg-[var(--accent-soft)] hover:bg-[var(--accent-soft-hover)] px-1.5 py-0.5 rounded-[var(--radius-xs)] text-xs border border-[var(--accent-soft)] transition-all duration-[var(--duration-fast)] cursor-pointer"
+      className="inline-flex items-center gap-1 text-[var(--accent-text)] hover:text-[var(--accent)] font-medium underline underline-offset-4 decoration-[var(--accent-soft)] hover:decoration-[var(--accent)] bg-[var(--accent-soft)] hover:bg-[var(--accent-soft-hover)] px-1.5 py-0.5 rounded-[var(--radius-xs)] text-xs border border-[var(--accent-soft)] transition-all duration-[var(--duration-fast)] cursor-pointer max-w-full break-all"
     >
       <Link2 className="w-3 h-3 text-[var(--accent-text)] shrink-0" />
       <span>{children}</span>

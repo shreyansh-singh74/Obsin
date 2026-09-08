@@ -38,9 +38,9 @@ export const OfflineBanner: React.FC = () => {
   if (!isOffline) return null;
 
   return (
-    <div className="bg-[var(--warning-bg)] border-b border-[var(--warning-text)]/30 px-4 py-1.5 text-xs text-[var(--warning-text)] flex items-center justify-center gap-2 font-mono shadow-inner">
+    <div className="bg-[var(--warning-bg)] border-b border-[var(--warning-text)]/30 px-4 py-1.5 text-xs text-[var(--warning-text)] flex items-center justify-center gap-2 font-mono shadow-inner overflow-hidden">
       <WifiOff className="w-3.5 h-3.5 text-[var(--warning-text)] shrink-0" />
-      <span>
+      <span className="truncate">
         Offline Mode — Reading notes locally from IndexedDB
         {lastSyncTime ? ` · Last synced ${new Date(lastSyncTime).toLocaleString()}` : ''}
       </span>

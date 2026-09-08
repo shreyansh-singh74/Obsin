@@ -184,7 +184,7 @@ export const MobileTocToggle: React.FC<{ content: string }> = ({ content }) => {
       {isOpen && (
         <div className="lg:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={() => setIsOpen(false)}>
           <div
-            className="absolute bottom-0 left-0 right-0 max-h-[70vh] bg-[var(--surface-page)] rounded-t-2xl border-t border-[var(--border-subtle)] overflow-hidden"
+            className="absolute bottom-0 left-0 right-0 max-h-[70vh] bg-[var(--surface-page)] rounded-t-2xl border-t border-[var(--border-subtle)] overflow-hidden safe-area-bottom"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-subtle)]">

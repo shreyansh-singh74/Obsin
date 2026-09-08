@@ -84,7 +84,7 @@ export const Callout: React.FC<CalloutProps> = ({ type, title, children }) => {
         {icon}
         <span className="capitalize">{title}</span>
       </div>
-      <div className="text-sm leading-relaxed text-[var(--text-secondary)] pl-6 border-l border-[var(--border-subtle)] min-w-0 overflow-hidden">
+      <div className="text-sm leading-relaxed text-[var(--text-secondary)] pl-6 border-l border-[var(--border-subtle)] min-w-0 overflow-x-auto overflow-y-hidden">
         {children}
       </div>
     </div>
