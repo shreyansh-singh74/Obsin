@@ -11,12 +11,12 @@ import { DashboardSidebar } from '@/components/ui/dashboard-sidebar';
  * no longer hosts its own duplicate auth modal.
  */
 export const Sidebar: React.FC = () => {
-  const { open, isMobile } = useSidebar();
+  const { open, isMobile, setOpen } = useSidebar();
 
   // --- Mobile: Slide-in Drawer ---
   if (isMobile) {
     return (
-      <MobileDrawer open={open} onClose={() => {}}>
+      <MobileDrawer open={open} onClose={() => setOpen(false)}>
         <div className="h-full">
           <DashboardSidebar />
         </div>

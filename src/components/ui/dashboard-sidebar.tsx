@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useVaultStore } from '@/store/useVaultStore';
+import { useSidebar } from '@/components/ui/sidebar';
 import { buildTreeOnce, type TreeNode } from '@/utils/tree';
 import {
   Search,
@@ -191,6 +192,7 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({ className = '' }: DashboardSidebarProps) {
   const { notes, activeVault, activeNotePath, setActiveNotePath, vaults, setActiveVault, expandedFolderPaths } = useVaultStore();
+  const { isMobile, setOpen } = useSidebar();
   const [searchQuery, setSearchQuery] = useState('');
 
   const treeNodes = useMemo(() => {
@@ -223,6 +225,7 @@ export function DashboardSidebar({ className = '' }: DashboardSidebarProps) {
 
   const handleSelect = (id: string) => {
     setActiveNotePath(id);
+    if (isMobile) setOpen(false);
   };
 
   if (!activeVault) return null;
