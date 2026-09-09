@@ -15,6 +15,7 @@
   /* Flex-item blowout guard: prose may sit inside min-w-0 chains */
   min-width: 0;
   max-width: 100%;
+  overflow-x: hidden;
 }
 
 /* Unbreakable content guards — long code lines, KaTeX, and tables must
@@ -60,6 +61,7 @@
   max-width: min(860px, 100%);
   margin-left: auto;
   margin-right: auto;
+  overflow-x: clip;
 }
 
 /* Markdown Prose Rules */

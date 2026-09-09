@@ -240,6 +240,7 @@ export function DashboardSidebar({ className = '' }: DashboardSidebarProps) {
           onSelect={(name) => {
             const v = vaults.find((vault) => vault.name === name);
             if (v) setActiveVault(v);
+            if (isMobile) setOpen(false);
           }}
         />
       </div>

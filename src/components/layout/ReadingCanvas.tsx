@@ -46,13 +46,13 @@ export const ReadingCanvas: React.FC = () => {
 
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 bg-[var(--surface-page)] transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]">
+    <div className="flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden bg-[var(--surface-page)] transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]">
 
 
       {/* Main content area: reading canvas */}
       <div className="flex-1 flex min-h-0 min-w-0 overflow-hidden">
         {/* Reading Document Canvas Container */}
-        <main className="flex-1 min-w-0 overflow-y-auto">
+        <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden">
           <div className="reading-canvas-container px-6 sm:px-8 md:px-14 lg:px-20 py-6 sm:py-8 md:py-12 min-w-0">
           {/* Title Header */}
           <div className="mb-4">
