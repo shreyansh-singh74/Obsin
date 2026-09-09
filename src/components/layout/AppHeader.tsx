@@ -4,7 +4,9 @@ import { ProfileMenu } from './ProfileMenu';
 import { useVaultStore } from '@/store/useVaultStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { executeVaultSync } from '@/engine/sync';
+import { getNotesByVault } from '@/db/repository/notesRepo';
 import { ArrowLeft, ArrowRight, RefreshCw, Search } from 'lucide-react';
+import { toast } from 'sonner';
 import logoMark from '@/assets/logo.svg';
 
 interface AppHeaderProps {
@@ -23,10 +25,41 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
     if (!activeVault || isSyncing) return;
     setIsSyncing(true);
     try {
-      await executeVaultSync(activeVault, token);
+      // Capture notes before sync to detect changes
+      const notesBefore = await getNotesByVault(activeVault.id);
+      const shaMap = new Map<string, string>();
+      for (const note of notesBefore) {
+        shaMap.set(note.path, note.sha);
+      }
+
+      const notesAfter = await executeVaultSync(activeVault, token);
+
+      // Find new or updated files
+      const updatedFiles: string[] = [];
+      for (const note of notesAfter) {
+        const oldSha = shaMap.get(note.path);
+        if (!oldSha || oldSha !== note.sha) {
+          updatedFiles.push(note.path);
+        }
+      }
+
+      if (updatedFiles.length > 0) {
+        for (const filePath of updatedFiles) {
+          const fileName = filePath.split('/').pop() || filePath;
+          toast.success(`Updated: ${fileName}`, {
+            description: filePath,
+          });
+        }
+      } else {
+        toast.info('Vault is up to date');
+      }
+
       await refreshNotes();
     } catch (err) {
       console.error('Sync failed:', err);
+      toast.error('Sync failed', {
+        description: err instanceof Error ? err.message : 'Unknown error',
+      });
     } finally {
       setIsSyncing(false);
     }

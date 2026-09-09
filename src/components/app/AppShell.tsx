@@ -13,6 +13,7 @@ import { SearchModal } from '@/components/search/SearchModal';
 import { OfflineBanner } from '@/components/sync/OfflineBanner';
 import { GraphView } from '@/components/graph/GraphView';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { Toaster } from '@/components/ui/sonner';
 
 /**
  * Reads the note path from the URL hash: /app#vault-id/note/path.md
@@ -165,6 +166,7 @@ export function AppShell() {
           )}
         </div>
       </SidebarProvider>
+      <Toaster />
     </ErrorBoundary>
   );
 }
