@@ -1,27 +1,46 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Bookmark, FileText, Hash, Heading, Search } from 'lucide-react';
 import { useVaultStore } from '@/store/useVaultStore';
-import { searchEngine, SearchResultItem } from '@/engine/search';
-import { Search, FileText, Hash, Bookmark, Heading, X } from 'lucide-react';
+import { searchEngine, type SearchResultItem } from '@/engine/search';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandShortcut,
+} from '@/components/ui/command';
 
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const MATCH_LABELS: Record<SearchResultItem['matchedField'], string> = {
+  title: 'Title',
+  heading: 'Heading',
+  tag: 'Tag',
+  alias: 'Alias',
+  content: 'Content',
+};
+
+function ResultIcon({ field }: { field: SearchResultItem['matchedField'] }) {
+  if (field === 'heading') return <Heading className="size-4 text-[var(--success-text)]" />;
+  if (field === 'tag') return <Hash className="size-4 text-[var(--warning-text)]" />;
+  if (field === 'alias') return <Bookmark className="size-4 text-[var(--accent-text)]" />;
+  return <FileText className="size-4 text-[var(--info-text)]" />;
+}
+
 export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
   const { activeVault, notes, setActiveNotePath } = useVaultStore();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResultItem[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50);
-      setQuery('');
-      setResults([]);
-      setSelectedIndex(0);
-    }
+    if (!isOpen) return;
+    setQuery('');
+    setResults([]);
   }, [isOpen]);
 
   useEffect(() => {
@@ -30,134 +49,117 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
       return;
     }
 
-    const searchHits = searchEngine.search(activeVault.id, query, notes, 25);
-    setResults(searchHits);
-    setSelectedIndex(0);
+    setResults(searchEngine.search(activeVault.id, query, notes, 25));
   }, [query, activeVault, notes]);
 
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Escape') {
-      onClose();
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setSelectedIndex((prev) => (prev < results.length - 1 ? prev + 1 : 0));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : results.length - 1));
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      if (results[selectedIndex]) {
-        setActiveNotePath(results[selectedIndex].path);
-        onClose();
-      }
-    }
+  function openResult(path: string) {
+    setActiveNotePath(path);
+    onClose();
   }
 
   if (!isOpen) return null;
 
   return (
     <div
-      onClick={onClose}
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[var(--z-modal)] flex items-start justify-center pt-16 px-4 animate-fade-in"
+      className="fixed inset-0 z-[var(--z-modal)] flex items-start justify-center bg-black/55 px-3 pt-[10vh] backdrop-blur-[2px] animate-fade-in sm:px-6 sm:pt-[14vh]"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
     >
       <div
-        onClick={(e) => e.stopPropagation()}
-        className="bg-[var(--surface-modal)] border border-[var(--border-default)] rounded-[var(--radius-xl)] max-w-2xl w-full shadow-[var(--shadow-lg)] overflow-hidden flex flex-col max-h-[80vh] animate-pop-in"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Search vault"
+        className="w-full max-w-xl overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-modal)] shadow-[var(--shadow-lg)] animate-pop-in"
       >
-        {/* Search Input Bar */}
-        <div className="p-4 border-b border-[var(--border-subtle)] flex items-center gap-3 bg-[var(--surface-modal)]">
-          <Search className="w-5 h-5 text-[var(--accent-text)] shrink-0" />
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder="Search title, content, headings (#), tags, aliases..."
+        <Command
+          shouldFilter={false}
+          loop
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') onClose();
+          }}
+        >
+          <CommandInput
+            autoFocus
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent text-sm font-sans text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none"
+            onValueChange={setQuery}
+            placeholder="Search notes, headings, tags, aliases..."
           />
-          {query && (
-            <button
-              onClick={() => setQuery('')}
-              className="p-2.5 rounded-[var(--radius-sm)] hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center md:min-w-0 md:min-h-0 md:p-1"
-            >
-              <X className="w-5 h-5 md:w-4 md:h-4" />
-            </button>
-          )}
-          <button
-            onClick={onClose}
-            className="hidden md:flex text-[10px] font-mono text-[var(--text-subtle)] border border-[var(--border-subtle)] px-1.5 py-0.5 rounded-[var(--radius-xs)] bg-[var(--surface-page)]"
-          >
-            ESC
-          </button>
-        </div>
 
-        {/* Search Results List */}
-        <div className="flex-1 overflow-y-auto p-2 space-y-1">
-          {results.length > 0 ? (
-            results.map((item, idx) => {
-              const isSelected = idx === selectedIndex;
-              return (
-                <button
-                  key={`${item.path}-${idx}`}
-                  onClick={() => {
-                    setActiveNotePath(item.path);
-                    onClose();
-                  }}
-                  className={`w-full text-left p-3 rounded-[var(--radius-md)] transition-all duration-[var(--duration-fast)] flex items-start gap-3 cursor-pointer ${
-                    isSelected
-                      ? 'bg-[var(--accent-soft)] border border-[var(--accent-soft)] text-[var(--text-primary)]'
-                      : 'hover:bg-[var(--surface-hover)] border border-transparent text-[var(--text-secondary)]'
-                  }`}
-                >
-                  <div className="p-2 rounded-[var(--radius-sm)] bg-[var(--surface-input)] border border-[var(--border-subtle)] shrink-0 mt-0.5">
-                    {item.matchedField === 'heading' ? (
-                      <Heading className="w-4 h-4 text-[var(--success-text)]" />
-                    ) : item.matchedField === 'tag' ? (
-                      <Hash className="w-4 h-4 text-[var(--warning-text)]" />
-                    ) : item.matchedField === 'alias' ? (
-                      <Bookmark className="w-4 h-4 text-[var(--accent-text)]" />
-                    ) : (
-                      <FileText className="w-4 h-4 text-[var(--info-text)]" />
-                    )}
-                  </div>
+          <CommandList>
+            {!query.trim() && (
+              <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
+                <div className="mb-3 flex size-10 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-card)]">
+                  <Search className="size-4 text-[var(--text-muted)]" />
+                </div>
+                <p className="text-sm font-medium text-[var(--text-primary)]">Search your vault</p>
+                <p className="mt-1 max-w-xs text-xs leading-relaxed text-[var(--text-muted)]">
+                  Find notes by title, content, heading, tag, or alias.
+                </p>
+              </div>
+            )}
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-semibold text-xs text-[var(--text-primary)] truncate">{item.title}</span>
-                      {item.folder && (
-                        <span className="text-[10px] font-mono text-[var(--text-subtle)] truncate max-w-[150px]">
-                          {item.folder}
-                        </span>
-                      )}
+            {query.trim() && results.length === 0 && (
+              <CommandEmpty>
+                <p className="font-medium text-[var(--text-primary)]">No results found</p>
+                <p className="mt-1 text-xs">Try a different title, tag, or phrase.</p>
+              </CommandEmpty>
+            )}
+
+            {results.length > 0 && (
+              <CommandGroup heading={`${results.length} result${results.length === 1 ? '' : 's'}`}>
+                {results.map((item) => (
+                  <CommandItem
+                    key={item.path}
+                    value={item.path}
+                    onSelect={() => openResult(item.path)}
+                  >
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--surface-input)]">
+                      <ResultIcon field={item.matchedField} />
                     </div>
 
-                    {item.headingMatch && (
-                      <span className="inline-flex items-center gap-1 text-[11px] text-[var(--success-text)] font-mono mt-0.5">
-                        <Heading className="w-3 h-3" /> Section: {item.headingMatch}
-                      </span>
-                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="truncate text-xs font-semibold text-[var(--text-primary)]">
+                          {item.title}
+                        </span>
+                        <span className="shrink-0 rounded-full bg-[var(--surface-card)] px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-[var(--text-subtle)]">
+                          {MATCH_LABELS[item.matchedField]}
+                        </span>
+                      </div>
 
-                    {item.snippet && (
-                      <p className="text-xs text-[var(--text-muted)] font-mono mt-1 line-clamp-2 leading-snug">
-                        {item.snippet}
-                      </p>
+                      {item.headingMatch ? (
+                        <p className="mt-0.5 truncate text-[11px] text-[var(--success-text)]">
+                          {item.headingMatch}
+                        </p>
+                      ) : item.snippet ? (
+                        <p className="mt-0.5 truncate text-[11px] text-[var(--text-muted)]">
+                          {item.snippet}
+                        </p>
+                      ) : item.folder ? (
+                        <p className="mt-0.5 truncate text-[11px] text-[var(--text-subtle)]">
+                          {item.folder}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    {item.folder && (
+                      <CommandShortcut className="hidden max-w-32 truncate sm:block">
+                        {item.folder}
+                      </CommandShortcut>
                     )}
-                  </div>
-                </button>
-              );
-            })
-          ) : query.trim() ? (
-            <div className="p-8 text-center text-xs text-[var(--text-muted)] font-mono space-y-1">
-              <p>No search results found for "{query}"</p>
-            </div>
-          ) : (
-            <div className="p-8 text-center text-xs text-[var(--text-muted)] font-sans space-y-1">
-              <p className="text-[var(--text-secondary)] font-medium">Type a search term to find notes instantly</p>
-              <p className="text-[11px] font-mono text-[var(--text-subtle)]">Supports searching headers (#), tags, aliases, and contents</p>
-            </div>
-          )}
-        </div>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+          </CommandList>
+
+          <div className="hidden items-center gap-4 border-t border-[var(--border-subtle)] px-4 py-2 text-[10px] text-[var(--text-subtle)] sm:flex">
+            <span className="flex items-center gap-1.5"><kbd className="rounded border border-[var(--border-default)] bg-[var(--surface-card)] px-1.5 py-0.5">↑↓</kbd> Navigate</span>
+            <span className="flex items-center gap-1.5"><kbd className="rounded border border-[var(--border-default)] bg-[var(--surface-card)] px-1.5 py-0.5">↵</kbd> Open</span>
+            <span className="ml-auto flex items-center gap-1.5"><kbd className="rounded border border-[var(--border-default)] bg-[var(--surface-card)] px-1.5 py-0.5">Esc</kbd> Close</span>
+          </div>
+        </Command>
       </div>
     </div>
   );

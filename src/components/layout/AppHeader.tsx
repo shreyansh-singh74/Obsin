@@ -191,11 +191,17 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
           <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
         </button>
         <button
+          type="button"
           onClick={onOpenSearch}
-          className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+          className="flex h-7 items-center justify-center gap-1.5 rounded-[var(--radius-sm)] border border-transparent px-1.5 text-[var(--text-muted)] transition-colors hover:border-[var(--border-subtle)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] sm:px-2 cursor-pointer"
           title="Search (⌘K)"
+          aria-label="Search vault"
         >
-          <Search className="w-3.5 h-3.5" />
+          <Search className="size-3.5" />
+          <span className="hidden text-[11px] sm:inline">Search</span>
+          <kbd className="hidden rounded border border-[var(--border-subtle)] bg-[var(--surface-card)] px-1 py-0.5 font-mono text-[9px] text-[var(--text-subtle)] lg:inline">
+            ⌘K
+          </kbd>
         </button>
         
         <ProfileMenu />
