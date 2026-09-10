@@ -10,18 +10,31 @@ const COOKIE_TOKEN = 'obsin_token_handoff';
 
 export default {
   async fetch(request: Request): Promise<Response> {
-    if (request.method !== 'GET') {
-      return new Response('Method Not Allowed', { status: 405 });
+    if (request.method !== 'POST') {
+      return new Response('Method Not Allowed', {
+        status: 405,
+        headers: { Allow: 'POST', 'Cache-Control': 'no-store' },
+      });
     }
 
-    // Only allow same-origin requests (basic CSRF mitigation for this endpoint)
+    // Require an exact same-origin browser request before consuming the cookie.
+    const requestUrl = new URL(request.url);
     const origin = request.headers.get('origin');
-    const host = request.headers.get('host');
+    const fetchSite = request.headers.get('sec-fetch-site');
+    let originMatches = false;
     if (origin) {
-      const originHost = new URL(origin).host;
-      if (originHost !== host) {
-        return new Response('Forbidden', { status: 403 });
+      try {
+        originMatches = new URL(origin).origin === requestUrl.origin;
+      } catch {
+        originMatches = false;
       }
+    }
+
+    if (!originMatches || (fetchSite !== 'same-origin' && fetchSite !== 'same-site')) {
+      return new Response('Forbidden', {
+        status: 403,
+        headers: { 'Cache-Control': 'no-store' },
+      });
     }
 
     const cookieHeader = request.headers.get('cookie') ?? '';
@@ -38,8 +51,7 @@ export default {
     const accessToken = decodeURIComponent(encodedToken);
 
     const isLocalhost =
-      (request.headers.get('host') ?? '').startsWith('localhost') ||
-      (request.headers.get('host') ?? '').startsWith('127.0.0.1');
+      requestUrl.hostname === 'localhost' || requestUrl.hostname === '127.0.0.1';
     const secure = !isLocalhost;
 
     const headers = new Headers({

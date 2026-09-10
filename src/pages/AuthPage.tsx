@@ -7,6 +7,7 @@ import {
   requestDeviceCode,
   pollForAccessToken,
   getGitHubClientId,
+  isTrustedGitHubVerificationUri,
   DeviceCodeResponse,
 } from '@/engine/github/deviceAuth';
 import {
@@ -69,7 +70,7 @@ export const AuthPage: React.FC = () => {
     if (oauthOk === 'ok') {
       // Retrieve the token from the one-time HttpOnly handoff cookie via server endpoint
       setIsLoading(true);
-      fetch('/api/auth/token', { credentials: 'same-origin' })
+      fetch('/api/auth/token', { method: 'POST', credentials: 'same-origin' })
         .then(async (res) => {
           const data = await res.json();
           if (!res.ok || !data.access_token) {
@@ -80,9 +81,12 @@ export const AuthPage: React.FC = () => {
         .then(async (token) => {
           const userProfile = await fetchAuthenticationUser(token);
           setAuth(token, userProfile);
-          // If this page opened as a popup, send the token back to the parent window
+          // If this page opened as a popup, send the token back only to our exact origin.
           if (window.opener && !window.opener.closed) {
-            window.opener.postMessage({ type: 'obsin-oauth-complete', token, user: userProfile }, '*');
+            window.opener.postMessage(
+              { type: 'obsin-oauth-complete', token },
+              window.location.origin
+            );
             window.close();
           }
         })
@@ -136,7 +140,6 @@ export const AuthPage: React.FC = () => {
     const poll = async () => {
       try {
         const res = await pollForAccessToken(clientId, deviceFlowData.device_code);
-        console.log('GitHub Device Flow polling status:', res);
 
         if (res.access_token) {
           setDeviceFlowData(null);
@@ -155,8 +158,8 @@ export const AuthPage: React.FC = () => {
           setError(res.error_description || res.error);
           return;
         }
-      } catch (err: any) {
-        console.warn('Device flow poll error:', err);
+      } catch {
+        // Transient polling failures are retried at the current interval.
       }
 
       pollTimerRef.current = setTimeout(poll, currentIntervalSec * 1000);
@@ -172,16 +175,33 @@ export const AuthPage: React.FC = () => {
     };
   }, [deviceFlowData, setAuth]);
 
-  // Listen for OAuth token from popup window (postMessage from child)
+  // Listen for an OAuth token only from the popup on this exact origin.
   useEffect(() => {
-    function handleOAuthMessage(event: MessageEvent) {
-      if (event.data?.type === 'obsin-oauth-complete' && event.data.token) {
-        const { token: receivedToken, user: receivedUser } = event.data;
-        setAuth(receivedToken, receivedUser);
-        // Close the popup if still open
+    async function handleOAuthMessage(event: MessageEvent) {
+      if (
+        !popupRef.current ||
+        event.origin !== window.location.origin ||
+        event.source !== popupRef.current
+      ) return;
+      if (
+        event.data?.type !== 'obsin-oauth-complete' ||
+        typeof event.data.token !== 'string' ||
+        !event.data.token
+      ) return;
+
+      setIsLoading(true);
+      setError(null);
+      try {
+        const userProfile = await fetchAuthenticationUser(event.data.token);
+        setAuth(event.data.token, userProfile);
         if (popupRef.current && !popupRef.current.closed) {
           popupRef.current.close();
         }
+        popupRef.current = null;
+      } catch (err: any) {
+        setError(err.message || 'Failed to validate OAuth token');
+      } finally {
+        setIsLoading(false);
       }
     }
     window.addEventListener('message', handleOAuthMessage);
@@ -237,6 +257,9 @@ export const AuthPage: React.FC = () => {
 
     try {
       const deviceData = await requestDeviceCode(clientId);
+      if (!isTrustedGitHubVerificationUri(deviceData.verification_uri)) {
+        throw new Error('GitHub returned an invalid device verification URL');
+      }
       setDeviceFlowData(deviceData);
     } catch (err: any) {
       setError(err.message || 'Failed to initiate GitHub Device Flow');
@@ -391,6 +414,11 @@ export const AuthPage: React.FC = () => {
                   rel="noreferrer"
                   onClick={(e) => {
                     e.preventDefault();
+                    if (!isTrustedGitHubVerificationUri(deviceFlowData.verification_uri)) {
+                      setDeviceFlowData(null);
+                      setError('GitHub returned an invalid device verification URL');
+                      return;
+                    }
                     window.open(
                       deviceFlowData.verification_uri,
                       'github-device-auth',

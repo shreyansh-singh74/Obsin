@@ -4,6 +4,7 @@ import { getNotesByVault } from '@/db/repository/notesRepo';
 import { getAllVaults, saveVault, deleteVault } from '@/db/repository/vaultsRepo';
 import { getAssetPaths } from '@/db/repository/assetsRepo';
 import { searchEngine } from '@/engine/search';
+import { purgeObsinCaches } from '@/utils/localData';
 
 interface VaultState {
   activeVault: VaultConfig | null;
@@ -36,6 +37,7 @@ interface VaultState {
   loadVaults: () => Promise<void>;
   refreshNotes: () => Promise<void>;
   dropVault: (vaultId: string) => Promise<void>;
+  resetLocalState: () => void;
   setError: (error: string | null) => void;
 }
 
@@ -192,8 +194,9 @@ export const useVaultStore = create<VaultState>((set, get) => ({
     // Clear the in-memory search index for this vault
     searchEngine.clearIndex(vaultId);
 
-    // Delete from IndexedDB (all 7 vault-scoped tables)
-    await deleteVault(vaultId);
+    // Delete from IndexedDB (all 7 vault-scoped tables) and remove app-owned
+    // CacheStorage entries, which are shared across vaults rather than scoped.
+    await Promise.all([deleteVault(vaultId), purgeObsinCaches()]);
 
     // Refresh vault list
     const remaining = vaults.filter((v) => v.id !== vaultId);
@@ -204,9 +207,39 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       if (remaining.length > 0) {
         await get().setActiveVault(remaining[0]);
       } else {
-        set({ activeVault: null, notes: [], assetPaths: [], activeNotePath: null });
+        set({
+          activeVault: null,
+          notes: [],
+          assetPaths: [],
+          activeNotePath: null,
+          history: [],
+          historyIndex: -1,
+          favorites: new Set<string>(),
+          expandedFolderPaths: new Set<string>(),
+        });
       }
     }
+  },
+
+  resetLocalState: () => {
+    const { activeVault, vaults } = get();
+    const vaultIds = new Set(vaults.map((vault) => vault.id));
+    if (activeVault) vaultIds.add(activeVault.id);
+    vaultIds.forEach((vaultId) => searchEngine.clearIndex(vaultId));
+
+    set({
+      activeVault: null,
+      vaults: [],
+      notes: [],
+      assetPaths: [],
+      activeNotePath: null,
+      isLoading: false,
+      error: null,
+      history: [],
+      historyIndex: -1,
+      favorites: new Set<string>(),
+      expandedFolderPaths: new Set<string>(),
+    });
   },
 
   setError: (error: string | null) => {

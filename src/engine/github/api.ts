@@ -36,8 +36,11 @@ export async function fetchGitHubApi(
   token?: string,
   options: RequestInit = {}
 ): Promise<{ data: any; rateLimit?: GitHubRateLimit }> {
-  const url = endpoint.startsWith('http') ? endpoint : `https://api.github.com${endpoint}`;
-  
+  const url = new URL(endpoint, 'https://api.github.com');
+  if (url.protocol !== 'https:' || url.origin !== 'https://api.github.com') {
+    throw new Error('Refusing to send GitHub credentials to a non-GitHub API origin');
+  }
+
   const headers: Record<string, string> = {
     Accept: 'application/vnd.github.v3+json',
     ...(options.headers as Record<string, string>),
@@ -47,7 +50,7 @@ export async function fetchGitHubApi(
     headers.Authorization = `Bearer ${token.trim()}`;
   }
 
-  const response = await fetch(url, { ...options, headers });
+  const response = await fetch(url.toString(), { ...options, headers });
   const rateLimit = parseRateLimitHeaders(response.headers);
 
   if (!response.ok) {

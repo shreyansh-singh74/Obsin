@@ -19,6 +19,15 @@ export function getGitHubClientId(): string | null {
   return import.meta.env.VITE_GITHUB_CLIENT_ID || null;
 }
 
+export function isTrustedGitHubVerificationUri(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && url.hostname === 'github.com';
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Step 1: Request Device and User Verification Codes from GitHub.
  * In dev: goes through Vite proxy → GitHub (bypasses CORS in browser).
@@ -43,10 +52,14 @@ export async function requestDeviceCode(clientId: string): Promise<DeviceCodeRes
     body: params.toString(),
   });
 
-  const data = await response.json();
+  const data: DeviceCodeResponse & { error?: string; error_description?: string } = await response.json();
 
   if (!response.ok || data.error) {
     throw new Error(data.error_description || data.error || 'Failed to request device authorization code');
+  }
+
+  if (!isTrustedGitHubVerificationUri(data.verification_uri)) {
+    throw new Error('GitHub returned an invalid device verification URL');
   }
 
   return data;

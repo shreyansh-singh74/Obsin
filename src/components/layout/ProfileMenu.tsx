@@ -1,15 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, ChevronDown } from 'lucide-react';
+import { LogOut, ChevronDown, Trash2 } from 'lucide-react';
 import { ThemeSwitcher } from './ThemeSwitcher';
 import { UserAvatar } from '@/components/ui/UserAvatar';
+import { useVaultStore } from '@/store/useVaultStore';
+import { eraseObsinLocalData } from '@/utils/localData';
 
 export const ProfileMenu: React.FC = () => {
   const { user, clearToken } = useAuthStore();
   
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [isErasing, setIsErasing] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Close on outside click
@@ -43,7 +46,24 @@ export const ProfileMenu: React.FC = () => {
     navigate('/auth');
   }
 
+  async function handleEraseAndSignOut() {
+    const confirmed = window.confirm(
+      'Sign out and erase all Obsin data from this device?\n\nThis permanently removes downloaded vaults, settings, search data, and Obsin offline caches. Your GitHub repositories are not affected.',
+    );
+    if (!confirmed) return;
 
+    setIsErasing(true);
+    try {
+      await eraseObsinLocalData();
+      useVaultStore.getState().resetLocalState();
+      clearToken();
+      window.location.replace('/auth');
+    } catch (error) {
+      console.error('Failed to erase local Obsin data:', error);
+      window.alert('Obsin could not erase all local data. Please try again.');
+      setIsErasing(false);
+    }
+  }
 
   return (
     <div className="relative" ref={menuRef}>
@@ -66,7 +86,7 @@ export const ProfileMenu: React.FC = () => {
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute top-full right-0 mt-1.5 w-56 max-w-[calc(100vw-2rem)] bg-[var(--surface-popover)] border border-[var(--border-default)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] z-[var(--z-dropdown)] overflow-hidden animate-pop-in">
+        <div className="absolute top-full right-0 mt-1.5 w-64 max-w-[calc(100vw-2rem)] bg-[var(--surface-popover)] border border-[var(--border-default)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] z-[var(--z-dropdown)] overflow-hidden animate-pop-in">
           {/* User info */}
           <div className="px-3 py-2.5 border-b border-[var(--border-subtle)]/50">
             <div className="flex items-center gap-2">
@@ -94,11 +114,28 @@ export const ProfileMenu: React.FC = () => {
           {/* Sign out */}
           <div className="px-1 py-1">
             <button
+              type="button"
               onClick={handleSignOut}
-              className="w-full px-2 py-1.5 text-left text-xs text-[var(--text-secondary)] hover:bg-red-500/10 hover:text-red-400 rounded-[var(--radius-sm)] flex items-center gap-2 transition-colors cursor-pointer"
+              disabled={isErasing}
+              className="w-full px-2 py-1.5 text-left text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] rounded-[var(--radius-sm)] flex items-start gap-2 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <LogOut className="w-3 h-3" />
-              Sign Out
+              <LogOut className="w-3 h-3 mt-0.5 shrink-0" />
+              <span>
+                <span className="block text-xs">Sign out</span>
+                <span className="block text-[10px] text-[var(--text-muted)]">Keeps offline data on this device</span>
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={handleEraseAndSignOut}
+              disabled={isErasing}
+              className="w-full px-2 py-1.5 text-left text-red-400 hover:bg-red-500/10 rounded-[var(--radius-sm)] flex items-start gap-2 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Trash2 className="w-3 h-3 mt-0.5 shrink-0" />
+              <span>
+                <span className="block text-xs">{isErasing ? 'Erasing this device…' : 'Sign out & erase this device'}</span>
+                <span className="block text-[10px] text-[var(--text-muted)]">Removes all local Obsin data</span>
+              </span>
             </button>
           </div>
         </div>

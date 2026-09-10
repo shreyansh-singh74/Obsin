@@ -27,6 +27,31 @@ interface MarkdownRendererProps {
 
 type ImageState = 'loading' | 'ok' | 'error';
 
+const ALLOWED_REMOTE_IMAGE_HOSTS = new Set([
+  'avatars.githubusercontent.com',
+  'raw.githubusercontent.com',
+  'media.githubusercontent.com',
+]);
+
+function directImageIsSafe(src: string): boolean {
+  if (src.startsWith('data:image/')) return true;
+  try {
+    const url = new URL(src);
+    return url.protocol === 'https:' && ALLOWED_REMOTE_IMAGE_HOSTS.has(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function sourceIsSvg(src: string): boolean {
+  if (src.toLowerCase().startsWith('data:image/svg+xml')) return true;
+  try {
+    return new URL(src).pathname.toLowerCase().endsWith('.svg');
+  } catch {
+    return normalizeAssetRef(src).toLowerCase().endsWith('.svg');
+  }
+}
+
 /**
  * Resolves an image reference against the vault asset index, fetches (and
  * caches) the bytes, and renders the result as an object URL.
@@ -49,15 +74,27 @@ const ResolvedImage: React.FC<{
   const [url, setUrl] = useState<string | null>(null);
   const [state, setState] = useState<ImageState>('loading');
   const [notIndexed, setNotIndexed] = useState(false);
+  const [openable, setOpenable] = useState(false);
 
   useEffect(() => {
-    // Direct sources need no resolution.
+    setState('loading');
+    setUrl(null);
+    setOpenable(false);
+
+    // Direct sources never receive credentials and are restricted to the same
+    // HTTPS hosts allowed by the production CSP. SVG may render inside <img>,
+    // but is never opened as a top-level active document.
     if (!src) {
       setState('error');
       return;
     }
     if (src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) {
+      if (!directImageIsSafe(src)) {
+        setState('error');
+        return;
+      }
       setUrl(src);
+      setOpenable(!sourceIsSvg(src));
       setState('ok');
       return;
     }
@@ -113,6 +150,7 @@ const ResolvedImage: React.FC<{
           return;
         }
         setUrl(objectUrl);
+        setOpenable(blob.type !== 'image/svg+xml' && !sourceIsSvg(path));
         setState('ok');
         console.debug('[Obsin] ResolvedImage OK:', { src, path });
       } catch (err) {
@@ -132,7 +170,7 @@ const ResolvedImage: React.FC<{
   }, [src, notePath, activeVault?.id, activeVault?.owner, activeVault?.repo, activeVault?.branch, token]);
 
   function handleOpen() {
-    if (url && state === 'ok') {
+    if (url && state === 'ok' && openable) {
       window.open(url, '_blank', 'noopener,noreferrer');
     }
   }
@@ -171,10 +209,11 @@ const ResolvedImage: React.FC<{
       src={url!}
       alt={alt || ''}
       title={alt || src}
-      onClick={handleOpen}
+      onClick={openable ? handleOpen : undefined}
       onError={() => setState('error')}
       className={
-        'rounded-[var(--radius-md)] border border-[var(--border-subtle)] shadow-[var(--shadow-sm)] max-w-full h-auto cursor-zoom-in ' +
+        'rounded-[var(--radius-md)] border border-[var(--border-subtle)] shadow-[var(--shadow-sm)] max-w-full h-auto ' +
+        (openable ? 'cursor-zoom-in ' : '') +
         (block ? 'mx-auto block' : 'inline-block align-middle')
       }
       style={width ? { width: `${width}px` } : undefined}

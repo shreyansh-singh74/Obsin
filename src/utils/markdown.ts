@@ -1,5 +1,7 @@
 import yaml from 'js-yaml';
 
+const MAX_FRONTMATTER_LENGTH = 64 * 1024;
+
 export interface ParsedFrontmatter {
   title?: string;
   tags: string[];
@@ -25,8 +27,16 @@ export function parseFrontmatter(rawContent: string): ParsedFrontmatter {
   const yamlText = match[1];
   const body = rawContent.slice(match[0].length);
 
+  // Frontmatter is untrusted repository content. Bound parser work and use the
+  // JSON-compatible schema so YAML-specific collection tags/merge semantics
+  // cannot trigger known algorithmic-complexity attacks.
+  if (yamlText.length > MAX_FRONTMATTER_LENGTH) {
+    console.warn('Skipping oversized frontmatter YAML');
+    return { tags: [], aliases: [], body };
+  }
+
   try {
-    const data = yaml.load(yamlText) as Record<string, unknown> | null;
+    const data = yaml.load(yamlText, { schema: yaml.JSON_SCHEMA }) as Record<string, unknown> | null;
     if (!data || typeof data !== 'object') {
       return { tags: [], aliases: [], body };
     }

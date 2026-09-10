@@ -1,5 +1,6 @@
 const CACHE_NAME = 'obsin-v2';
 const STATIC_CACHE = 'obsin-static-v2';
+const OBSIN_CACHE_PREFIX = 'obsin-';
 
 // Assets to precache on install
 const PRECACHE_URLS = [
@@ -23,7 +24,11 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((names) =>
       Promise.all(
         names
-          .filter((name) => name !== CACHE_NAME && name !== STATIC_CACHE)
+          .filter((name) =>
+            name.startsWith(OBSIN_CACHE_PREFIX)
+            && name !== CACHE_NAME
+            && name !== STATIC_CACHE
+          )
           .map((name) => caches.delete(name))
       )
     ).then(() => self.clients.claim())
@@ -35,11 +40,18 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET and cross-origin requests
-  if (request.method !== 'GET') return;
+  // Never intercept requests that are unsafe to cache. In particular, leave
+  // cross-origin and authenticated traffic entirely to the browser/network.
+  if (
+    request.method !== 'GET'
+    || url.origin !== self.location.origin
+    || request.headers.has('Authorization')
+  ) {
+    return;
+  }
 
   // API requests: network-only (let the app handle caching)
-  if (url.pathname.startsWith('/api/') || url.hostname === 'api.github.com') {
+  if (url.pathname.startsWith('/api/')) {
     return;
   }
 

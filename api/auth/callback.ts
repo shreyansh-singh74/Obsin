@@ -10,7 +10,10 @@ const ALLOWED_BASE =
 export default {
   async fetch(request: Request): Promise<Response> {
     if (request.method !== 'GET') {
-      return new Response('Method Not Allowed', { status: 405 });
+      return new Response('Method Not Allowed', {
+        status: 405,
+        headers: { Allow: 'GET' },
+      });
     }
 
     const url = new URL(request.url);
@@ -32,11 +35,17 @@ export default {
     const isLocalhost = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
     const baseUrl = isLocalhost ? url.origin : ALLOWED_BASE;
 
-    const clearCookies = `${COOKIE_STATE}=; Max-Age=0; Path=/api/auth; HttpOnly; SameSite=Lax; Secure, ${COOKIE_VERIFIER}=; Max-Age=0; Path=/api/auth; HttpOnly; SameSite=Lax; Secure`;
+    const secure = !isLocalhost;
+    const deletionCookie = (name: string) =>
+      `${name}=; Max-Age=0; Path=/api/auth; HttpOnly; SameSite=Lax${secure ? '; Secure' : ''}`;
 
     const redirectError = (msg: string): Response => {
-      const headers = new Headers({ Location: `${baseUrl}/auth?error=${encodeURIComponent(msg)}` });
-      headers.set('Set-Cookie', clearCookies);
+      const headers = new Headers({
+        Location: `${baseUrl}/auth?error=${encodeURIComponent(msg)}`,
+        'Cache-Control': 'no-store',
+      });
+      headers.append('Set-Cookie', deletionCookie(COOKIE_STATE));
+      headers.append('Set-Cookie', deletionCookie(COOKIE_VERIFIER));
       return new Response(null, { status: 302, headers });
     };
 
@@ -55,6 +64,10 @@ export default {
       return redirectError('Missing authorization code');
     }
 
+    if (!codeVerifier) {
+      return redirectError('Missing PKCE verifier. Please restart sign-in.');
+    }
+
     const clientId = process.env.GITHUB_CLIENT_ID || process.env.VITE_GITHUB_CLIENT_ID;
     const clientSecret = process.env.GITHUB_CLIENT_SECRET;
     if (!clientId || !clientSecret) {
@@ -67,10 +80,8 @@ export default {
         client_id: clientId,
         client_secret: clientSecret,
         code,
+        code_verifier: codeVerifier,
       };
-      if (codeVerifier) {
-        body.code_verifier = codeVerifier;
-      }
 
       const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
         method: 'POST',
@@ -92,7 +103,6 @@ export default {
 
       // ── Deliver token via short-lived HttpOnly cookie, NOT the URL ────────────
       // The /auth page reads and clears this cookie via /api/auth/token
-      const secure = !isLocalhost;
       const handoffCookieOpts = `HttpOnly; SameSite=Lax; Path=/api/auth; Max-Age=60${secure ? '; Secure' : ''}`;
 
       const headers = new Headers({
