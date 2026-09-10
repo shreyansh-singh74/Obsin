@@ -4,6 +4,7 @@ import { bulkUpsertNotes, deleteNotesByPaths, getNotesByVault } from '@/db/repos
 import { updateWikiLinkMap } from '@/db/repository/wikiMapRepo';
 import { generateBacklinkTable } from '@/db/repository/backlinksRepo';
 import { saveVault } from '@/db/repository/vaultsRepo';
+import { updateAssetIndex, pruneAssetsNotInPaths } from '@/db/repository/assetsRepo';
 import { searchEngine } from '@/engine/search';
 import { useSyncStore } from '@/store/useSyncStore';
 import { db } from '@/db';
@@ -23,7 +24,7 @@ export async function executeVaultSync(vault: VaultConfig, token?: string): Prom
   try {
     // Stage 1: Fetch Repository Tree & discover branch
     setSyncStage('fetching-tree', `Connecting to GitHub API for ${vault.owner}/${vault.repo}...`);
-    const { treeSha, markdownFiles, branchUsed } = await fetchRepositoryTree(
+    const { treeSha, markdownFiles, assetFiles, branchUsed } = await fetchRepositoryTree(
       vault.owner,
       vault.repo,
       vault.branch,
@@ -96,12 +97,21 @@ export async function executeVaultSync(vault: VaultConfig, token?: string): Prom
       console.log('No notes changed remotely. Database up-to-date.');
     }
 
-    // Stage 4: Building WikiLink Maps & Backlinks
+    // Stage 4: Building WikiLink Maps & Backlinks + Asset Index
     setSyncStage('building-indices', 'Building WikiLink map and pre-computing backlinks...');
     const currentVaultNotes = await getNotesByVault(vault.id);
 
     await updateWikiLinkMap(vault.id, currentVaultNotes);
     await generateBacklinkTable(vault.id, currentVaultNotes);
+
+    // Index image assets so wiki-image embeds (`![[Pasted image ...]]`) can
+    // resolve regardless of where the file lives in the vault.
+    setSyncStage('building-indices', `Indexing ${assetFiles.length} image assets...`);
+    await updateAssetIndex(vault.id, assetFiles);
+    await pruneAssetsNotInPaths(
+      vault.id,
+      assetFiles.map((a) => a.path)
+    );
 
     // Stage 5: Building FlexSearch Index
     searchEngine.indexVault(vault.id, currentVaultNotes);

@@ -12,8 +12,11 @@ export interface TreeNode {
 /**
  * Builds a folder tree structure from a flat array of Note items efficiently.
  * Sorts folders first, alphabetically.
+ *
+ * @param notes - Array of Note items (markdown files)
+ * @param assetPaths - Optional array of asset file paths (images) to include folder nodes for
  */
-export function buildTreeOnce(notes: Note[]): TreeNode[] {
+export function buildTreeOnce(notes: Note[], assetPaths?: string[]): TreeNode[] {
   const rootNodes: TreeNode[] = [];
   const folderMap = new Map<string, TreeNode>();
 
@@ -73,6 +76,17 @@ export function buildTreeOnce(notes: Note[]): TreeNode[] {
       }
     } else {
       rootNodes.push(fileNode);
+    }
+  }
+
+  // Create folder nodes for asset-only directories (e.g., Attachments/)
+  if (assetPaths && assetPaths.length > 0) {
+    for (const assetPath of assetPaths) {
+      const lastSlash = assetPath.lastIndexOf('/');
+      if (lastSlash > 0) {
+        const folderPath = assetPath.substring(0, lastSlash);
+        getOrCreateFolderNode(folderPath);
+      }
     }
   }
 

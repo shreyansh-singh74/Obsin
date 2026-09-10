@@ -1,4 +1,5 @@
 import { fetchGitHubApi, GitHubApiError } from './api';
+import { isImagePath } from '@/utils/assets';
 
 export interface GitTreeItem {
   path: string;
@@ -13,6 +14,8 @@ export interface FetchTreeResult {
   treeSha: string;
   items: GitTreeItem[];
   markdownFiles: GitTreeItem[];
+  /** Image assets (png/jpg/gif/webp/svg/…) present anywhere in the vault tree. */
+  assetFiles: GitTreeItem[];
   branchUsed: string;
 }
 
@@ -61,11 +64,15 @@ export async function fetchRepositoryTree(
     const markdownFiles = items.filter(
       (item) => item.type === 'blob' && item.path.toLowerCase().endsWith('.md')
     );
+    const assetFiles = items.filter(
+      (item) => item.type === 'blob' && isImagePath(item.path)
+    );
 
     return {
       treeSha: data.sha || branchToUse,
       items,
       markdownFiles,
+      assetFiles,
       branchUsed: branchToUse,
     };
   } catch (err: any) {

@@ -1,3 +1,19 @@
+import { isImagePath, getMimeType } from '@/utils/assets';
+
+/** Common attachment folder names used by Obsidian vaults. */
+const ATTACHMENT_FOLDER_HINTS = [
+  'Attachments',
+  'attachments',
+  'Assets',
+  'assets',
+  'Images',
+  'images',
+  'Media',
+  'media',
+  'Files',
+  'files',
+];
+
 /**
  * Resolves an image reference from markdown to a full GitHub raw URL.
  * Handles:
@@ -5,6 +21,9 @@
  * - Relative paths (./image.png, ../assets/photo.jpg) → resolve against note path
  * - Root-relative paths (/assets/image.png) → resolve from repo root
  * - Wiki-image embeds (![[image.png]]) → resolve from repo root
+ *
+ * This is the *heuristic* fallback used when the vault asset index cannot
+ * resolve a reference. Prefer `resolveVaultImagePath` (asset index) first.
  */
 export function resolveImageUrl(
   rawSrc: string,
@@ -35,18 +54,77 @@ export function resolveImageUrl(
     const noteDir = notePath.includes('/') ? notePath.substring(0, notePath.lastIndexOf('/')) : '';
     resolvedPath = resolveRelativePath(noteDir, cleanSrc);
   } else {
-    // Bare filename: image.png → search in same directory as note
+    // Bare filename: try note directory first, then common attachment folders
     const noteDir = notePath.includes('/') ? notePath.substring(0, notePath.lastIndexOf('/')) : '';
     resolvedPath = noteDir ? `${noteDir}/${cleanSrc}` : cleanSrc;
   }
 
-  // Encode path segments for GitHub raw URL
-  const encodedPath = resolvedPath
-    .split('/')
-    .map((seg) => encodeURIComponent(seg))
-    .join('/');
+  return buildAssetFetchUrls(owner, repo, branch, resolvedPath)[0];
+}
 
-  return `https://raw.githubusercontent.com/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${encodeURIComponent(branch)}/${encodedPath}`;
+/**
+ * Returns multiple candidate URLs for a bare filename reference.
+ * Tries the note directory first, then common attachment folder locations.
+ */
+export function resolveImageUrlCandidates(
+  rawSrc: string,
+  ctx: ImageResolveContext
+): string[] {
+  // Already an absolute URL — pass through
+  if (rawSrc.startsWith('http://') || rawSrc.startsWith('https://')) {
+    return [rawSrc];
+  }
+
+  // Data URI — pass through
+  if (rawSrc.startsWith('data:')) {
+    return [rawSrc];
+  }
+
+  const { owner, repo, branch, notePath } = ctx;
+
+  // Strip wiki-image embed wrapper if present: ![[image.png]] → image.png
+  const cleanSrc = rawSrc.replace(/^!\[\[|\]\]$/g, '').trim();
+
+  // For relative/root-relative paths, only one candidate
+  if (cleanSrc.startsWith('/') || cleanSrc.includes('/') || cleanSrc.startsWith('./') || cleanSrc.startsWith('../')) {
+    let resolvedPath: string;
+    if (cleanSrc.startsWith('/')) {
+      resolvedPath = cleanSrc.slice(1);
+    } else {
+      const noteDir = notePath.includes('/') ? notePath.substring(0, notePath.lastIndexOf('/')) : '';
+      resolvedPath = resolveRelativePath(noteDir, cleanSrc);
+    }
+    return buildAssetFetchUrls(owner, repo, branch, resolvedPath);
+  }
+
+  // Bare filename: try multiple locations
+  const candidates: string[] = [];
+  const noteDir = notePath.includes('/') ? notePath.substring(0, notePath.lastIndexOf('/')) : '';
+
+  // 1. Same directory as the note
+  if (noteDir) {
+    candidates.push(...buildAssetFetchUrls(owner, repo, branch, `${noteDir}/${cleanSrc}`));
+  }
+
+  // 2. Common attachment folders at repo root
+  for (const folder of ATTACHMENT_FOLDER_HINTS) {
+    candidates.push(...buildAssetFetchUrls(owner, repo, branch, `${folder}/${cleanSrc}`));
+  }
+
+  // 3. Attachment folders one level up from the note
+  if (noteDir) {
+    const parentDir = noteDir.includes('/') ? noteDir.substring(0, noteDir.lastIndexOf('/')) : '';
+    if (parentDir) {
+      for (const folder of ATTACHMENT_FOLDER_HINTS) {
+        candidates.push(...buildAssetFetchUrls(owner, repo, branch, `${parentDir}/${folder}/${cleanSrc}`));
+      }
+    }
+  }
+
+  // 4. Bare filename at root (last resort)
+  candidates.push(...buildAssetFetchUrls(owner, repo, branch, cleanSrc));
+
+  return candidates;
 }
 
 export interface ImageResolveContext {
@@ -56,6 +134,32 @@ export interface ImageResolveContext {
   /** Path of the note that contains the image reference (for relative path resolution) */
   notePath: string;
   token?: string;
+}
+
+/**
+ * Builds ordered fetch URL candidates for a repo-relative asset path.
+ *
+ * 1. `media.githubusercontent.com/media/...` — GitHub's raw media host. It honors
+ *    the `Authorization` header, so it works for **private** repositories too.
+ * 2. `raw.githubusercontent.com/...` — classic raw host; fallback for edge cases
+ *    where the media host is unavailable.
+ *
+ * Neither host counts against the REST API rate limit.
+ */
+export function buildAssetFetchUrls(owner: string, repo: string, branch: string, path: string): string[] {
+  const encodedPath = path
+    .split('/')
+    .map((seg) => encodeURIComponent(seg))
+    .join('/');
+
+  const ownerEnc = encodeURIComponent(owner);
+  const repoEnc = encodeURIComponent(repo);
+  const branchEnc = encodeURIComponent(branch);
+
+  return [
+    `https://media.githubusercontent.com/media/${ownerEnc}/${repoEnc}/${branchEnc}/${encodedPath}`,
+    `https://raw.githubusercontent.com/${ownerEnc}/${repoEnc}/${branchEnc}/${encodedPath}`,
+  ];
 }
 
 /**
@@ -97,30 +201,5 @@ export function parseWikiImageEmbed(content: string): { original: string; filena
   return { original: content, filename: cleanFilename };
 }
 
-/**
- * Checks if a URL is an image based on common extensions.
- */
-export function isImageUrl(url: string): boolean {
-  const imageExtensions = /\.(png|jpe?g|gif|webp|svg|bmp|ico|tiff?)$/i;
-  return imageExtensions.test(url.split('?')[0].split('#')[0]);
-}
-
-/**
- * Gets the MIME type from a file extension.
- */
-export function getMimeType(filename: string): string {
-  const ext = filename.split('.').pop()?.toLowerCase() || '';
-  const mimeMap: Record<string, string> = {
-    png: 'image/png',
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    gif: 'image/gif',
-    webp: 'image/webp',
-    svg: 'image/svg+xml',
-    bmp: 'image/bmp',
-    ico: 'image/x-icon',
-    tiff: 'image/tiff',
-    tif: 'image/tiff',
-  };
-  return mimeMap[ext] || 'application/octet-stream';
-}
+// Re-exports kept for backwards compatibility with existing imports.
+export { isImagePath as isImageUrl, getMimeType };

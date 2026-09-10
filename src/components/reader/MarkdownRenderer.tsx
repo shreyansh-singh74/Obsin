@@ -6,11 +6,13 @@ import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
 import { remarkWikiLinks, remarkCallouts, remarkWikiImages } from '@/engine/markdown';
 import { WikiLink } from './WikiLink';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, ImageOff } from 'lucide-react';
 import { Callout } from './Callout';
 import { Backlinks } from './Backlinks';
-import { resolveImageUrl, type ImageResolveContext } from '@/engine/github/images';
-import { fetchCachedImage } from '@/engine/cache/imageCache';
+import { resolveImageUrlCandidates, buildAssetFetchUrls } from '@/engine/github/images';
+import { fetchAssetImage, createObjectUrl, revokeObjectUrl } from '@/engine/cache/imageCache';
+import { resolveAssetPath, getAssetMeta, hasAssetIndex } from '@/db/repository/assetsRepo';
+import { normalizeAssetRef } from '@/utils/assets';
 import { useVaultStore } from '@/store/useVaultStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import 'katex/dist/katex.min.css';
@@ -22,94 +24,171 @@ interface MarkdownRendererProps {
   className?: string;
 }
 
+type ImageState = 'loading' | 'ok' | 'error';
+
 /**
- * Resolves and caches an image URL, returning a data URL or the original URL.
- */function useResolvedImage(src: string, ctx: ImageResolveContext | null): string {
-  const [resolvedSrc, setResolvedSrc] = useState<string>('');
+ * Resolves an image reference against the vault asset index, fetches (and
+ * caches) the bytes, and renders the result as an object URL.
+ *
+ * - `data:` / `http(s):` sources render directly without resolution.
+ * - Vault references (`![[Pasted image ...]]`, relative paths) resolve through
+ *   the asset index built during sync, falling back to path heuristics when
+ *   the index has no match yet.
+ */
+const ResolvedImage: React.FC<{
+  src: string;
+  alt?: string;
+  width?: string;
+  block?: boolean;
+  notePath: string;
+}> = ({ src, alt, width, block, notePath }) => {
+  const { activeVault } = useVaultStore();
+  const token = useAuthStore((s) => s.token);
+
+  const [url, setUrl] = useState<string | null>(null);
+  const [state, setState] = useState<ImageState>('loading');
+  const [notIndexed, setNotIndexed] = useState(false);
 
   useEffect(() => {
-    if (!src || !ctx) {
-      setResolvedSrc(src);
+    // Direct sources need no resolution.
+    if (!src) {
+      setState('error');
+      return;
+    }
+    if (src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) {
+      setUrl(src);
+      setState('ok');
       return;
     }
 
-    // Skip data URIs and absolute URLs that don't need resolution
-    if (src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) {
-      setResolvedSrc(src);
+    if (!activeVault) {
+      setState('error');
       return;
     }
 
     let cancelled = false;
-    const { owner, repo, branch, notePath, token } = ctx;
+    let objectUrl: string | null = null;
 
     async function resolve() {
+      const { owner, repo, branch, id: vaultId } = activeVault!;
+      let indexReady = false;
       try {
-        const fullUrl = resolveImageUrl(src, { owner, repo, branch, notePath, token });
-        const cachedDataUrl = await fetchCachedImage(fullUrl, token);
-        if (!cancelled) {
-          setResolvedSrc(cachedDataUrl);
+        // Distinguish "index missing" (needs a sync) from a true miss.
+        indexReady = await hasAssetIndex(vaultId);
+
+        // 1. Try the vault asset index (authoritative — built from the git tree).
+        const resolved = await resolveAssetPath(vaultId, src, notePath);
+        let path: string;
+        let sha: string | null = null;
+        let urls: string[];
+
+        if (resolved) {
+          path = resolved;
+          const meta = await getAssetMeta(vaultId, resolved);
+          sha = meta?.sha ?? null;
+          urls = buildAssetFetchUrls(owner, repo, branch, path);
+        } else {
+          // 2. Heuristic fallback (e.g. same-folder image while the index
+          //    hasn't been built yet). Try multiple candidate locations.
+          path = normalizeAssetRef(src);
+          urls = resolveImageUrlCandidates(src, { owner, repo, branch, notePath });
         }
+
+        const blob = await fetchAssetImage({
+          vaultId,
+          path,
+          sha,
+          urls,
+          token: token || undefined,
+        });
+
+        objectUrl = createObjectUrl(blob);
+        if (cancelled) {
+          revokeObjectUrl(objectUrl);
+          return;
+        }
+        setUrl(objectUrl);
+        setState('ok');
       } catch (err) {
-        console.warn('Failed to resolve image:', src, err);
+        console.warn('Image resolution failed:', src, err);
         if (!cancelled) {
-          // Fallback to direct URL
-          setResolvedSrc(resolveImageUrl(src, { owner, repo, branch, notePath, token }));
+          setNotIndexed(!indexReady);
+          setState('error');
         }
       }
     }
 
     resolve();
-    return () => { cancelled = true; };
-  }, [src, ctx?.owner, ctx?.repo, ctx?.branch, ctx?.notePath]);
+    return () => {
+      cancelled = true;
+      if (objectUrl) revokeObjectUrl(objectUrl);
+    };
+  }, [src, notePath, activeVault?.id, activeVault?.owner, activeVault?.repo, activeVault?.branch, token]);
 
-  return resolvedSrc;
-}
+  function handleOpen() {
+    if (url && state === 'ok') {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  }
 
-/**
- * ResolvedImage component that handles async image loading with caching.
- */const ResolvedImage: React.FC<{ src: string; alt?: string }> = ({ src, alt }) => {
-  const { activeVault } = useVaultStore();
-  const token = useAuthStore((s) => s.token);
-  const activeNotePath = useVaultStore((s) => s.activeNotePath);
-
-  const ctx: ImageResolveContext | null = activeVault && activeNotePath
-    ? {
-        owner: activeVault.owner,
-        repo: activeVault.repo,
-        branch: activeVault.branch,
-        notePath: activeNotePath,
-        token: token || undefined,
-      }
-    : null;
-
-  const resolvedSrc = useResolvedImage(src, ctx);
-
-  if (!resolvedSrc) {
+  if (state === 'loading') {
     return (
-      <div className="my-6 flex items-center justify-center p-8 rounded-[var(--radius-md)] bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-        <span className="text-xs text-[var(--text-muted)] font-mono">Loading image...</span>
-      </div>
+      <span className={block ? 'block' : 'inline-block'} style={width ? { width: `${width}px` } : undefined}>
+        <span className="my-2 flex items-center justify-center p-6 rounded-[var(--radius-md)] bg-[var(--surface-card)] border border-[var(--border-subtle)] animate-pulse">
+          <span className="text-xs text-[var(--text-muted)] font-mono">Loading image…</span>
+        </span>
+      </span>
     );
   }
 
+  if (state === 'error') {
+    return (
+      <span
+        className={
+          'my-2 flex items-center gap-2 p-4 rounded-[var(--radius-md)] bg-[var(--surface-card)] border border-[var(--border-subtle)] ' +
+          (block ? 'block' : 'inline-block max-w-full')
+        }
+        title={`Image not found in vault: ${src}`}
+      >
+        <ImageOff className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
+        <span className="text-xs text-[var(--text-muted)] font-mono truncate">
+          {notIndexed
+            ? `Image index not built yet — re-sync this vault to resolve: ${alt || src}`
+            : `Image not found in vault: ${alt || src}`}
+        </span>
+      </span>
+    );
+  }
+
+  const img = (
+    <img
+      src={url!}
+      alt={alt || ''}
+      title={alt || src}
+      onClick={handleOpen}
+      onError={() => setState('error')}
+      className={
+        'rounded-[var(--radius-md)] border border-[var(--border-subtle)] shadow-[var(--shadow-sm)] max-w-full h-auto cursor-zoom-in ' +
+        (block ? 'mx-auto block' : 'inline-block align-middle')
+      }
+      style={width ? { width: `${width}px` } : undefined}
+      loading="lazy"
+    />
+  );
+
+  if (!block) return img;
+
   return (
     <figure className="my-6">
-      <img
-        src={resolvedSrc}
-        alt={alt || ''}
-        className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] shadow-[var(--shadow-sm)] max-w-full h-auto mx-auto block cursor-zoom-in"
-        loading="lazy"
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-          target.alt = `Failed to load: ${alt || src}`;
-          target.classList.add('opacity-50');
-        }}
-      />
-      {alt && <figcaption className="text-xs text-[var(--text-muted)] text-center mt-2 font-sans italic">{alt}</figcaption>}
+      {img}
+      {alt && (
+        <figcaption className="text-xs text-[var(--text-muted)] text-center mt-2 font-sans italic">
+          {alt}
+        </figcaption>
+      )}
     </figure>
   );
 };
-
 
 /** CodeBlock with copy button and language label */
 const CodeBlock: React.FC<{ language: string; code: string }> = ({ language, code }) => {
@@ -124,6 +203,8 @@ const CodeBlock: React.FC<{ language: string; code: string }> = ({ language, cod
       // fallback
       const ta = document.createElement('textarea');
       ta.value = code;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
       document.body.appendChild(ta);
       ta.select();
       document.execCommand('copy');
@@ -160,7 +241,7 @@ const CodeBlock: React.FC<{ language: string; code: string }> = ({ language, cod
   );
 };
 
-export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, noteName, className = '' }) => {
+export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, notePath, noteName, className = '' }) => {
   return (
     <div className={`prose ${className}`}>
       <ReactMarkdown
@@ -193,9 +274,18 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, not
             }
             return <div className={divClass} {...props}>{children}</div>;
           },
-          img({ src, alt }) {
-            // Use ResolvedImage for all images (handles relative paths + caching)
-            return <ResolvedImage src={src || ''} alt={alt || ''} />;
+          img(props) {
+            // Wiki-image embeds (![[...]]) carry their reference in data
+            // attributes; regular markdown images (![alt](path)) come through
+            // `src`. Both resolve through the same pipeline, always against
+            // the note being rendered (notePath prop), NOT activeNotePath.
+            const wikiRef = (props as any)['data-wiki-image'] as string | undefined;
+            const src = wikiRef || props.src || '';
+            const alt = (props.alt as string) || ((props as any)['data-wiki-image-alt'] as string) || '';
+            const width = (props as any)['data-wiki-image-width'] as string | undefined;
+            const className = typeof props.className === 'string' ? props.className : '';
+            const block = Boolean(wikiRef) && className.includes('wiki-image-block');
+            return <ResolvedImage src={src} alt={alt} width={width} block={block} notePath={notePath} />;
           },
           code({ node, inline, className: codeClass, children, ...props }: any) {
             const match = /language-(\w+)/.exec(codeClass || '');

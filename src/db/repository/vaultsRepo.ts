@@ -15,12 +15,13 @@ export async function saveVault(vault: VaultConfig): Promise<string> {
 }
 
 export async function deleteVault(id: string): Promise<void> {
-  await db.transaction('rw', [db.vaults, db.notes, db.wikiLinkMap, db.backlinks, db.assetMeta, db.syncMeta], async () => {
+  await db.transaction('rw', [db.vaults, db.notes, db.wikiLinkMap, db.backlinks, db.assetMeta, db.assetBlobs, db.syncMeta], async () => {
     await db.vaults.delete(id);
     await db.notes.where('vaultId').equals(id).delete();
     await db.wikiLinkMap.where('vaultId').equals(id).delete();
     await db.backlinks.where('vaultId').equals(id).delete();
     await db.assetMeta.where('vaultId').equals(id).delete();
+    await db.assetBlobs.where('vaultId').equals(id).delete();
     await db.syncMeta.delete(id);
   });
 }

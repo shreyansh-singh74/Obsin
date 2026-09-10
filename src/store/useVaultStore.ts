@@ -2,12 +2,14 @@ import { create } from 'zustand';
 import type { VaultConfig, Note } from '@/types';
 import { getNotesByVault } from '@/db/repository/notesRepo';
 import { getAllVaults, saveVault } from '@/db/repository/vaultsRepo';
+import { getAssetPaths } from '@/db/repository/assetsRepo';
 import { searchEngine } from '@/engine/search';
 
 interface VaultState {
   activeVault: VaultConfig | null;
   vaults: VaultConfig[];
   notes: Note[];
+  assetPaths: string[];
   activeNotePath: string | null;
   isLoading: boolean;
   error: string | null;
@@ -40,6 +42,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   activeVault: null,
   vaults: [],
   notes: [],
+  assetPaths: [],
   activeNotePath: null,
   isLoading: false,
   error: null,
@@ -54,13 +57,16 @@ export const useVaultStore = create<VaultState>((set, get) => ({
     set({ activeVault: updatedVault, activeNotePath: null, isLoading: true, history: [], historyIndex: -1 });
 
     try {
-      const notes = await getNotesByVault(vault.id);
+      const [notes, assetPaths] = await Promise.all([
+        getNotesByVault(vault.id),
+        getAssetPaths(vault.id),
+      ]);
       // Rebuild the in-memory search index from local data so search works
       // even offline, before/without any sync.
       searchEngine.indexVault(vault.id, notes);
       const firstNotePath = notes.length > 0 ? notes[0].path : null;
       const initialHistory = firstNotePath ? [firstNotePath] : [];
-      set({ notes, activeNotePath: firstNotePath, isLoading: false, history: initialHistory, historyIndex: firstNotePath ? 0 : -1 });
+      set({ notes, assetPaths, activeNotePath: firstNotePath, isLoading: false, history: initialHistory, historyIndex: firstNotePath ? 0 : -1 });
     } catch (err: any) {
       set({ error: err.message || 'Failed to load notes for vault', isLoading: false });
     }
@@ -163,7 +169,10 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   refreshNotes: async () => {
     const activeVault = get().activeVault;
     if (!activeVault) return;
-    const notes = await getNotesByVault(activeVault.id);
+    const [notes, assetPaths] = await Promise.all([
+      getNotesByVault(activeVault.id),
+      getAssetPaths(activeVault.id),
+    ]);
     // Keep the search index in step with refreshed notes.
     searchEngine.indexVault(activeVault.id, notes);
     const currentActivePath = get().activeNotePath;
@@ -173,7 +182,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       ? notes[0].path
       : null;
 
-    set({ notes, activeNotePath: validPath });
+    set({ notes, assetPaths, activeNotePath: validPath });
   },
 
   setError: (error: string | null) => {

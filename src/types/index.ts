@@ -52,6 +52,16 @@ export interface AssetMeta {
   cacheKey: string;
 }
 
+/** Binary blob of a vault asset (image), cached offline in IndexedDB. */
+export interface AssetBlob {
+  vaultId: string;
+  path: string; // Repo-relative path, matches AssetMeta.path
+  sha: string; // Git blob SHA at fetch time — used for cache invalidation
+  blob: Blob;
+  size: number; // Blob size in bytes
+  updatedAt: string; // ISO date string
+}
+
 export interface UserSettings {
   id: string; // Always 'default'
   theme: 'light' | 'dark' | 'sepia';

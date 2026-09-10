@@ -5,6 +5,7 @@ import type {
   WikiLinkMap,
   Backlink,
   AssetMeta,
+  AssetBlob,
   SyncMeta,
   UserSettings,
 } from '@/types';
@@ -15,6 +16,7 @@ export class ObsinDB extends Dexie {
   wikiLinkMap!: Table<WikiLinkMap, [string, string]>; // Composite PK [vaultId, slug]
   backlinks!: Table<Backlink, [string, string, string]>; // Composite PK [vaultId, targetSlug, sourcePath]
   assetMeta!: Table<AssetMeta, [string, string]>; // Composite PK [vaultId, path]
+  assetBlobs!: Table<AssetBlob, [string, string]>; // Composite PK [vaultId, path]
   syncMeta!: Table<SyncMeta, string>; // PK vaultId
   userSettings!: Table<UserSettings, string>; // PK id ('default')
 
@@ -29,6 +31,12 @@ export class ObsinDB extends Dexie {
       assetMeta: '[vaultId+path], vaultId, path, sha',
       syncMeta: 'vaultId',
       userSettings: 'id',
+    });
+
+    // v2: binary image cache for offline reading. Additive-only upgrade —
+    // existing v1 databases upgrade in place without data migration.
+    this.version(2).stores({
+      assetBlobs: '[vaultId+path], vaultId, path, sha',
     });
   }
 }

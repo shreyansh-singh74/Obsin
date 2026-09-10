@@ -71,22 +71,31 @@ function NavItem({
   onSelect,
   level = 0,
   defaultOpen = false,
-  expandedFolderPaths,
 }: {
   item: NavItemData;
   activeId: string;
   onSelect: (id: string) => void;
   level?: number;
   defaultOpen?: boolean;
-  expandedFolderPaths?: Set<string>;
 }) {
   const isActive = activeId === item.id;
   const hasChildren = !!item.children && item.children.length > 0;
-  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const expandedFolderPaths = useVaultStore((s) => s.expandedFolderPaths);
+  const isExpanded = expandedFolderPaths.has(item.id);
+  const [isOpen, setIsOpen] = useState(defaultOpen || isExpanded);
+  const itemRef = React.useRef<HTMLDivElement>(null);
 
+  // Sync open state with expandedFolderPaths from store
   React.useEffect(() => {
-    if (defaultOpen && !isOpen) setIsOpen(true);
-  }, [defaultOpen]);
+    if (isExpanded && !isOpen) setIsOpen(true);
+  }, [isExpanded]);
+
+  // Scroll active item into view
+  React.useEffect(() => {
+    if (isActive && itemRef.current) {
+      itemRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [isActive]);
 
   const handleClick = () => {
     if (hasChildren) {
@@ -97,7 +106,7 @@ function NavItem({
   };
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full" ref={itemRef}>
       <div
         className={`group flex items-center justify-between px-2.5 py-[6px] rounded-[6px] cursor-pointer transition-all duration-200 select-none
           ${isActive
@@ -158,8 +167,7 @@ function NavItem({
                 activeId={activeId}
                 onSelect={onSelect}
                 level={level + 1}
-                defaultOpen={expandedFolderPaths?.has(child.id) || false}
-                expandedFolderPaths={expandedFolderPaths}
+                defaultOpen={expandedFolderPaths.has(child.id)}
               />
             ))}
           </div>
@@ -191,14 +199,14 @@ interface DashboardSidebarProps {
 }
 
 export function DashboardSidebar({ className = '' }: DashboardSidebarProps) {
-  const { notes, activeVault, activeNotePath, setActiveNotePath, vaults, setActiveVault, expandedFolderPaths } = useVaultStore();
+  const { notes, assetPaths, activeVault, activeNotePath, setActiveNotePath, vaults, setActiveVault, expandedFolderPaths } = useVaultStore();
   const { isMobile, setOpen } = useSidebar();
   const [searchQuery, setSearchQuery] = useState('');
 
   const treeNodes = useMemo(() => {
     if (!notes || notes.length === 0) return [];
-    return buildTreeOnce(notes);
-  }, [notes]);
+    return buildTreeOnce(notes, assetPaths);
+  }, [notes, assetPaths]);
 
   // Convert tree to nav items with search filter
   const navItems = useMemo(() => {
@@ -263,14 +271,13 @@ export function DashboardSidebar({ className = '' }: DashboardSidebarProps) {
       <div className="flex-1 overflow-y-auto scrollbar-none px-2 py-1 flex flex-col gap-1 ">
         {navItems.length > 0 ? (
           navItems.map((item) => (
-            <NavItem
-              key={item.id}
-              item={item}
-              activeId={activeNotePath || ''}
-              onSelect={handleSelect}
-              defaultOpen={expandedFolderPaths.has(item.id)}
-              expandedFolderPaths={expandedFolderPaths}
-            />
+          <NavItem
+            key={item.id}
+            item={item}
+            activeId={activeNotePath || ''}
+            onSelect={handleSelect}
+            defaultOpen={expandedFolderPaths.has(item.id)}
+          />
           ))
         ) : (
           <div className="p-4 text-center text-[13px] text-[var(--text-muted)]">

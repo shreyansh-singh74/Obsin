@@ -10,12 +10,12 @@ interface FolderTreeProps {
 }
 
 export const FolderTree: React.FC<FolderTreeProps> = ({ onNoteSelected }) => {
-  const { notes, activeVault, activeNotePath } = useVaultStore();
+  const { notes, assetPaths, activeVault, activeNotePath } = useVaultStore();
 
   const treeNodes = useMemo(() => {
     if (!notes || notes.length === 0) return [];
-    return buildTreeOnce(notes);
-  }, [notes]);
+    return buildTreeOnce(notes, assetPaths);
+  }, [notes, assetPaths]);
 
   if (!activeVault) {
     return null;
