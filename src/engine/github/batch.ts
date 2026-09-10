@@ -10,7 +10,7 @@ export interface BatchFetchProgress {
   currentPath: string;
 }
 
-export async function batchFetchMarkdownFiles(
+export async function batchFetchDocuments(
   vaultId: string,
   owner: string,
   repo: string,
@@ -36,16 +36,35 @@ export async function batchFetchMarkdownFiles(
           }
 
           const { content, sha } = await fetchFileContent(owner, repo, fileItem.path, branch, token);
-          const { title, tags, aliases, body } = parseFrontmatter(content);
-          const headings = extractHeadings(body);
           const { folder, name } = parseFilePath(fileItem.path);
+          const isHtml = /\.html?$/i.test(fileItem.path);
+
+          let documentName = name;
+          let documentContent = content;
+          let tags: string[] = [];
+          let aliases: string[] = [];
+          let headings: string[] = [];
+
+          if (isHtml) {
+            const titleMatch = content.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+            const htmlTitle = titleMatch?.[1].replace(/<[^>]+>/g, '').trim();
+            documentName = htmlTitle || name;
+          } else {
+            const parsed = parseFrontmatter(content);
+            documentName = parsed.title || name;
+            documentContent = parsed.body;
+            tags = parsed.tags;
+            aliases = parsed.aliases;
+            headings = extractHeadings(parsed.body);
+          }
 
           const note: Note = {
             vaultId,
             path: fileItem.path,
-            name: title || name,
+            name: documentName,
             folder,
-            content: body, // Raw markdown ONLY
+            content: documentContent,
+            format: isHtml ? 'html' : 'markdown',
             sha: sha || fileItem.sha,
             updatedAt: new Date().toISOString(),
             tags,

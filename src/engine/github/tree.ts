@@ -13,7 +13,7 @@ export interface GitTreeItem {
 export interface FetchTreeResult {
   treeSha: string;
   items: GitTreeItem[];
-  markdownFiles: GitTreeItem[];
+  documentFiles: GitTreeItem[];
   /** Image assets (png/jpg/gif/webp/svg/…) present anywhere in the vault tree. */
   assetFiles: GitTreeItem[];
   branchUsed: string;
@@ -61,9 +61,10 @@ export async function fetchRepositoryTree(
     }
 
     const items: GitTreeItem[] = data.tree;
-    const markdownFiles = items.filter(
-      (item) => item.type === 'blob' && item.path.toLowerCase().endsWith('.md')
-    );
+    const documentFiles = items.filter((item) => {
+      if (item.type !== 'blob') return false;
+      return /\.(?:md|html?)$/i.test(item.path);
+    });
     const assetFiles = items.filter(
       (item) => item.type === 'blob' && isImagePath(item.path)
     );
@@ -71,7 +72,7 @@ export async function fetchRepositoryTree(
     return {
       treeSha: data.sha || branchToUse,
       items,
-      markdownFiles,
+      documentFiles,
       assetFiles,
       branchUsed: branchToUse,
     };

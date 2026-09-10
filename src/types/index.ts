@@ -7,12 +7,15 @@ export interface VaultConfig {
   lastOpened: string; // ISO date string
 }
 
+export type DocumentFormat = 'markdown' | 'html';
+
 export interface Note {
   vaultId: string;
   path: string; // Relative path in repo, e.g. "Programming/Docker.md"
-  name: string; // Note title / file basename without extension
+  name: string; // Document title / file basename without extension
   folder: string; // Folder path, e.g. "Programming"
-  content: string; // Raw markdown ONLY
+  content: string; // Raw Markdown body or complete HTML document
+  format?: DocumentFormat; // Optional for compatibility with records cached before HTML support
   sha: string; // Git blob SHA
   updatedAt: string; // ISO date string
   tags: string[]; // Parsed frontmatter tags

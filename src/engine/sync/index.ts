@@ -1,5 +1,5 @@
 import { fetchRepositoryTree, GitTreeItem } from '@/engine/github/tree';
-import { batchFetchMarkdownFiles } from '@/engine/github/batch';
+import { batchFetchDocuments } from '@/engine/github/batch';
 import { bulkUpsertNotes, deleteNotesByPaths, getNotesByVault } from '@/db/repository/notesRepo';
 import { updateWikiLinkMap } from '@/db/repository/wikiMapRepo';
 import { generateBacklinkTable } from '@/db/repository/backlinksRepo';
@@ -24,7 +24,7 @@ export async function executeVaultSync(vault: VaultConfig, token?: string): Prom
   try {
     // Stage 1: Fetch Repository Tree & discover branch
     setSyncStage('fetching-tree', `Connecting to GitHub API for ${vault.owner}/${vault.repo}...`);
-    const { treeSha, markdownFiles, assetFiles, branchUsed } = await fetchRepositoryTree(
+    const { treeSha, documentFiles, assetFiles, branchUsed } = await fetchRepositoryTree(
       vault.owner,
       vault.repo,
       vault.branch,
@@ -48,7 +48,7 @@ export async function executeVaultSync(vault: VaultConfig, token?: string): Prom
     const filesToFetch: GitTreeItem[] = [];
     const remotePathsSet = new Set<string>();
 
-    for (const remoteFile of markdownFiles) {
+    for (const remoteFile of documentFiles) {
       remotePathsSet.add(remoteFile.path);
       const existingLocalNote = localNotesMap.get(remoteFile.path);
 
@@ -73,9 +73,9 @@ export async function executeVaultSync(vault: VaultConfig, token?: string): Prom
 
     // Stage 3: Download Changed Blobs
     if (filesToFetch.length > 0) {
-      setSyncStage('downloading-blobs', `Fetching ${filesToFetch.length} updated markdown files...`);
+      setSyncStage('downloading-blobs', `Fetching ${filesToFetch.length} updated documents...`);
 
-      const fetchedNotes = await batchFetchMarkdownFiles(
+      const fetchedNotes = await batchFetchDocuments(
         vault.id,
         vault.owner,
         vault.repo,
@@ -94,7 +94,7 @@ export async function executeVaultSync(vault: VaultConfig, token?: string): Prom
       // Save updated notes to IndexedDB
       await bulkUpsertNotes(fetchedNotes);
     } else {
-      console.log('No notes changed remotely. Database up-to-date.');
+      console.log('No documents changed remotely. Database up-to-date.');
     }
 
     // Stage 4: Building WikiLink Maps & Backlinks + Asset Index
@@ -125,7 +125,7 @@ export async function executeVaultSync(vault: VaultConfig, token?: string): Prom
     };
     await db.syncMeta.put(syncMeta);
 
-    setSyncStage('completed', `Sync completed! ${currentVaultNotes.length} notes active.`);
+    setSyncStage('completed', `Sync completed! ${currentVaultNotes.length} documents active.`);
     setTimeout(() => {
       resetSync();
     }, 3000);

@@ -7,8 +7,8 @@ export function slugifyWikiLink(linkText: string): string {
   const withoutAnchor = linkText.split('#')[0].trim();
   // Strip directory paths if full path passed (e.g. "Programming/Docker.md" -> "Docker.md")
   const basename = withoutAnchor.split('/').pop() || withoutAnchor;
-  // Strip .md extension if present
-  const cleanName = basename.endsWith('.md') ? basename.slice(0, -3) : basename;
+  // Strip supported document extensions if present
+  const cleanName = basename.replace(/\.(?:md|html?)$/i, '');
   return cleanName.toLowerCase().trim();
 }
 
@@ -16,11 +16,12 @@ export function slugifyWikiLink(linkText: string): string {
  * Extracts folder path and file basename from a relative repo path.
  * Example: "Programming/Web/React.md" -> { folder: "Programming/Web", name: "React" }
  * Example: "RootNote.md" -> { folder: "", name: "RootNote" }
+ * Example: "pages/Dashboard.html" -> { folder: "pages", name: "Dashboard" }
  */
 export function parseFilePath(fullPath: string): { folder: string; name: string } {
   const parts = fullPath.split('/');
   const fileName = parts.pop() || fullPath;
-  const name = fileName.endsWith('.md') ? fileName.slice(0, -3) : fileName;
+  const name = fileName.replace(/\.(?:md|html?)$/i, '');
   const folder = parts.join('/');
   return { folder, name };
 }

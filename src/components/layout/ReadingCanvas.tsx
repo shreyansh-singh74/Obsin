@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useVaultStore } from '@/store/useVaultStore';
 import { MarkdownRenderer } from '@/components/reader/MarkdownRenderer';
+import { HtmlRenderer } from '@/components/reader/HtmlRenderer';
 import { MobileTocToggle } from '@/components/reader/TableOfContents';
 import { FileText } from 'lucide-react';
 
@@ -45,6 +46,8 @@ export const ReadingCanvas: React.FC = () => {
   }
 
 
+  const isHtml = activeNote.format === 'html' || /\.html?$/i.test(activeNote.path);
+
   return (
     <div className="flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden bg-[var(--surface-page)] transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]">
 
@@ -84,14 +87,17 @@ export const ReadingCanvas: React.FC = () => {
             )}
           </div>
 
-          {/* Markdown Renderer */}
-          <MarkdownRenderer content={activeNote.content} notePath={activeNote.path} noteName={activeNote.name} />
+          {isHtml ? (
+            <HtmlRenderer content={activeNote.content} noteName={activeNote.name} />
+          ) : (
+            <MarkdownRenderer content={activeNote.content} notePath={activeNote.path} noteName={activeNote.name} />
+          )}
           </div>
         </main>
       </div>
 
-      {/* TOC toggle */}
-      <MobileTocToggle content={activeNote.content} />
+      {/* Markdown-only TOC toggle */}
+      {!isHtml && <MobileTocToggle content={activeNote.content} />}
     </div>
   );
 };

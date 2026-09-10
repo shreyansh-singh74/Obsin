@@ -10,6 +10,8 @@ export async function generateBacklinkTable(vaultId: string, notes: Note[]): Pro
   const wikiLinkRegex = /\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|[^\]]+)?\]\]/g;
 
   for (const note of notes) {
+    if (note.format === 'html' || /\.html?$/i.test(note.path)) continue;
+
     let match: RegExpExecArray | null;
     const seenSlugsInNote = new Set<string>();
 

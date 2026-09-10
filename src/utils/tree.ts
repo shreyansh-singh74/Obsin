@@ -13,7 +13,7 @@ export interface TreeNode {
  * Builds a folder tree structure from a flat array of Note items efficiently.
  * Sorts folders first, alphabetically.
  *
- * @param notes - Array of Note items (markdown files)
+ * @param notes - Array of readable Markdown and HTML documents
  * @param assetPaths - Optional array of asset file paths (images) to include folder nodes for
  */
 export function buildTreeOnce(notes: Note[], assetPaths?: string[]): TreeNode[] {

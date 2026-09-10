@@ -6,8 +6,10 @@ describe('slugifyWikiLink', () => {
     expect(slugifyWikiLink('Docker')).toBe('docker');
   });
 
-  it('strips .md extension', () => {
+  it('strips supported document extensions', () => {
     expect(slugifyWikiLink('Docker.md')).toBe('docker');
+    expect(slugifyWikiLink('Vital Edge.html')).toBe('vital edge');
+    expect(slugifyWikiLink('Dashboard.HTM')).toBe('dashboard');
   });
 
   it('strips directory paths', () => {
@@ -43,6 +45,17 @@ describe('parseFilePath', () => {
     expect(parseFilePath('RootNote.md')).toEqual({
       folder: '',
       name: 'RootNote',
+    });
+  });
+
+  it('parses HTML document paths', () => {
+    expect(parseFilePath('pages/vital_edge.html')).toEqual({
+      folder: 'pages',
+      name: 'vital_edge',
+    });
+    expect(parseFilePath('Dashboard.HTM')).toEqual({
+      folder: '',
+      name: 'Dashboard',
     });
   });
 

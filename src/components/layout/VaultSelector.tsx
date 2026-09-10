@@ -155,7 +155,7 @@ export const VaultSelector: React.FC = () => {
           <div className="bg-[var(--surface-modal)] border border-[var(--border-default)] rounded-[var(--radius-lg)] max-w-md w-full p-6 shadow-[var(--shadow-lg)] space-y-4">
             <div className="flex items-center gap-2 text-[var(--text-primary)]">
               <Database className="w-5 h-5 text-[var(--accent-text)]" />
-              <h3 className="font-semibold text-base">Add GitHub Markdown Vault</h3>
+              <h3 className="font-semibold text-base">Add GitHub Markdown & HTML Vault</h3>
             </div>
 
             {errorMessage && (
