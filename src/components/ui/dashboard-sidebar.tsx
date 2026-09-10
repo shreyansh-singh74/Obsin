@@ -8,6 +8,7 @@ import {
   ChevronRight,
   Folder,
   FileText,
+  Trash2,
 } from 'lucide-react';
 
 type NavItemData = {
@@ -19,7 +20,12 @@ type NavItemData = {
   children?: NavItemData[];
 };
 
-function WorkspaceSwitcher({ selected, onSelect, vaults }: { selected?: string; onSelect?: (ws: string) => void; vaults: { id: string; name: string; owner: string; repo: string }[] }) {
+function WorkspaceSwitcher({ selected, onSelect, onDrop, vaults }: {
+  selected?: string;
+  onSelect?: (ws: string) => void;
+  onDrop?: (vaultId: string) => void;
+  vaults: { id: string; name: string; owner: string; repo: string }[];
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [internalSelected, setInternalSelected] = useState(selected || vaults[0]?.name || 'No Vault');
   const current = selected || internalSelected;
@@ -50,11 +56,31 @@ function WorkspaceSwitcher({ selected, onSelect, vaults }: { selected?: string; 
             {vaults.map((v) => (
               <div
                 key={v.id}
-                onClick={() => { handleSelect(v.name); setIsOpen(false); }}
-                className={`px-3 py-2 mx-1 text-[13px] rounded-md cursor-pointer transition-colors ${current === v.name ? 'bg-[var(--accent-soft)] text-[var(--accent-text)] font-medium' : 'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'}`}
+                className={`group/vault px-3 py-2 mx-1 text-[13px] rounded-md cursor-pointer transition-colors flex items-center justify-between ${current === v.name ? 'bg-[var(--accent-soft)] text-[var(--accent-text)] font-medium' : 'text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]'}`}
               >
-                <span className="block truncate">{v.name}</span>
-                <span className="text-[10px] text-[var(--text-muted)] font-mono">{v.owner}/{v.repo}</span>
+                <div
+                  className="flex-1 min-w-0"
+                  onClick={() => { handleSelect(v.name); setIsOpen(false); }}
+                >
+                  <span className="block truncate">{v.name}</span>
+                  <span className="text-[10px] text-[var(--text-muted)] font-mono">{v.owner}/{v.repo}</span>
+                </div>
+                {onDrop && vaults.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm(`Drop "${v.name}"? This removes all local data for this vault. You can re-add it later.`)) {
+                        onDrop(v.id);
+                        setIsOpen(false);
+                      }
+                    }}
+                    className="opacity-0 group-hover/vault:opacity-100 ml-2 p-1 rounded hover:bg-red-500/10 hover:text-red-400 text-[var(--text-muted)] transition-all shrink-0"
+                    title="Drop vault"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
             ))}
 
@@ -199,7 +225,7 @@ interface DashboardSidebarProps {
 }
 
 export function DashboardSidebar({ className = '' }: DashboardSidebarProps) {
-  const { notes, assetPaths, activeVault, activeNotePath, setActiveNotePath, vaults, setActiveVault, expandedFolderPaths } = useVaultStore();
+  const { notes, assetPaths, activeVault, activeNotePath, setActiveNotePath, vaults, setActiveVault, expandedFolderPaths, dropVault } = useVaultStore();
   const { isMobile, setOpen } = useSidebar();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -250,6 +276,7 @@ export function DashboardSidebar({ className = '' }: DashboardSidebarProps) {
             if (v) setActiveVault(v);
             if (isMobile) setOpen(false);
           }}
+          onDrop={(vaultId) => dropVault(vaultId)}
         />
       </div>
 

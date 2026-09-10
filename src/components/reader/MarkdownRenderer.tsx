@@ -88,11 +88,12 @@ const ResolvedImage: React.FC<{
           sha = meta?.sha ?? null;
           urls = buildAssetFetchUrls(owner, repo, branch, path);
         } else {
-          // 2. Heuristic fallback (e.g. same-folder image while the index
-          //    hasn't been built yet). Try multiple candidate locations.
+          // 2. Heuristic fallback — try multiple candidate locations.
           path = normalizeAssetRef(src);
           urls = resolveImageUrlCandidates(src, { owner, repo, branch, notePath });
         }
+
+        console.debug('[Obsin] ResolvedImage resolving:', { src, resolved, path, sha: sha?.slice(0, 8), indexReady, vaultId: vaultId.slice(0, 8) });
 
         const blob = await fetchAssetImage({
           vaultId,
@@ -100,6 +101,9 @@ const ResolvedImage: React.FC<{
           sha,
           urls,
           token: token || undefined,
+          owner,
+          repo,
+          branch,
         });
 
         objectUrl = createObjectUrl(blob);
@@ -109,8 +113,9 @@ const ResolvedImage: React.FC<{
         }
         setUrl(objectUrl);
         setState('ok');
+        console.debug('[Obsin] ResolvedImage OK:', { src, path });
       } catch (err) {
-        console.warn('Image resolution failed:', src, err);
+        console.warn('[Obsin] ResolvedImage FAILED:', { src, notePath, err });
         if (!cancelled) {
           setNotIndexed(!indexReady);
           setState('error');

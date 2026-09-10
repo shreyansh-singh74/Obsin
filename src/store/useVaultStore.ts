@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { VaultConfig, Note } from '@/types';
 import { getNotesByVault } from '@/db/repository/notesRepo';
-import { getAllVaults, saveVault } from '@/db/repository/vaultsRepo';
+import { getAllVaults, saveVault, deleteVault } from '@/db/repository/vaultsRepo';
 import { getAssetPaths } from '@/db/repository/assetsRepo';
 import { searchEngine } from '@/engine/search';
 
@@ -35,6 +35,7 @@ interface VaultState {
   isFavorite: (path: string) => boolean;
   loadVaults: () => Promise<void>;
   refreshNotes: () => Promise<void>;
+  dropVault: (vaultId: string) => Promise<void>;
   setError: (error: string | null) => void;
 }
 
@@ -183,6 +184,29 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       : null;
 
     set({ notes, assetPaths, activeNotePath: validPath });
+  },
+
+  dropVault: async (vaultId: string) => {
+    const { activeVault, vaults } = get();
+
+    // Clear the in-memory search index for this vault
+    searchEngine.clearIndex(vaultId);
+
+    // Delete from IndexedDB (all 7 vault-scoped tables)
+    await deleteVault(vaultId);
+
+    // Refresh vault list
+    const remaining = vaults.filter((v) => v.id !== vaultId);
+    set({ vaults: remaining });
+
+    // If the dropped vault was active, switch to another or clear
+    if (activeVault?.id === vaultId) {
+      if (remaining.length > 0) {
+        await get().setActiveVault(remaining[0]);
+      } else {
+        set({ activeVault: null, notes: [], assetPaths: [], activeNotePath: null });
+      }
+    }
   },
 
   setError: (error: string | null) => {
