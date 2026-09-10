@@ -4,8 +4,8 @@
 
 :root,
 [data-theme="dark"] {
-  --code-bg: var(--surface-card);
-  --code-header-bg: var(--surface-sidebar);
+  --code-bg: #0D0D0D;
+  --code-header-bg: var(--surface-card);
   --code-text: #E4E4E4;
   --code-keyword: #C678DD;
   --code-function: #61AFEF;
@@ -66,14 +66,71 @@
 }
 
 .code-block-content {
+  margin: 0;
   padding: var(--space-4);
   overflow-x: auto;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: var(--font-sm);
-  line-height: var(--leading-normal);
+  white-space: pre;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 13px;
+  line-height: 1.6;
   color: var(--code-text);
   background-color: var(--code-bg);
 }
+
+.code-block-content code,
+.code-block-content .hljs {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+}
+
+/* highlight.js token mapping; colors automatically follow the active theme. */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag { color: var(--code-keyword); }
+
+.hljs-title,
+.hljs-title.function_,
+.hljs-section,
+.hljs-selector-id { color: var(--code-function); }
+
+.hljs-string,
+.hljs-regexp,
+.hljs-attribute,
+.hljs-addition { color: var(--code-string); }
+
+.hljs-number,
+.hljs-literal,
+.hljs-symbol,
+.hljs-bullet { color: var(--code-number); }
+
+.hljs-comment,
+.hljs-quote,
+.hljs-meta { color: var(--code-comment); }
+
+.hljs-operator,
+.hljs-punctuation { color: var(--code-operator); }
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-params,
+.hljs-deletion { color: var(--code-variable); }
+
+.hljs-type,
+.hljs-class .hljs-title,
+.hljs-title.class_ { color: var(--code-function); }
+
+.hljs-comment,
+.hljs-quote { font-style: italic; }
+
+.hljs-keyword,
+.hljs-selector-tag { font-weight: 500; }
 
 /* Syntax Token Classes */
 .tok-keyword { color: var(--code-keyword); font-weight: 500; }

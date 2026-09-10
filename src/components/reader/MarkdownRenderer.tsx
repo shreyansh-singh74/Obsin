@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
+import hljs from 'highlight.js/lib/common';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -195,9 +196,36 @@ const ResolvedImage: React.FC<{
   );
 };
 
-/** CodeBlock with copy button and language label */
+const PLAIN_TEXT_LANGUAGES = new Set(['text', 'txt', 'plain', 'plaintext']);
+
+const LANGUAGE_ALIASES: Record<string, string> = {
+  csharp: 'cs',
+  html: 'xml',
+  js: 'javascript',
+  jsx: 'javascript',
+  py: 'python',
+  rb: 'ruby',
+  shell: 'bash',
+  sh: 'bash',
+  ts: 'typescript',
+  tsx: 'typescript',
+};
+
+/** CodeBlock with copy button, language label, and language-aware highlighting. */
 const CodeBlock: React.FC<{ language: string; code: string }> = ({ language, code }) => {
   const [copied, setCopied] = useState(false);
+  const highlightedCode = useMemo(() => {
+    const requestedLanguage = language.toLowerCase();
+    if (PLAIN_TEXT_LANGUAGES.has(requestedLanguage)) return null;
+
+    const highlightLanguage = LANGUAGE_ALIASES[requestedLanguage] ?? requestedLanguage;
+    if (!hljs.getLanguage(highlightLanguage)) return null;
+
+    return hljs.highlight(code, {
+      language: highlightLanguage,
+      ignoreIllegals: true,
+    }).value;
+  }, [code, language]);
 
   async function handleCopy() {
     try {
@@ -220,12 +248,9 @@ const CodeBlock: React.FC<{ language: string; code: string }> = ({ language, cod
   }
 
   return (
-    <div className="my-4 rounded-[var(--radius-md)] border border-[var(--border-subtle)] overflow-hidden bg-[#0d0d0d] min-w-0">
-      {/* Header bar */}
-      <div className="flex items-center justify-between px-3 py-1.5 bg-[var(--surface-card)] border-b border-[var(--border-subtle)]">
-        <span className="text-[10px] font-mono font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-          {language}
-        </span>
+    <div className="code-block-wrapper min-w-0">
+      <div className="code-block-header">
+        <span>{language}</span>
         <button
           onClick={handleCopy}
           className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
@@ -238,9 +263,15 @@ const CodeBlock: React.FC<{ language: string; code: string }> = ({ language, cod
           )}
         </button>
       </div>
-      {/* Code content */}
-      <pre className="p-4 overflow-x-auto text-[13px] leading-relaxed font-mono text-[var(--text-secondary)]">
-        <code>{code}</code>
+      <pre className="code-block-content">
+        {highlightedCode ? (
+          <code
+            className={`hljs language-${language}`}
+            dangerouslySetInnerHTML={{ __html: highlightedCode }}
+          />
+        ) : (
+          <code>{code}</code>
+        )}
       </pre>
     </div>
   );
@@ -293,7 +324,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, not
             return <ResolvedImage src={src} alt={alt} width={width} block={block} notePath={notePath} />;
           },
           code({ node, inline, className: codeClass, children, ...props }: any) {
-            const match = /language-(\w+)/.exec(codeClass || '');
+            const match = /language-([^\s]+)/.exec(codeClass || '');
             if (!inline && match) {
               const codeText = String(children).replace(/\n$/, '');
               return <CodeBlock language={match[1]} code={codeText} />;

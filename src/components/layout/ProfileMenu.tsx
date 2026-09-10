@@ -49,7 +49,10 @@ export const ProfileMenu: React.FC = () => {
     <div className="relative" ref={menuRef}>
       {/* Avatar trigger */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        type="button"
+        onClick={() => setIsOpen((open) => !open)}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
         className="flex items-center gap-1.5 p-1 rounded-[var(--radius-sm)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
       >
         <UserAvatar

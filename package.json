@@ -28,6 +28,7 @@
     "dexie": "^4.0.10",
     "dexie-react-hooks": "^1.1.7",
     "flexsearch": "^0.7.43",
+    "highlight.js": "^11.12.0",
     "immer": "^11.1.15",
     "js-yaml": "^4.1.0",
     "katex": "^0.18.1",
