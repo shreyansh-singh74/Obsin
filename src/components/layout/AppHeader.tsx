@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { executeVaultSync } from '@/engine/sync';
 import { getNotesByVault } from '@/db/repository/notesRepo';
 import { ArrowLeft, ArrowRight, RefreshCw, Search, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import logoMark from '@/assets/navbar.svg';
 
@@ -74,12 +75,19 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
 
   return (
     <header className="h-11 shrink-0 border-b border-[var(--border-subtle)] bg-[var(--surface-sidebar)] px-3 flex items-center z-[var(--z-sticky)] transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]">
-      <div className="flex items-center gap-1.5 shrink-0">
-        <SidebarTrigger />
+      <div className="flex items-center gap-1 shrink-0">
 
-        <a href="/" className="flex items-center shrink-0">
-          <img src={logoMark} alt="Obsin" className="h-8 w-auto shrink-0 -translate-x-9" />
-        </a>
+        {/* Logo stays in normal flow with its own isolated hitbox so it can
+            never cover the sidebar toggle. Client-side nav preserves app state. */}
+        <Link
+          to="/"
+          aria-label="Back to home"
+          className="relative flex items-center justify-center shrink-0 h-9 px-0.5 -ml-8 rounded-md hover:bg-[var(--surface-hover)] transition-colors"
+        >
+          <img src={logoMark} alt="Obsin" className="h-8 w-auto shrink-0 pointer-events-none" draggable={false} />
+        </Link>
+
+        <SidebarTrigger className="relative z-10 shrink-0" />
 
         {activeNote && (
           <div className="flex items-center gap-0.5 ml-1">
