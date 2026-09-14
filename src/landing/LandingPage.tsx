@@ -132,7 +132,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="relative z-30 min-h-screen bg-[#1B1B1B] px-6 text-white">
+      <section className="relative z-30 bg-[#111] px-6 pb-8 pt-20 text-white sm:pt-24">
         <div className="mx-auto max-w-6xl">
           <h2 className="text-4xl font-semibold leading-tight">
             Built for <Highlighter action="highlight" color="#8353a2">Obsidian</Highlighter> &{" "}
@@ -142,8 +142,8 @@ export function LandingPage() {
             Your Obsidian.  Now in every browser.
           </p>
 
-          {/* Video on higher z-index so it overlaps the gradient */}
-          <div className="relative z-10 mt-10 mb-24 overflow-hidden rounded-[28px] border border-white/10 bg-black shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
+          {/* Video */}
+          <div className="relative z-10 mt-10 overflow-hidden rounded-[28px] border border-white/10 bg-black shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
             <Suspense fallback={<div className="aspect-video w-full bg-[#111] animate-pulse" />}>
               <MiniPlayer
                 className="w-full"
@@ -152,8 +152,6 @@ export function LandingPage() {
               />
             </Suspense>
           </div>
-          {/* Gradient fade between video and features */}
-          <div className="relative z-0 -mt-48 h-48 bg-gradient-to-b from-transparent via-[#1B1B1B] to-[#111] pointer-events-none" />
         </div>
         <CoreFeatures />
       </section>
@@ -161,7 +159,7 @@ export function LandingPage() {
 
 
       {/* CTA Section */}
-      <section className="relative z-30 bg-[#1B1B1B] px-6 py-24 sm:py-32">
+      <section className="relative z-30 bg-[#111] px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
             Start reading your vault today.
@@ -274,8 +272,6 @@ export function LandingPage() {
 }
 
 
-// --- Feature type and preview components ---
-
 interface Feature {
   icon: React.ReactNode;
   title: string;
@@ -337,6 +333,7 @@ function SyncPreview() {
     </div>
   );
 }
+
 function MarkdownPreview() {
   return (
     <div className="mt-4 space-y-3 text-sm">
