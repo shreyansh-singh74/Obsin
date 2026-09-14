@@ -4,21 +4,19 @@ import { connectVault } from '@/engine/vaultConnect';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useSyncStore } from '@/store/useSyncStore';
 import type { GitHubRepo, GitHubBranch, VaultConfig } from '@/types';
+import { SearchInput } from '@/components/ui/SearchInput';
+import { VaultRepoCard } from '@/components/sync/VaultRepoCard';
 import {
   FolderGit2,
-  Search,
-  Lock,
-  Globe,
   GitBranch,
   Loader2,
-  CheckCircle2,
+  Check,
   ArrowRight,
   AlertCircle,
   Cloud,
   GitCompare,
   Download,
   Database,
-  Check,
 } from 'lucide-react';
 
 interface RepoSelectorProps {
@@ -210,21 +208,19 @@ export const RepoSelector: React.FC<RepoSelectorProps> = ({ onVaultSelected }) =
 
       {/* Search Input */}
       {!isSyncing && (
-        <div className="relative">
-          <Search className="absolute left-3.5 top-3 h-4 w-4 text-white/40" />
-          <input
-            type="text"
-            placeholder="Search your repositories..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg bg-black/40 border border-white/10 focus:outline-none focus:border-[#8A35F2] text-white placeholder:text-white/30"
-          />
-        </div>
+        <SearchInput
+          value={searchQuery}
+          onChange={(v) => setSearchQuery(v)}
+          onClear={() => setSearchQuery('')}
+          placeholder="Search your repositories..."
+          label="Search repositories"
+          containerClassName="max-w-none"
+        />
       )}
 
       {/* Repositories List */}
       {!isSyncing && (
-        <div className="max-h-60 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+        <div className="max-h-60 overflow-y-auto space-y-2 pr-2 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.16)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/15 hover:[&::-webkit-scrollbar-thumb]:bg-white/25">
           {isLoadingRepos ? (
             <div className="flex flex-col items-center justify-center py-8 text-white/50 text-xs gap-2">
               <Loader2 className="h-5 w-5 animate-spin text-[#8A35F2]" />
@@ -235,34 +231,17 @@ export const RepoSelector: React.FC<RepoSelectorProps> = ({ onVaultSelected }) =
               No repositories found.
             </div>
           ) : (
-            filteredRepos.map((repo) => {
-              const isSelected = selectedRepo?.id === repo.id;
-              return (
-                <div
-                  key={repo.id}
-                  onClick={() => handleSelectRepo(repo)}
-                  className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-[#8A35F2]/15 border-[#8A35F2] text-white'
-                      : 'bg-white/5 border-white/5 hover:bg-white/10 text-white/80'
-                  }`}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    {repo.private ? (
-                      <Lock className="w-4 h-4 text-amber-400 shrink-0" />
-                    ) : (
-                      <Globe className="w-4 h-4 text-blue-400 shrink-0" />
-                    )}
-                    <div className="min-w-0">
-                      <h4 className="text-sm font-medium truncate">{repo.name}</h4>
-                      <p className="text-[11px] text-white/40 truncate">{repo.full_name}</p>
-                    </div>
-                  </div>
-
-                  {isSelected && <CheckCircle2 className="w-4 h-4 text-[#8A35F2] shrink-0" />}
-                </div>
-              );
-            })
+            filteredRepos.map((repo) => (
+              <VaultRepoCard
+                key={repo.id}
+                owner={repo.owner.login}
+                name={repo.name}
+                description={repo.description}
+                isPrivate={repo.private}
+                selected={selectedRepo?.id === repo.id}
+                onClick={() => handleSelectRepo(repo)}
+              />
+            ))
           )}
         </div>
       )}

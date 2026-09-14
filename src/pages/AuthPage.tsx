@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import logoMark from '@/assets/logo.svg';
 import { UserAvatar } from '@/components/ui/UserAvatar';
+import { DarkMidnightMeshBackground } from '@/components/background-gradient/dark-midnight-mesh-background';
 import { OfflineVaultList } from '@/components/sync/OfflineVaultList';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { useVaultStore } from '@/store/useVaultStore';
@@ -304,10 +305,7 @@ export const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0b0b] text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      {/* Subtle background gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(124,58,237,0.08)_0%,_transparent_60%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(124,58,237,0.04)_0%,_transparent_50%)] pointer-events-none" />
+    <DarkMidnightMeshBackground className='min-h-screen text-white flex flex-col items-center justify-center p-4'>
       {/* Top Header Link */}
       <a href="/" className="absolute top-6 left-6 flex items-center gap-2 text-sm text-white/60 hover:text-white">
         <ArrowLeft className="w-4 h-4" /> Back to Home
@@ -504,6 +502,6 @@ export const AuthPage: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+    </DarkMidnightMeshBackground>
   );
 };

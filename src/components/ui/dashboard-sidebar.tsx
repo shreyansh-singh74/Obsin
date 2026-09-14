@@ -17,6 +17,7 @@ type NavItemData = {
   icon: React.ElementType;
   badge?: number | string;
   shortcut?: string;
+  isFolder: boolean;
   children?: NavItemData[];
 };
 
@@ -105,16 +106,28 @@ function NavItem({
   defaultOpen?: boolean;
 }) {
   const isActive = activeId === item.id;
-  const hasChildren = !!item.children && item.children.length > 0;
+  // Only real folders with children get an expander — file rows can never
+  // show a chevron, even if a children array is present.
+  const hasChildren = item.isFolder && !!item.children && item.children.length > 0;
   const expandedFolderPaths = useVaultStore((s) => s.expandedFolderPaths);
+  const revealToken = useVaultStore((s) => s.revealToken);
+  const expandFolderPath = useVaultStore((s) => s.expandFolderPath);
+  const collapseFolderPath = useVaultStore((s) => s.collapseFolderPath);
   const isExpanded = expandedFolderPaths.has(item.id);
-  const [isOpen, setIsOpen] = useState(defaultOpen || isExpanded);
+  // A folder containing the active note must stay visible, even if the
+  // user manually closed it before (re-clicking the note re-opens it).
+  const isAncestorOfActive = hasChildren && activeId.startsWith(item.id + '/');
+  const [isOpen, setIsOpen] = useState(defaultOpen || isExpanded || isAncestorOfActive);
   const itemRef = React.useRef<HTMLDivElement>(null);
 
-  // Sync open state with expandedFolderPaths from store
+  // Sync open state with the store. Deliberately NOT depending on isOpen:
+  // depending on it re-opened the folder immediately after a manual close
+  // whenever it holds the active note. Manual toggles don't change these
+  // deps, so a closed folder stays closed until the next reveal signal.
   React.useEffect(() => {
-    if (isExpanded && !isOpen) setIsOpen(true);
-  }, [isExpanded]);
+    if (isExpanded || isAncestorOfActive) setIsOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isExpanded, isAncestorOfActive, revealToken]);
 
   // Scroll active item into view
   React.useEffect(() => {
@@ -124,8 +137,19 @@ function NavItem({
   }, [isActive]);
 
   const handleClick = () => {
-    if (hasChildren) {
-      setIsOpen(!isOpen);
+    // Folders always toggle (even when empty) so clicking one can never
+    // mis-select a folder path as the active note. Files always select.
+    // Manual toggles are written through to the store — otherwise a closed
+    // folder stays in expandedFolderPaths and pops back open on the next
+    // note selection (e.g. .obsidian reopening on every click).
+    if (item.isFolder) {
+      const next = !isOpen;
+      setIsOpen(next);
+      if (next) {
+        expandFolderPath(item.id);
+      } else {
+        collapseFolderPath(item.id);
+      }
     } else {
       onSelect(item.id);
     }
@@ -209,7 +233,8 @@ function treeNodeToNavItem(node: TreeNode): NavItemData {
     return {
       id: node.path,
       title: node.name,
-      icon: node.children.length > 0 ? Folder : Folder,
+      icon: Folder,
+      isFolder: true,
       children: node.children.map(treeNodeToNavItem),
     };
   }
@@ -217,6 +242,7 @@ function treeNodeToNavItem(node: TreeNode): NavItemData {
     id: node.path,
     title: node.name,
     icon: FileText,
+    isFolder: false,
   };
 }
 

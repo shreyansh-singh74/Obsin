@@ -46,7 +46,7 @@ export const TagBrowser: React.FC<TagBrowserProps> = ({ onNoteSelected }) => {
         {selectedTag && (
           <button
             onClick={() => setSelectedTag(null)}
-            className="text-[10px] text-[var(--accent-text)] hover:text-[var(--accent)] flex items-center gap-0.5 cursor-pointer"
+            className="text-[10px] text-[var(--accent-text)] hover:text-[var(--accent-hover)] hover:underline underline-offset-2 flex items-center gap-0.5 cursor-pointer"
           >
             <X className="w-2.5 h-2.5" /> clear
           </button>

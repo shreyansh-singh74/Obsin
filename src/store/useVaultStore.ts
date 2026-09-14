@@ -25,6 +25,10 @@ interface VaultState {
   // Sidebar folder expansion
   expandedFolderPaths: Set<string>;
   expandFolderPath: (path: string) => void;
+  collapseFolderPath: (path: string) => void;
+  // Bumped on every note selection (even re-selects) so closed
+  // ancestor folders re-open and the active file scrolls into view.
+  revealToken: number;
 
   setActiveVault: (vault: VaultConfig) => Promise<void>;
   setActiveNotePath: (path: string | null) => void;
@@ -47,6 +51,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   notes: [],
   assetPaths: [],
   activeNotePath: null,
+  revealToken: 0,
   isLoading: false,
   error: null,
   history: [],
@@ -69,22 +74,33 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       searchEngine.indexVault(vault.id, notes);
       const firstNotePath = notes.length > 0 ? notes[0].path : null;
       const initialHistory = firstNotePath ? [firstNotePath] : [];
-      set({ notes, assetPaths, activeNotePath: firstNotePath, isLoading: false, history: initialHistory, historyIndex: firstNotePath ? 0 : -1 });
+      set({ notes, assetPaths, activeNotePath: firstNotePath, isLoading: false, history: initialHistory, historyIndex: firstNotePath ? 0 : -1, expandedFolderPaths: new Set<string>() });
     } catch (err: any) {
       set({ error: err.message || 'Failed to load notes for vault', isLoading: false });
     }
   },
 
   setActiveNotePath: (path: string | null) => {
-    const { history, historyIndex } = get();
+    const { history, historyIndex, expandedFolderPaths, revealToken } = get();
     if (!path) {
       set({ activeNotePath: null });
       return;
     }
 
-    // Don't add duplicate consecutive entries
+    // Expand the note's ancestor folders so the sidebar reveals the file,
+    // even if the user manually closed them before.
+    const newExpanded = new Set(expandedFolderPaths);
+    const parts = path.split('/');
+    let current = '';
+    for (let i = 0; i < parts.length - 1; i++) {
+      current = current ? current + '/' + parts[i] : parts[i];
+      newExpanded.add(current);
+    }
+
+    // Don't add duplicate consecutive entries — but still notify (via
+    // revealToken) so closed folders re-open on re-select.
     if (history[historyIndex] === path) {
-      set({ activeNotePath: path });
+      set({ activeNotePath: path, expandedFolderPaths: newExpanded, revealToken: revealToken + 1 });
       return;
     }
 
@@ -101,6 +117,8 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       activeNotePath: path,
       history: newHistory,
       historyIndex: newHistory.length - 1,
+      expandedFolderPaths: newExpanded,
+      revealToken: revealToken + 1,
     });
   },
 
@@ -154,6 +172,14 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       current = current ? current + '/' + parts[i] : parts[i];
       newExpanded.add(current);
     }
+    set({ expandedFolderPaths: newExpanded });
+  },
+
+  collapseFolderPath: (path: string) => {
+    const { expandedFolderPaths } = get();
+    if (!expandedFolderPaths.has(path)) return;
+    const newExpanded = new Set(expandedFolderPaths);
+    newExpanded.delete(path);
     set({ expandedFolderPaths: newExpanded });
   },
 
@@ -216,6 +242,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
           historyIndex: -1,
           favorites: new Set<string>(),
           expandedFolderPaths: new Set<string>(),
+          revealToken: 0,
         });
       }
     }
@@ -239,6 +266,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       historyIndex: -1,
       favorites: new Set<string>(),
       expandedFolderPaths: new Set<string>(),
+      revealToken: 0,
     });
   },
 

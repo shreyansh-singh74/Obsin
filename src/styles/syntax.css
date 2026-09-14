@@ -67,12 +67,12 @@
 
 .code-block-content {
   margin: 0;
-  padding: var(--space-4);
+  padding: 18px;
   overflow-x: auto;
   white-space: pre;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 14.5px;
+  line-height: 1.65;
   color: var(--code-text);
   background-color: var(--code-bg);
 }

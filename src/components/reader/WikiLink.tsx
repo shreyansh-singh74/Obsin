@@ -58,9 +58,9 @@ export const WikiLink: React.FC<WikiLinkProps> = ({ target, heading, children })
     <button
       onClick={handleClick}
       title={`Jump to ${target}${heading ? `#${heading}` : ''}`}
-      className="inline-flex items-center gap-1 text-[var(--accent-text)] hover:text-[var(--accent)] font-medium underline underline-offset-4 decoration-[var(--accent-soft)] hover:decoration-[var(--accent)] bg-[var(--accent-soft)] hover:bg-[var(--accent-soft-hover)] px-1.5 py-0.5 rounded-[var(--radius-xs)] text-xs border border-[var(--accent-soft)] transition-all duration-[var(--duration-fast)] cursor-pointer max-w-full break-all"
+      className="inline-flex items-center gap-1 text-[var(--accent-text)] hover:text-[var(--text-on-accent)] font-medium underline underline-offset-4 decoration-[var(--accent-soft)] hover:decoration-[var(--accent-hover)] bg-[var(--accent-soft)] hover:bg-[var(--accent)] px-1.5 py-0.5 rounded-[var(--radius-xs)] text-xs border border-[var(--accent-soft)] hover:border-[var(--accent)] transition-all duration-[var(--duration-fast)] cursor-pointer max-w-full break-all"
     >
-      <Link2 className="w-3 h-3 text-[var(--accent-text)] shrink-0" />
+      <Link2 className="w-3 h-3 text-current shrink-0" />
       <span>{children}</span>
     </button>
   );

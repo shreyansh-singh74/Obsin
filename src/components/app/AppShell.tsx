@@ -15,9 +15,7 @@ import { GraphView } from '@/components/graph/GraphView';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Toaster } from '@/components/ui/sonner';
 
-/**
- * Reads the note path from the URL hash: /app#vault-id/note/path.md
- */
+
 function readHashState(): { vaultId?: string; notePath?: string } {
   const hash = window.location.hash.slice(1); // Remove #
   if (!hash) return {};
@@ -30,15 +28,13 @@ function readHashState(): { vaultId?: string; notePath?: string } {
   return {};
 }
 
-/**
- * Writes the note path to the URL hash without triggering navigation.
- */
 function writeHashState(vaultId: string, notePath: string) {
   const hash = `${vaultId}/${notePath}`;
   if (window.location.hash.slice(1) !== hash) {
     window.history.replaceState(null, '', `#${hash}`);
   }
 }
+
 
 export function AppShell() {
   const { activeVault, activeNotePath, loadVaults, refreshNotes, setActiveVault, setActiveNotePath, vaults } = useVaultStore();
@@ -48,19 +44,19 @@ export function AppShell() {
 
   const isOnline = useOnlineStatus();
 
-  // Validate token on mount and set up periodic checks (only meaningful online)
+
   useEffect(() => {
     if (!isOnline) return () => {};
     const cleanup = setupSessionValidation();
     return cleanup;
   }, [isOnline]);
 
-  // Load vaults and navigate to hash-specified note on initial load
+
   useEffect(() => {
     loadVaults();
   }, [loadVaults]);
 
-  // Once vaults are loaded, navigate to the hash-specified vault/note
+
   useEffect(() => {
     if (vaults.length === 0) return;
     const { vaultId, notePath } = readHashState();
@@ -75,16 +71,16 @@ export function AppShell() {
         return;
       }
     }
-  }, [vaults]); // Only run once when vaults first load
+  }, [vaults]);
 
-  // Sync URL hash when active note changes
+
   useEffect(() => {
     if (activeVault && activeNotePath) {
       writeHashState(activeVault.id, activeNotePath);
     }
   }, [activeVault, activeNotePath]);
 
-  // Listen for browser back/forward on the hash
+
   useEffect(() => {
     function handleHashChange() {
       const { vaultId, notePath } = readHashState();
@@ -98,16 +94,12 @@ export function AppShell() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [activeVault, setActiveNotePath]);
 
-  // Standardized bootstrap: hydrate user → load vaults → activate vault →
-  // render from IndexedDB → sync in the background ONLY when online.
-  // Offline: local data renders immediately, sync is skipped (not failed).
+
   useEffect(() => {
     useAuthStore.getState().hydrateUser();
   }, []);
 
-  // Background sync: runs when a vault activates OR when connectivity
-  // returns (the isOnline transition re-runs this single effect, so there
-  // is exactly one sync path — no double-sync on mount).
+
   useEffect(() => {
     if (!activeVault || !isOnline) return;
     executeVaultSync(activeVault, token)
@@ -122,7 +114,7 @@ export function AppShell() {
       });
   }, [activeVault?.id, token, isOnline]);
 
-  // Global Keyboard Shortcuts: Cmd+K / Ctrl+K (search), Cmd+G / Ctrl+G (graph)
+
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -144,15 +136,21 @@ export function AppShell() {
   return (
     <ErrorBoundary>
       <SidebarProvider>
-        <div className="h-screen w-full bg-[var(--surface-page)] text-[var(--text-primary)] flex flex-col overflow-hidden font-sans transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]">
-          {/* Offline Status Bar */}
+        {/* Viewport lock: owns exactly 100vh/100vw with no zoom, so the
+            zoomed app below can never push the page into body scroll
+            (which carried the navbar away on long notes). */}
+        <div className="h-screen w-full overflow-hidden bg-[var(--surface-page)]">
+        {/* Zoomed app: layout size divided by the zoom factor renders back
+            to exactly the viewport size (100/1.12). Resolved against
+            viewport units directly so no containing-block math is involved. */}
+        <div className="h-[calc(100vh/1.12)] w-[calc(100vw/1.12)] bg-[var(--surface-page)] text-[var(--text-primary)] flex flex-col overflow-hidden font-sans transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)] [zoom:1.12]">
+
           <OfflineBanner />
 
-          {/* Primary Top Header */}
           <AppHeader onOpenSearch={() => setIsSearchOpen(true)} />
 
           {/* Main Content Area */}
-          <div className="flex-1 flex overflow-hidden">
+          <div className="flex-1 flex min-h-0 min-w-0 overflow-hidden">
             <Sidebar />
             <ReadingCanvas />
           </div>
@@ -164,6 +162,7 @@ export function AppShell() {
           {isGraphOpen && (
             <GraphView mode="overlay" onClose={() => setIsGraphOpen(false)} />
           )}
+        </div>
         </div>
       </SidebarProvider>
       <Toaster />

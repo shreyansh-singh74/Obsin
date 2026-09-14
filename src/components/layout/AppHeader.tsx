@@ -7,7 +7,7 @@ import { executeVaultSync } from '@/engine/sync';
 import { getNotesByVault } from '@/db/repository/notesRepo';
 import { ArrowLeft, ArrowRight, RefreshCw, Search, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
-import logoMark from '@/assets/logo.svg';
+import logoMark from '@/assets/navbar.svg';
 
 interface AppHeaderProps {
   onOpenSearch?: () => void;
@@ -35,7 +35,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
 
       const notesAfter = await executeVaultSync(activeVault, token);
 
-      // Find new or updated files
       const updatedFiles: string[] = [];
       for (const note of notesAfter) {
         const oldSha = shaMap.get(note.path);
@@ -74,13 +73,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
   const pathParts = activeNote ? activeNote.path.split('/') : [];
 
   return (
-    <header className="h-11 border-b border-[var(--border-subtle)] bg-[var(--surface-sidebar)] px-3 flex items-center z-[var(--z-sticky)] transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]">
-      {/* Left: Sidebar Toggle, Logo, Back/Forward */}
+    <header className="h-11 shrink-0 border-b border-[var(--border-subtle)] bg-[var(--surface-sidebar)] px-3 flex items-center z-[var(--z-sticky)] transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]">
       <div className="flex items-center gap-1.5 shrink-0">
         <SidebarTrigger />
+
         <a href="/" className="flex items-center shrink-0">
-          <img src={logoMark} alt="Obsin" className="h-9 w-9 shrink-0" />
+          <img src={logoMark} alt="Obsin" className="h-8 w-auto shrink-0 -translate-x-9" />
         </a>
+
         {activeNote && (
           <div className="flex items-center gap-0.5 ml-1">
             <button
@@ -120,42 +120,50 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
 
             {pathParts.length > 0 && (
               <>
-                <ChevronRight className="w-3.5 h-3.5 shrink-0 text-[var(--text-subtle)] mx-1" />
-
-                {/* Folder segments — show last 2 on mobile, all on desktop */}
-                {pathParts.slice(0, -1).map((part, i) => {
-                  const fullPath = pathParts.slice(0, i + 1).join('/');
-                  const isLastFolder = i === pathParts.length - 2;
-                  const hideOnMobile = !isLastFolder && pathParts.length - 1 > 2;
-                  const hideOnDesktop = i < pathParts.length - 3;
-
-                  if (hideOnDesktop) return null;
-                  if (hideOnMobile && isMobile) return null;
-
+                {/* Folder segments — last 1 on mobile, last 2 on desktop.
+                    Separators prefix each visible segment, so collapsing
+                    leading folders can never produce a double chevron. */}
+                {(() => {
+                  const folders = pathParts.slice(0, -1);
+                  const maxFolders = isMobile ? 1 : 2;
+                  const visibleFolders =
+                    folders.length > maxFolders ? folders.slice(-maxFolders) : folders;
+                  const collapsedCount = folders.length - visibleFolders.length;
+                  const startIndex = folders.length - visibleFolders.length;
                   return (
-                    <React.Fragment key={i}>
-                      {i > 0 && <ChevronRight className="w-3.5 h-3.5 shrink-0 text-[var(--text-subtle)] mx-1" />}
-                      <button
-                        onClick={() => {
-                          expandFolderPath(fullPath);
-                          if (isMobile) setOpen(true);
-                        }}
-                        className="shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer truncate max-w-[100px] md:max-w-[140px]"
-                        title={fullPath}
-                      >
-                        {part}
-                      </button>
-                    </React.Fragment>
+                    <>
+                      {collapsedCount > 0 && (
+                        <>
+                          <ChevronRight className="w-3.5 h-3.5 shrink-0 text-[var(--text-subtle)] mx-1" />
+                          <span
+                            className="text-[var(--text-subtle)] shrink-0"
+                            title={`${collapsedCount} more folder${collapsedCount > 1 ? 's' : ''}`}
+                          >
+                            ...
+                          </span>
+                        </>
+                      )}
+                      {visibleFolders.map((part, j) => {
+                        const fullPath = pathParts.slice(0, startIndex + j + 1).join('/');
+                        return (
+                          <React.Fragment key={startIndex + j}>
+                            <ChevronRight className="w-3.5 h-3.5 shrink-0 text-[var(--text-subtle)] mx-1" />
+                            <button
+                              onClick={() => {
+                                expandFolderPath(fullPath);
+                                if (isMobile) setOpen(true);
+                              }}
+                              className="shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer truncate max-w-[100px] md:max-w-[140px]"
+                              title={fullPath}
+                            >
+                              {part}
+                            </button>
+                          </React.Fragment>
+                        );
+                      })}
+                    </>
                   );
-                })}
-
-                {/* Ellipsis for collapsed middle segments on desktop */}
-                {!isMobile && pathParts.length - 1 > 3 && (
-                  <>
-                    <ChevronRight className="w-3.5 h-3.5 shrink-0 text-[var(--text-subtle)] mx-1" />
-                    <span className="text-[var(--text-subtle)] shrink-0">...</span>
-                  </>
-                )}
+                })()}
 
                 <ChevronRight className="w-3.5 h-3.5 shrink-0 text-[var(--text-subtle)] mx-1" />
 
@@ -203,7 +211,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
             ⌘K
           </kbd>
         </button>
-        
+
         <ProfileMenu />
       </div>
     </header>

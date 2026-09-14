@@ -58,7 +58,7 @@
 /* Reading Canvas Layout Container */
 .reading-canvas-container {
   width: 100%;
-  max-width: min(860px, 100%);
+  max-width: min(920px, 100%);
   margin-left: auto;
   margin-right: auto;
   overflow-x: clip;
@@ -69,7 +69,7 @@
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--text-primary);
   line-height: var(--leading-reading);
-  font-size: 15px;
+  font-size: 17px;
 }
 
 .prose h1,
@@ -84,25 +84,25 @@
 
 .prose h1 {
   overflow-wrap: break-word;
-  font-size: var(--font-2xl);
+  font-size: var(--font-3xl);
   margin-top: var(--space-2);
   margin-bottom: var(--space-3);
 }
 
 .prose h2 {
-  font-size: var(--font-xl);
+  font-size: var(--font-2xl);
   margin-top: var(--space-4);
   margin-bottom: var(--space-2);
 }
 
 .prose h3 {
-  font-size: var(--font-lg);
+  font-size: var(--font-xl);
   margin-top: var(--space-5);
   margin-bottom: var(--space-2);
 }
 
 .prose h4 {
-  font-size: 15px;
+  font-size: 17px;
   margin-top: var(--space-4);
   margin-bottom: var(--space-2);
 }
@@ -242,10 +242,10 @@
 
 .prose code-block-content {
   white-space: pre;
-  padding: 16px;
+  padding: 18px;
   overflow-x: auto;
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 14.5px;
+  line-height: 1.65;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   color: var(--text-secondary);
 }
