@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Obsin system architecture</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif:ital@0;1&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #111111;   /* Obsin app background */
+      --color-ink:     #E5E7EB;   /* Obsin headline text */
+      --color-muted:   #9CA3AF;   /* Obsin secondary text */
+      --color-accent:  #8A35F2;   /* Obsin brand purple */
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .frame { max-width: 1280px; width: 100%; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--color-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    svg { width: 100%; display: block; }
+
+    .colophon {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      color: var(--color-muted);
+      border-top: 1px solid rgba(229,231,235,0.12);
+      margin-top: 1.5rem;
+      padding-top: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Architecture · Obsin</p>
+    <h1>Your vault, synced to the browser.</h1>
+    <p class="subtitle">GitHub stays the source of truth; the browser holds the working copy.</p>
+
+    <svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="obsin-arch-title obsin-arch-desc">
+      <title id="obsin-arch-title">Obsin system architecture</title>
+      <desc id="obsin-arch-desc">Architecture of Obsin: GitHub backs a browser sync engine that writes notes to IndexedDB, feeding app stores, instant search, and the React reader UI.</desc>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#9CA3AF"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#8A35F2"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#A78BFA"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#111111"/>
+
+      <!-- Zones -->
+      <rect x="40" y="116" width="208" height="140" rx="8" fill="rgba(229,231,235,0.02)" stroke="rgba(229,231,235,0.10)" stroke-width="0.8"/>
+      <rect x="48" y="120" width="120" height="12" rx="2" fill="#111111"/>
+      <text x="108" y="129" fill="rgba(229,231,235,0.40)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">GITHUB CLOUD</text>
+
+      <rect x="264" y="60" width="976" height="260" rx="8" fill="rgba(229,231,235,0.02)" stroke="rgba(229,231,235,0.10)" stroke-width="0.8"/>
+      <rect x="272" y="64" width="220" height="12" rx="2" fill="#111111"/>
+      <text x="382" y="73" fill="rgba(229,231,235,0.40)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">BROWSER · LOCAL-FIRST APP</text>
+
+      <!-- Arrows -->
+      <line x1="224" y1="192" x2="288" y2="192" stroke="#A78BFA" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+      <rect x="228" y="172" width="56" height="12" rx="2" fill="#111111"/>
+      <text x="256" y="181" fill="#8b93a3" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GIT TREE</text>
+
+      <line x1="468" y1="192" x2="532" y2="192" stroke="#8A35F2" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+      <rect x="480" y="172" width="40" height="12" rx="2" fill="#111111"/>
+      <text x="500" y="181" fill="#8b93a3" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">WRITE</text>
+
+      <path d="M 692,180 H 724 Q 732,180 732,188 V 128 Q 732,136 740,136 H 772" fill="none" stroke="#9CA3AF" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="694" y="152" width="32" height="12" rx="2" fill="#111111"/>
+      <text x="710" y="161" fill="#8b93a3" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">READ</text>
+
+      <path d="M 692,204 H 724 Q 732,204 732,212 V 248 Q 732,256 740,256 H 772" fill="none" stroke="#9CA3AF" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="686" y="228" width="40" height="12" rx="2" fill="#111111"/>
+      <text x="706" y="237" fill="#8b93a3" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">INDEX</text>
+
+      <path d="M 952,136 H 1006 Q 1014,136 1014,144 V 160" fill="none" stroke="#9CA3AF" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="968" y="146" width="40" height="12" rx="2" fill="#111111"/>
+      <text x="988" y="155" fill="#8b93a3" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STATE</text>
+
+      <path d="M 952,256 H 976 Q 984,256 984,248 V 200 Q 984,192 992,192 H 1016" fill="none" stroke="#9CA3AF" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="926" y="206" width="52" height="12" rx="2" fill="#111111"/>
+      <text x="952" y="215" fill="#8b93a3" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">RESULTS</text>
+
+      <path d="M 1136,160 V 100 Q 1136,92 1128,92 H 388 Q 380,92 380,100 V 160" fill="none" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+      <rect x="710" y="72" width="60" height="12" rx="2" fill="#111111"/>
+      <text x="740" y="81" fill="#8b93a3" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">AUTO-SYNC</text>
+
+      <line x1="144" y1="480" x2="144" y2="224" stroke="#A78BFA" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+      <rect x="48" y="344" width="88" height="12" rx="2" fill="#111111"/>
+      <text x="92" y="353" fill="#8b93a3" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">TOKEN EXCHANGE</text>
+
+      <path d="M 1100,224 V 592 Q 1100,600 1092,600 H 152 Q 144,600 144,592 V 544" fill="none" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+      <rect x="594" y="608" width="52" height="12" rx="2" fill="#111111"/>
+      <text x="620" y="617" fill="#8b93a3" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SIGN IN</text>
+
+      <!-- Nodes: GitHub REST API (external) -->
+      <rect x="64" y="160" width="160" height="64" rx="6" fill="#111111"/>
+      <rect x="64" y="160" width="160" height="64" rx="6" fill="rgba(229,231,235,0.03)" stroke="rgba(229,231,235,0.30)" stroke-width="1"/>
+      <rect x="72" y="166" width="24" height="12" rx="2" fill="transparent" stroke="rgba(229,231,235,0.40)" stroke-width="0.8"/>
+      <text x="84" y="175" fill="rgba(229,231,235,0.80)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">API</text>
+      <text x="144" y="198" fill="#E5E7EB" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">GitHub REST API</text>
+      <text x="144" y="214" fill="#9CA3AF" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">api.github.com</text>
+
+      <!-- Nodes: Auth proxies (external) -->
+      <rect x="64" y="480" width="160" height="64" rx="6" fill="#111111"/>
+      <rect x="64" y="480" width="160" height="64" rx="6" fill="rgba(229,231,235,0.03)" stroke="rgba(229,231,235,0.30)" stroke-width="1"/>
+      <rect x="72" y="486" width="28" height="12" rx="2" fill="transparent" stroke="rgba(229,231,235,0.40)" stroke-width="0.8"/>
+      <text x="86" y="495" fill="rgba(229,231,235,0.80)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">EDGE</text>
+      <text x="144" y="518" fill="#E5E7EB" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Auth proxies</text>
+      <text x="144" y="534" fill="#9CA3AF" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">api/auth/* · PKCE</text>
+
+      <!-- Nodes: Sync engine (focal) -->
+      <rect x="288" y="160" width="180" height="64" rx="6" fill="#111111"/>
+      <rect x="288" y="160" width="180" height="64" rx="6" fill="rgba(138,53,242,0.12)" stroke="#8A35F2" stroke-width="1.2"/>
+      <rect x="296" y="166" width="28" height="12" rx="2" fill="transparent" stroke="rgba(138,53,242,0.70)" stroke-width="0.8"/>
+      <text x="310" y="175" fill="#A78BFA" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CORE</text>
+      <text x="378" y="198" fill="#E5E7EB" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Sync engine</text>
+      <text x="378" y="214" fill="#9CA3AF" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">executeVaultSync</text>
+
+      <!-- Nodes: IndexedDB (store) -->
+      <rect x="532" y="160" width="160" height="64" rx="6" fill="#111111"/>
+      <rect x="532" y="160" width="160" height="64" rx="6" fill="rgba(229,231,235,0.05)" stroke="#9CA3AF" stroke-width="1"/>
+      <rect x="540" y="166" width="32" height="12" rx="2" fill="transparent" stroke="rgba(156,163,175,0.60)" stroke-width="0.8"/>
+      <text x="556" y="175" fill="#9CA3AF" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">STORE</text>
+      <text x="612" y="198" fill="#E5E7EB" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">IndexedDB</text>
+      <text x="612" y="214" fill="#9CA3AF" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Dexie · vaultId keys</text>
+
+      <!-- Nodes: Zustand stores -->
+      <rect x="772" y="104" width="180" height="64" rx="6" fill="#111111"/>
+      <rect x="772" y="104" width="180" height="64" rx="6" fill="#1F1F1F" stroke="#E5E7EB" stroke-width="1"/>
+      <rect x="780" y="110" width="32" height="12" rx="2" fill="transparent" stroke="rgba(229,231,235,0.40)" stroke-width="0.8"/>
+      <text x="796" y="119" fill="rgba(229,231,235,0.80)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">STATE</text>
+      <text x="862" y="142" fill="#E5E7EB" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Zustand stores</text>
+      <text x="862" y="158" fill="#9CA3AF" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">auth · vault · sync</text>
+
+      <!-- Nodes: FlexSearch index -->
+      <rect x="772" y="224" width="180" height="64" rx="6" fill="#111111"/>
+      <rect x="772" y="224" width="180" height="64" rx="6" fill="#1F1F1F" stroke="#E5E7EB" stroke-width="1"/>
+      <rect x="780" y="230" width="32" height="12" rx="2" fill="transparent" stroke="rgba(229,231,235,0.40)" stroke-width="0.8"/>
+      <text x="796" y="239" fill="rgba(229,231,235,0.80)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">INDEX</text>
+      <text x="862" y="262" fill="#E5E7EB" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">FlexSearch index</text>
+      <text x="862" y="278" fill="#9CA3AF" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">in-memory · per vault</text>
+
+      <!-- Nodes: React reader UI -->
+      <rect x="1016" y="160" width="180" height="64" rx="6" fill="#111111"/>
+      <rect x="1016" y="160" width="180" height="64" rx="6" fill="#1F1F1F" stroke="#E5E7EB" stroke-width="1"/>
+      <rect x="1024" y="166" width="24" height="12" rx="2" fill="transparent" stroke="rgba(229,231,235,0.40)" stroke-width="0.8"/>
+      <text x="1036" y="175" fill="rgba(229,231,235,0.80)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">APP</text>
+      <text x="1106" y="198" fill="#E5E7EB" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">React reader UI</text>
+      <text x="1106" y="214" fill="#9CA3AF" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">/app · wiki-links</text>
+
+      <!-- Legend -->
+      <line x1="30" y1="640" x2="1250" y2="640" stroke="rgba(229,231,235,0.10)" stroke-width="0.8"/>
+      <text x="30" y="656" fill="#9CA3AF" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">LEGEND</text>
+
+      <rect x="30" y="662" width="14" height="10" rx="2" fill="rgba(138,53,242,0.12)" stroke="#8A35F2" stroke-width="1"/>
+      <text x="50" y="671" fill="#9CA3AF" font-size="8" font-family="'Geist Mono', monospace">Focal · sync core</text>
+
+      <rect x="190" y="662" width="14" height="10" rx="2" fill="rgba(229,231,235,0.03)" stroke="rgba(229,231,235,0.30)" stroke-width="1"/>
+      <text x="210" y="671" fill="#9CA3AF" font-size="8" font-family="'Geist Mono', monospace">External / edge</text>
+
+      <rect x="350" y="662" width="14" height="10" rx="2" fill="rgba(229,231,235,0.05)" stroke="#9CA3AF" stroke-width="1"/>
+      <text x="370" y="671" fill="#9CA3AF" font-size="8" font-family="'Geist Mono', monospace">Store · IndexedDB</text>
+
+      <rect x="510" y="662" width="14" height="10" rx="2" fill="#1F1F1F" stroke="#E5E7EB" stroke-width="1"/>
+      <text x="530" y="671" fill="#9CA3AF" font-size="8" font-family="'Geist Mono', monospace">App component</text>
+
+      <line x1="680" y1="667" x2="704" y2="667" stroke="#8A35F2" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+      <text x="710" y="671" fill="#9CA3AF" font-size="8" font-family="'Geist Mono', monospace">Primary write</text>
+
+      <line x1="830" y1="667" x2="854" y2="667" stroke="#A78BFA" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+      <text x="860" y="671" fill="#9CA3AF" font-size="8" font-family="'Geist Mono', monospace">GitHub API call</text>
+
+      <line x1="990" y1="667" x2="1014" y2="667" stroke="#9CA3AF" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <text x="1020" y="671" fill="#9CA3AF" font-size="8" font-family="'Geist Mono', monospace">Local read</text>
+
+      <line x1="1120" y1="667" x2="1144" y2="667" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+      <text x="1150" y="671" fill="#9CA3AF" font-size="8" font-family="'Geist Mono', monospace">Trigger</text>
+
+    </svg>
+    <p class="colophon">OBSIN · LOCAL-FIRST READER · GITHUB IS THE SOURCE OF TRUTH</p>
+  </div>
+</body>
+</html>

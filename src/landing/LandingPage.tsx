@@ -147,8 +147,8 @@ export function LandingPage() {
             <Suspense fallback={<div className="aspect-video w-full bg-[#111] animate-pulse" />}>
               <MiniPlayer
                 className="w-full"
-                src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
-                poster="https://picsum.photos/seed/flower/1280/720"
+                src="/brag.mp4"
+                poster="/brag.jpg"
               />
             </Suspense>
           </div>
