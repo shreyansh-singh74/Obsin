@@ -1,14 +1,17 @@
-const CACHE_NAME = 'obsin-v2';
-const STATIC_CACHE = 'obsin-static-v2';
+const CACHE_NAME = 'obsin-v3';
+const STATIC_CACHE = 'obsin-static-v3';
 const OBSIN_CACHE_PREFIX = 'obsin-';
 
-// Assets to precache on install
+
+// Assets to precache on install. `/app` is the reader entry point, so an
+// offline cold-start resolves deterministically instead of relying on the
+// `/` fallback in the navigate handler below.
 const PRECACHE_URLS = [
   '/',
+  '/app',
   '/index.html',
   '/manifest.json',
 ];
-
 // Install: precache shell
 self.addEventListener('install', (event) => {
   event.waitUntil(

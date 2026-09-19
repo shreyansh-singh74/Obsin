@@ -53,7 +53,7 @@ Routes (`src/App.tsx`): `/` landing, `/auth`, `/app` (gated by `ProtectedRoute` 
 - **Connectivity** — `useOnlineStatus()` (`src/hooks/useOnlineStatus.ts`) is the single source of truth for online/offline; reuse it instead of raw `navigator.onLine` listeners. The FlexSearch index is rebuilt from local notes on every `setActiveVault`/`refreshNotes`, so **search works offline**.
 - **Vault connect flow** — `connectVault()` (`src/engine/vaultConnect.ts`) is the ONE standardized routine (save → activate → sync-if-online → refresh). RepoSelector and VaultSelector must both use it; don't hand-roll new connect paths.
 - **Auth/profile flow** — AuthPage (`/auth`) is the only sign-in surface. Tokens set outside it (e.g. sidebar PAT) must either call `setAuth(token, user)` or rely on `useAuthStore.hydrateUser()` (called by AppShell on mount) to fetch the profile so the header avatar appears.
-- **Offline `/app` access** — `ProtectedRoute` admits users with a token OR (offline + local vault data). The PWA `start_url` is `/app` so installed apps open straight into the reader.
+- **Offline `/app` access** — `ProtectedRoute` admits users with a token OR (offline + local vault data). The PWA `start_url`/`scope`/`id` is `/` (so a fresh install never lands on an auth redirect); the SW precaches `/app` for deterministic offline cold-start. Install affordance: `InstallAppButton` (`components/pwa/`) driven by `usePWAInstall()` (`hooks/`).
 
 Notes store **body markdown only** — frontmatter is stripped at parse time and its `tags`/`aliases`/`title` promoted onto the `Note` record. Wiki-links and backlinks resolve through the slug tables (`wikiMapRepo` slug→path, `backlinksRepo` targetSlug→sources) for O(1) lookup rather than scanning content at render time.
 

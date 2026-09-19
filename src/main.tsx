@@ -12,7 +12,11 @@ document.documentElement.setAttribute(
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    void navigator.serviceWorker.register('/sw.js').catch(() => undefined);
+    void navigator.serviceWorker.register('/sw.js').catch((error: unknown) => {
+      // Surface registration failures in dev; a broken SW silently kills
+      // offline support and PWA installability.
+      if (import.meta.env.DEV) console.error('[sw] registration failed', error);
+    });
   });
 }
 

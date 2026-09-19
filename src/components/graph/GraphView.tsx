@@ -175,8 +175,17 @@ export const GraphView: React.FC<GraphViewProps> = ({ mode, onClose }) => {
       .attr('font-family', 'inherit')
       .attr('pointer-events', 'none');
 
-    nodeGroup.on('click', (_event: MouseEvent, d: GraphNode) => {
+    nodeGroup.append('title').text((d: GraphNode) => `Open ${d.label}`);
+
+    nodeGroup.on('click', (event: MouseEvent, d: GraphNode) => {
+      // d3-drag suppresses clicks after a real drag, but guard anyway.
+      if ((event as MouseEvent & { defaultPrevented?: boolean }).defaultPrevented) return;
+      if (d.path === activeNotePath) {
+        if (mode === 'overlay') onClose?.();
+        return;
+      }
       setActiveNotePath(d.path);
+      if (mode === 'overlay') onClose?.();
     });
 
     nodeGroup
@@ -208,7 +217,7 @@ export const GraphView: React.FC<GraphViewProps> = ({ mode, onClose }) => {
     return () => {
       simulation.stop();
     };
-  }, [nodes, links, dimensions, activeNotePath]);
+  }, [nodes, links, dimensions, activeNotePath, mode, onClose]);
 
   if (nodes.length === 0) return null;
 

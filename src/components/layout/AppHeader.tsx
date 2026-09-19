@@ -5,16 +5,17 @@ import { useVaultStore } from '@/store/useVaultStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { executeVaultSync } from '@/engine/sync';
 import { getNotesByVault } from '@/db/repository/notesRepo';
-import { ArrowLeft, ArrowRight, RefreshCw, Search, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, RefreshCw, Search, ChevronRight, Network } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import logoMark from '@/assets/navbar.svg';
 
 interface AppHeaderProps {
   onOpenSearch?: () => void;
+  onOpenGraph?: () => void;
 }
 
-export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
+export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch, onOpenGraph }) => {
   const {
     activeNotePath, activeVault, notes, refreshNotes,
     navigateBack, navigateForward, canGoBack, canGoForward, expandFolderPath,
@@ -205,6 +206,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
           title="Sync vault"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+        </button>
+        <button
+          type="button"
+          onClick={onOpenGraph}
+          className="w-6 h-6 flex items-center justify-center rounded hover:bg-[var(--surface-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+          title="Open graph (⌘G)"
+          aria-label="Open note graph"
+        >
+          <Network className="w-3.5 h-3.5" />
         </button>
         <button
           type="button"

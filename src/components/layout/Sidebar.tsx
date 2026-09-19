@@ -10,7 +10,7 @@ import { DashboardSidebar } from '@/components/ui/dashboard-sidebar';
  * Token/profile management lives in the AuthPage (/auth) — the sidebar
  * no longer hosts its own duplicate auth modal.
  */
-export const Sidebar: React.FC = () => {
+export const Sidebar: React.FC<{ onOpenGraph?: () => void }> = ({ onOpenGraph }) => {
   const { open, isMobile, setOpen } = useSidebar();
 
   // --- Mobile: Slide-in Drawer ---
@@ -18,7 +18,7 @@ export const Sidebar: React.FC = () => {
     return (
       <MobileDrawer open={open} onClose={() => setOpen(false)}>
         <div className="h-full">
-          <DashboardSidebar />
+          <DashboardSidebar onOpenGraph={() => { setOpen(false); onOpenGraph?.(); }} />
         </div>
       </MobileDrawer>
     );
@@ -32,7 +32,7 @@ export const Sidebar: React.FC = () => {
         open ? 'w-60 border-r border-[var(--border-default)]' : 'w-0 border-none'
       }`}
     >
-      {open && <DashboardSidebar />}
+      {open && <DashboardSidebar onOpenGraph={onOpenGraph} />}
     </div>
   );
 };

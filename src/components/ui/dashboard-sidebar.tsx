@@ -9,6 +9,7 @@ import {
   Folder,
   FileText,
   Trash2,
+  Network,
 } from 'lucide-react';
 
 type NavItemData = {
@@ -248,9 +249,10 @@ function treeNodeToNavItem(node: TreeNode): NavItemData {
 
 interface DashboardSidebarProps {
   className?: string;
+  onOpenGraph?: () => void;
 }
 
-export function DashboardSidebar({ className = '' }: DashboardSidebarProps) {
+export function DashboardSidebar({ className = '', onOpenGraph }: DashboardSidebarProps) {
   const { notes, assetPaths, activeVault, activeNotePath, setActiveNotePath, vaults, setActiveVault, expandedFolderPaths, dropVault } = useVaultStore();
   const { isMobile, setOpen } = useSidebar();
   const [searchQuery, setSearchQuery] = useState('');
@@ -339,9 +341,18 @@ export function DashboardSidebar({ className = '' }: DashboardSidebarProps) {
         )}
       </div>
 
-      {/* Footer — note count */}
-      <div className="px-4 py-2 border-t border-[var(--border-default)] text-[11px] text-[var(--text-muted)]">
-        {notes.length} note{notes.length !== 1 ? 's' : ''} · {activeVault.name}
+      {/* Footer — note count + graph shortcut */}
+      <div className="px-4 py-2 border-t border-[var(--border-default)] flex items-center justify-between text-[11px] text-[var(--text-muted)]">
+        <span>{notes.length} note{notes.length !== 1 ? 's' : ''} · {activeVault.name}</span>
+        <button
+          type="button"
+          onClick={onOpenGraph}
+          title="Open graph (⌘G)"
+          aria-label="Open note graph"
+          className="flex items-center gap-1 hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+        >
+          <Network className="w-3.5 h-3.5" /> Graph
+        </button>
       </div>
     </div>
   );

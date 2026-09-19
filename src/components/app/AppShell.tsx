@@ -148,11 +148,11 @@ export function AppShell() {
 
           <OfflineBanner />
 
-          <AppHeader onOpenSearch={() => setIsSearchOpen(true)} />
+          <AppHeader onOpenSearch={() => setIsSearchOpen(true)} onOpenGraph={() => setIsGraphOpen(true)} />
 
           {/* Main Content Area */}
           <div className="flex-1 flex min-h-0 min-w-0 overflow-hidden">
-            <Sidebar />
+            <Sidebar onOpenGraph={() => setIsGraphOpen(true)} />
             <ReadingCanvas />
           </div>
 
