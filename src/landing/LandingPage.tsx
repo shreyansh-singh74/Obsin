@@ -17,7 +17,6 @@ import {
 } from "@tabler/icons-react";
 import { Safari } from "@/components/ui/safari";
 import { Highlighter } from "@/components/ui/highlighter";
-import { InstallAppButton } from "@/components/pwa/InstallAppButton";
 import logoMark from "@/assets/logo.svg";
 
 const MiniPlayer = lazy(() =>
@@ -86,7 +85,6 @@ export function LandingPage() {
                 </a>
 
                 <nav className="flex items-center gap-2 text-[0.95rem] text-white/72">
-                  <InstallAppButton className="-mt-10" />
                   <a
                     href="/auth"
                     className="inline-flex min-h-10 items-center rounded-full bg-white px-4 py-2 font-medium text-black transition-colors hover:bg-white/90 -mt-10"

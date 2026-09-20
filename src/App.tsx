@@ -5,6 +5,7 @@ import { JSX } from "react/jsx-runtime";
 import { useAuthStore } from "./store/useAuthStore";
 import { useVaultStore } from "./store/useVaultStore";
 import { AuthPage } from "./pages/AuthPage";
+import { InstallPromptBanner } from "./components/pwa/InstallPromptBanner";
 
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
@@ -27,18 +28,21 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
 
 export function App() {
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/auth" element={<AuthPage />} />
-      <Route
-        path="/app"
-        element={
-          <ProtectedRoute>
-            <AppShell />
-          </ProtectedRoute>
-        }
-      />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route
+          path="/app"
+          element={
+            <ProtectedRoute>
+              <AppShell />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <InstallPromptBanner />
+    </>
   );
 }
