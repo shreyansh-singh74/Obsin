@@ -73,11 +73,22 @@ function useGraphData() {
 export const GraphView: React.FC<GraphViewProps> = ({ mode, onClose }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const { nodes, links } = useGraphData();
   const setActiveNotePath = useVaultStore((s) => s.setActiveNotePath);
   const activeNotePath = useVaultStore((s) => s.activeNotePath);
   const [dimensions, setDimensions] = useState({ width: 600, height: 400 });
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  /** Programmatic zoom helpers wired to the control buttons. */
+  function zoomBy(factor: number) {
+    if (!svgRef.current || !zoomRef.current) return;
+    d3.select(svgRef.current).transition().duration(200).call(zoomRef.current.scaleBy, factor);
+  }
+  function resetZoom() {
+    if (!svgRef.current || !zoomRef.current) return;
+    d3.select(svgRef.current).transition().duration(300).call(zoomRef.current.transform, d3.zoomIdentity);
+  }
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -108,6 +119,7 @@ export const GraphView: React.FC<GraphViewProps> = ({ mode, onClose }) => {
         g.attr('transform', event.transform);
       });
     svg.call(zoom);
+    zoomRef.current = zoom;
 
     const maxLinks = Math.max(1, ...nodes.map((n) => n.linkCount));
     const nodeRadius = (n: GraphNode) => 6 + (n.linkCount / maxLinks) * 18;
@@ -175,7 +187,7 @@ export const GraphView: React.FC<GraphViewProps> = ({ mode, onClose }) => {
       .attr('font-family', 'inherit')
       .attr('pointer-events', 'none');
 
-    nodeGroup.append('title').text((d: GraphNode) => `Open ${d.label}`);
+    nodeGroup.append('title').text((d: GraphNode) => `${d.label} · ${d.linkCount} backlink${d.linkCount === 1 ? '' : 's'}${d.path === activeNotePath ? ' (current)' : ''}\nClick to open`);
 
     nodeGroup.on('click', (event: MouseEvent, d: GraphNode) => {
       // d3-drag suppresses clicks after a real drag, but guard anyway.
@@ -229,6 +241,37 @@ export const GraphView: React.FC<GraphViewProps> = ({ mode, onClose }) => {
         height={dimensions.height}
         className="w-full h-full"
       />
+
+      {/* Zoom controls */}
+      <div className="absolute top-3 right-3 flex flex-col gap-1 bg-[var(--surface-card)]/80 backdrop-blur-sm rounded-md border border-[var(--border-subtle)] overflow-hidden">
+        <button
+          type="button"
+          onClick={() => zoomBy(1.3)}
+          className="w-7 h-7 flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors cursor-pointer text-sm font-medium"
+          title="Zoom in"
+          aria-label="Zoom in"
+        >
+          +
+        </button>
+        <button
+          type="button"
+          onClick={() => zoomBy(1 / 1.3)}
+          className="w-7 h-7 flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors cursor-pointer text-sm font-medium border-t border-[var(--border-subtle)]"
+          title="Zoom out"
+          aria-label="Zoom out"
+        >
+          −
+        </button>
+        <button
+          type="button"
+          onClick={resetZoom}
+          className="w-7 h-7 flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors cursor-pointer border-t border-[var(--border-subtle)]"
+          title="Reset zoom"
+          aria-label="Reset zoom"
+        >
+          <Minimize2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
 
       {/* Legend */}
       <div className="absolute bottom-3 left-3 flex items-center gap-3 text-[10px] text-[var(--text-muted)] bg-[var(--surface-card)]/80 backdrop-blur-sm rounded-md px-2 py-1.5 border border-[var(--border-subtle)]">

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Bookmark, FileText, Hash, Heading, Search } from 'lucide-react';
 import { useVaultStore } from '@/store/useVaultStore';
 import { searchEngine, type SearchResultItem } from '@/engine/search';
+import { TagBrowser } from '@/components/search/TagBrowser';
 import {
   Command,
   CommandEmpty,
@@ -88,15 +89,22 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
 
           <CommandList>
             {!query.trim() && (
-              <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
-                <div className="mb-3 flex size-10 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-card)]">
-                  <Search className="size-4 text-[var(--text-muted)]" />
+              <>
+                <div className="flex flex-col items-center justify-center px-6 pt-14 pb-4 text-center">
+                  <div className="mb-3 flex size-10 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-card)]">
+                    <Search className="size-4 text-[var(--text-muted)]" />
+                  </div>
+                  <p className="text-sm font-medium text-[var(--text-primary)]">Search your vault</p>
+                  <p className="mt-1 max-w-xs text-xs leading-relaxed text-[var(--text-muted)]">
+                    Find notes by title, content, heading, tag, or alias.
+                  </p>
                 </div>
-                <p className="text-sm font-medium text-[var(--text-primary)]">Search your vault</p>
-                <p className="mt-1 max-w-xs text-xs leading-relaxed text-[var(--text-muted)]">
-                  Find notes by title, content, heading, tag, or alias.
-                </p>
-              </div>
+
+                {/* Browse by tag while the query is empty */}
+                <div className="max-h-[45vh] overflow-y-auto">
+                  <TagBrowser onNoteSelected={onClose} />
+                </div>
+              </>
             )}
 
             {query.trim() && results.length === 0 && (

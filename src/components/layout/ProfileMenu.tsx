@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, ChevronDown, Trash2 } from 'lucide-react';
+import { LogOut, ChevronDown, Trash2, Key, User } from 'lucide-react';
 import { ThemeSwitcher } from './ThemeSwitcher';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { useVaultStore } from '@/store/useVaultStore';
 import { eraseObsinLocalData } from '@/utils/localData';
 
 export const ProfileMenu: React.FC = () => {
-  const { user, clearToken } = useAuthStore();
+  const { user, token, clearToken } = useAuthStore();
   
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -39,7 +39,8 @@ export const ProfileMenu: React.FC = () => {
     }
   }, [isOpen]);
 
-  if (!user) return null;
+  // If there's neither a user nor a token, don't show the profile menu
+  if (!user && !token) return null;
 
   function handleSignOut() {
     clearToken();
@@ -65,6 +66,9 @@ export const ProfileMenu: React.FC = () => {
     }
   }
 
+  const displayName = user?.name || user?.login || 'Connected via Token';
+  const displaySubtitle = user?.login ? `@${user.login}` : 'PAT Token Access';
+
   return (
     <div className="relative" ref={menuRef}>
       {/* Avatar trigger */}
@@ -75,12 +79,18 @@ export const ProfileMenu: React.FC = () => {
         aria-expanded={isOpen}
         className="flex items-center gap-1.5 p-1 rounded-[var(--radius-sm)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
       >
-        <UserAvatar
-          src={user.avatar_url}
-          alt={user.login}
-          fallbackLabel={user.name || user.login}
-          className="w-7 h-7 rounded-full border border-[var(--border-subtle)]"
-        />
+        {user ? (
+          <UserAvatar
+            src={user.avatar_url}
+            alt={user.login}
+            fallbackLabel={user.name || user.login}
+            className="w-7 h-7 rounded-full border border-[var(--border-subtle)]"
+          />
+        ) : (
+          <div className="w-7 h-7 rounded-full bg-[var(--accent-soft)] text-[var(--accent-text)] border border-[var(--border-subtle)] flex items-center justify-center">
+            <Key className="w-3.5 h-3.5" />
+          </div>
+        )}
         <ChevronDown className={`w-3 h-3 text-[var(--text-muted)] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
@@ -90,15 +100,21 @@ export const ProfileMenu: React.FC = () => {
           {/* User info */}
           <div className="px-3 py-2.5 border-b border-[var(--border-subtle)]/50">
             <div className="flex items-center gap-2">
-              <UserAvatar
-                src={user.avatar_url}
-                alt={user.login}
-                fallbackLabel={user.name || user.login}
-                className="w-8 h-8 rounded-full"
-              />
+              {user ? (
+                <UserAvatar
+                  src={user.avatar_url}
+                  alt={user.login}
+                  fallbackLabel={user.name || user.login}
+                  className="w-8 h-8 rounded-full"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-[var(--accent-soft)] text-[var(--accent-text)] flex items-center justify-center">
+                  <User className="w-4 h-4" />
+                </div>
+              )}
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-[var(--text-primary)] truncate">{user.name || user.login}</p>
-                <p className="text-[10px] text-[var(--text-muted)] truncate">@{user.login}</p>
+                <p className="text-xs font-semibold text-[var(--text-primary)] truncate">{displayName}</p>
+                <p className="text-[10px] text-[var(--text-muted)] truncate">{displaySubtitle}</p>
               </div>
             </div>
           </div>

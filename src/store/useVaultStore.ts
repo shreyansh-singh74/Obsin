@@ -14,6 +14,8 @@ interface VaultState {
   activeNotePath: string | null;
   isLoading: boolean;
   error: string | null;
+  hasLoadedVaults: boolean;
+
 
   // Reading history
   history: string[];
@@ -54,6 +56,8 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   revealToken: 0,
   isLoading: false,
   error: null,
+  hasLoadedVaults: false,
+
   history: [],
   historyIndex: -1,
   favorites: new Set<string>(),
@@ -186,12 +190,12 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   loadVaults: async () => {
     try {
       const vaults = await getAllVaults();
-      set({ vaults });
+      set({ vaults, hasLoadedVaults: true });
       if (vaults.length > 0 && !get().activeVault) {
         await get().setActiveVault(vaults[0]);
       }
     } catch (err: any) {
-      set({ error: err.message || 'Failed to load vaults from DB' });
+      set({ error: err.message || 'Failed to load vaults from DB', hasLoadedVaults: true });
     }
   },
 
@@ -261,6 +265,8 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       assetPaths: [],
       activeNotePath: null,
       isLoading: false,
+      hasLoadedVaults: false,
+
       error: null,
       history: [],
       historyIndex: -1,

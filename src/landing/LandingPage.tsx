@@ -18,6 +18,10 @@ import {
 import { Safari } from "@/components/ui/safari";
 import { Highlighter } from "@/components/ui/highlighter";
 import logoMark from "@/assets/logo.svg";
+import { Link } from "react-router-dom";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useVaultStore } from "@/store/useVaultStore";
+
 
 const MiniPlayer = lazy(() =>
   import("@/components/ui/video-player").then((m) => ({ default: m.MiniPlayer }))
@@ -26,6 +30,19 @@ const MiniPlayer = lazy(() =>
 export function LandingPage() {
   const [progress, setProgress] = useState(0);
   const rafRef = useRef<number>(0);
+
+  const token = useAuthStore((s) => s.token);
+  const vaults = useVaultStore((s) => s.vaults);
+  const loadVaults = useVaultStore((s) => s.loadVaults);
+  const hasLoadedVaults = useVaultStore((s) => s.hasLoadedVaults);
+
+  useEffect(() => {
+    if (!hasLoadedVaults) {
+      loadVaults();
+    }
+  }, [hasLoadedVaults, loadVaults]);
+
+  const hasAccess = Boolean(token || vaults.length > 0);
 
   useEffect(() => {
     function onScroll() {
@@ -85,12 +102,12 @@ export function LandingPage() {
                 </a>
 
                 <nav className="flex items-center gap-2 text-[0.95rem] text-white/72">
-                  <a
-                    href="/auth"
+                  <Link
+                    to={hasAccess ? "/app" : "/auth"}
                     className="inline-flex min-h-10 items-center rounded-full bg-white px-4 py-2 font-medium text-black transition-colors hover:bg-white/90 -mt-10"
                   >
-                    Connect Vault
-                  </a>
+                    {hasAccess ? "Open Vault" : "Connect Vault"}
+                  </Link>
                 </nav>
               </header>
 
@@ -102,12 +119,12 @@ export function LandingPage() {
                   <p className="mt-5 max-w-[17em] text-[clamp(1.35rem,3.25vw,2.25rem)] leading-tight text-[#9CA3AF]">
                     Read, search, and access your Obsidian vault from any browser.
                   </p>
-                  <a
-                    href="/auth"
+                  <Link
+                    to={hasAccess ? "/app" : "/auth"}
                     className="mt-7 inline-flex min-h-12 w-full items-center justify-center rounded-[7px] bg-[#8A35F2] px-6 py-4 text-center text-lg font-medium leading-tight text-white transition-colors hover:bg-[#7c2ee0] focus:outline-none focus:ring-2 focus:ring-[#9b55ff] focus:ring-offset-2 focus:ring-offset-[#0b0b0b] sm:mt-8 sm:w-auto sm:max-w-none sm:px-8 sm:text-xl"
                   >
-                    Get Started
-                  </a>
+                    {hasAccess ? "Open Your Vault →" : "Get Started"}
+                  </Link>
                 </div>
 
                 <div className="relative flex min-h-0 items-end justify-start overflow-hidden pb-1 @container-size md:pb-3">

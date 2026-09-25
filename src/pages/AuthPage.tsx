@@ -16,11 +16,13 @@ import {
   LogIn,
   Loader2,
   ArrowLeft,
+  ArrowRight,
   LogOut,
   Copy,
   Check,
   ExternalLink,
   X,
+  BookOpen,
 } from 'lucide-react';
 import logoMark from '@/assets/logo.svg';
 import { UserAvatar } from '@/components/ui/UserAvatar';
@@ -45,14 +47,22 @@ export const AuthPage: React.FC = () => {
   const popupRef = useRef<Window | null>(null);
   const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { user, setAuth, clearToken } = useAuthStore();
+  const { user, token, setAuth, setToken, clearToken } = useAuthStore();
+  const vaults = useVaultStore((s) => s.vaults);
   const loadVaults = useVaultStore((s) => s.loadVaults);
   const navigate = useNavigate();
+  // Token without a profile (fine-grained PAT) still counts as signed in.
+  const isAuthenticated = Boolean(user || token);
 
   // Load IndexedDB vaults for the offline vault list.
   useEffect(() => {
     loadVaults();
   }, [loadVaults]);
+
+  // Try to fetch the GitHub profile for token-only sessions (fine-grained PATs).
+  useEffect(() => {
+    useAuthStore.getState().hydrateUser();
+  }, []);
 
   // Check URL query parameters for OAuth callback signal or error
   useEffect(() => {
@@ -292,6 +302,23 @@ export const AuthPage: React.FC = () => {
       const userProfile = await fetchAuthenticationUser(tokenInput.trim());
       setAuth(tokenInput.trim(), userProfile);
     } catch (err: any) {
+      // A fine-grained PAT may lack the read:user scope while still being
+      // perfectly valid for repo access. Fall back to token-only sign-in
+      // instead of blocking the user (profile hydrates later if possible).
+      const status = err?.status;
+      if (status === 401 || status === 403) {
+        try {
+          const { fetchUserRepos } = await import('@/engine/github/repos');
+          const repos = await fetchUserRepos(tokenInput.trim());
+          if (Array.isArray(repos)) {
+            setToken(tokenInput.trim());
+            setIsLoading(false);
+            return;
+          }
+        } catch {
+          // Fall through to the error below — token really is unusable.
+        }
+      }
       setError(err.message || 'Failed to authenticate. Check your token.');
     } finally {
       setIsLoading(false);
@@ -317,12 +344,12 @@ export const AuthPage: React.FC = () => {
           <img src={logoMark} alt="Obsin" className="h-14 w-14 mb-3 opacity-90" />
           <h1 className="text-xl font-bold tracking-tight">Connect to Obsin</h1>
           <p className="text-sm text-white/50 mt-1.5 leading-relaxed">
-            {user ? 'Select your Obsidian vault repository' : 'Sign in with GitHub to access your Obsidian vaults'}
+            {isAuthenticated ? 'Select your Obsidian vault repository' : 'Sign in with GitHub to access your Obsidian vaults'}
           </p>
         </div>
 
         {/* Authenticated Flow: Repo Selector */}
-        {user ? (
+        {isAuthenticated ? (
           <div className="space-y-6">
             {/* Offline: skip the repo selector entirely — network calls would just fail. */}
             {isOffline ? (
@@ -332,24 +359,40 @@ export const AuthPage: React.FC = () => {
                 {/* Connected Profile Bar */}
                 <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
                   <div className="flex items-center gap-3">
-                    <UserAvatar
-                      src={user.avatar_url}
-                      alt={user.login}
-                      fallbackLabel={user.name || user.login}
-                      className="w-9 h-9 rounded-full"
-                    />
+                    {user ? (
+                      <UserAvatar
+                        src={user.avatar_url}
+                        alt={user.login}
+                        fallbackLabel={user.name || user.login}
+                        className="w-9 h-9 rounded-full"
+                      />
+                    ) : (
+                      <div className="w-9 h-9 rounded-full bg-[#8A35F2]/20 text-[#8A35F2] flex items-center justify-center">
+                        <Key className="w-4 h-4" />
+                      </div>
+                    )}
                     <div>
-                      <h3 className="text-sm font-medium text-white">{user.name || user.login}</h3>
-                      <p className="text-[11px] text-white/50">@{user.login}</p>
+                      <h3 className="text-sm font-medium text-white">{user ? (user.name || user.login) : 'Connected via Token'}</h3>
+                      <p className="text-[11px] text-white/50">{user ? `@${user.login}` : 'Personal Access Token'}</p>
                     </div>
                   </div>
-                  <button
-                    onClick={clearToken}
-                    className="flex items-center gap-1 px-2.5 py-1 text-xs rounded-md bg-white/[0.04] hover:bg-red-500/15 hover:text-red-300 text-white/50 transition-all duration-200 cursor-pointer"
-                    title="Sign Out"
-                  >
-                    <LogOut className="w-3.5 h-3.5" /> Sign Out
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {vaults.length > 0 && (
+                      <button
+                        onClick={() => navigate('/app')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-[#8A35F2] hover:bg-[#7c2ee0] text-white transition-all duration-200 cursor-pointer shadow-[0_2px_12px_rgba(138,53,242,0.25)]"
+                      >
+                        <BookOpen className="w-3.5 h-3.5" /> Return to App <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    <button
+                      onClick={clearToken}
+                      className="flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-md bg-white/[0.04] hover:bg-red-500/15 hover:text-red-300 text-white/50 transition-all duration-200 cursor-pointer"
+                      title="Sign Out"
+                    >
+                      <LogOut className="w-3.5 h-3.5" /> Sign Out
+                    </button>
+                  </div>
                 </div>
 
                 {/* Repository Selector */}

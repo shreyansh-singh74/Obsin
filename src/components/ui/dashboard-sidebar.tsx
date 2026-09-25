@@ -10,7 +10,10 @@ import {
   FileText,
   Trash2,
   Network,
+  Plus,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { SyncStatusBadge } from '@/components/sync/SyncStatusBadge';
 
 type NavItemData = {
   id: string;
@@ -22,10 +25,11 @@ type NavItemData = {
   children?: NavItemData[];
 };
 
-function WorkspaceSwitcher({ selected, onSelect, onDrop, vaults }: {
+function WorkspaceSwitcher({ selected, onSelect, onDrop, vaults, onAdd }: {
   selected?: string;
   onSelect?: (ws: string) => void;
   onDrop?: (vaultId: string) => void;
+  onAdd?: () => void;
   vaults: { id: string; name: string; owner: string; repo: string }[];
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -85,6 +89,18 @@ function WorkspaceSwitcher({ selected, onSelect, onDrop, vaults }: {
                 )}
               </div>
             ))}
+
+            {/* Add another vault */}
+            {onAdd && (
+              <button
+                type="button"
+                onClick={() => { setIsOpen(false); onAdd(); }}
+                className="px-3 py-2 mx-1 text-[13px] rounded-md cursor-pointer transition-colors flex items-center gap-2 text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] border-t border-[var(--border-subtle)]/50 mt-1 pt-2.5"
+              >
+                <Plus className="w-3.5 h-3.5 shrink-0" />
+                <span>Add vault</span>
+              </button>
+            )}
 
           </div>
         </>
@@ -255,6 +271,7 @@ interface DashboardSidebarProps {
 export function DashboardSidebar({ className = '', onOpenGraph }: DashboardSidebarProps) {
   const { notes, assetPaths, activeVault, activeNotePath, setActiveNotePath, vaults, setActiveVault, expandedFolderPaths, dropVault } = useVaultStore();
   const { isMobile, setOpen } = useSidebar();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
   const treeNodes = useMemo(() => {
@@ -290,7 +307,38 @@ export function DashboardSidebar({ className = '', onOpenGraph }: DashboardSideb
     if (isMobile) setOpen(false);
   };
 
-  if (!activeVault) return null;
+  if (!activeVault) {
+    // No active vault yet — still show the switcher so the user can add one
+    // instead of staring at an empty sidebar.
+    return (
+      <div className={`flex flex-col h-full bg-[var(--surface-sidebar)] border-r border-[var(--border-default)] font-sans ${className}`}>
+        <div className="px-4 pt-3 pb-1">
+          <WorkspaceSwitcher
+            selected={vaults[0]?.name}
+            vaults={vaults}
+            onSelect={(name) => {
+              const v = vaults.find((vault) => vault.name === name);
+              if (v) setActiveVault(v);
+              if (isMobile) setOpen(false);
+            }}
+            onDrop={(vaultId) => dropVault(vaultId)}
+            onAdd={() => navigate('/auth')}
+          />
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center gap-2 p-6 text-center">
+          <Folder className="w-7 h-7 text-[var(--icon-muted)]" strokeWidth={1.5} />
+          <p className="text-[13px] text-[var(--text-secondary)]">No vault connected</p>
+          <button
+            type="button"
+            onClick={() => navigate('/auth')}
+            className="mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 text-[13px] rounded-md bg-[var(--accent)] text-[var(--text-on-accent)] hover:bg-[var(--accent-hover)] transition-colors cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" /> Add a vault
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`flex flex-col h-full bg-[var(--surface-sidebar)] border-r border-[var(--border-default)] font-sans ${className}`}>
@@ -305,6 +353,7 @@ export function DashboardSidebar({ className = '', onOpenGraph }: DashboardSideb
             if (isMobile) setOpen(false);
           }}
           onDrop={(vaultId) => dropVault(vaultId)}
+          onAdd={() => navigate('/auth')}
         />
       </div>
 
@@ -339,6 +388,11 @@ export function DashboardSidebar({ className = '', onOpenGraph }: DashboardSideb
             {searchQuery ? 'No matches found.' : 'No files in vault.'}
           </div>
         )}
+      </div>
+
+      {/* Sync status — progress / errors surfaced inline */}
+      <div className="px-3 py-2 border-t border-[var(--border-default)]">
+        <SyncStatusBadge />
       </div>
 
       {/* Footer — note count + graph shortcut */}

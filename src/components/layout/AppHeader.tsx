@@ -59,9 +59,18 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch, onOpenGraph 
       await refreshNotes();
     } catch (err) {
       console.error('Sync failed:', err);
-      toast.error('Sync failed', {
-        description: err instanceof Error ? err.message : 'Unknown error',
-      });
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      const isRateLimited =
+        /rate limit/i.test(msg) || (err as { status?: number })?.status === 403;
+      if (isRateLimited) {
+        toast.error('GitHub rate limit reached', {
+          description:
+            'Unauthenticated requests allow 60/hr. Add a Personal Access Token on the Auth page to unlock 5,000/hr.',
+          duration: 8000,
+        });
+      } else {
+        toast.error('Sync failed', { description: msg });
+      }
     } finally {
       setIsSyncing(false);
     }
@@ -73,6 +82,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch, onOpenGraph 
   }, [notes, activeNotePath]);
 
   const pathParts = activeNote ? activeNote.path.split('/') : [];
+
+  /** Reveal a location in the sidebar — opens the drawer on mobile and
+      expands the persistent sidebar on desktop if it's collapsed. */
+  function revealInSidebar() {
+    setOpen(true);
+  }
 
   return (
     <header className="h-11 shrink-0 border-b border-[var(--border-subtle)] bg-[var(--surface-sidebar)] px-3 flex items-center z-[var(--z-sticky)] transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]">
@@ -118,9 +133,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch, onOpenGraph 
           <nav className="hidden sm:flex items-center gap-0 text-[13px] min-w-0 overflow-hidden">
             {/* Vault name */}
             <button
-              onClick={() => {
-                if (isMobile) setOpen(true);
-              }}
+              onClick={revealInSidebar}
               className="shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer truncate max-w-[120px] md:max-w-[160px]"
               title={activeVault?.name}
             >
@@ -160,7 +173,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch, onOpenGraph 
                             <button
                               onClick={() => {
                                 expandFolderPath(fullPath);
-                                if (isMobile) setOpen(true);
+                                revealInSidebar();
                               }}
                               className="shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer truncate max-w-[100px] md:max-w-[140px]"
                               title={fullPath}
@@ -184,7 +197,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch, onOpenGraph 
                     for (let i = 1; i < parts.length; i++) {
                       expandFolderPath(parts.slice(0, i).join('/'));
                     }
-                    if (isMobile) setOpen(true);
+                    revealInSidebar();
                   }}
                   className="shrink-0 text-[var(--text-primary)] hover:text-[var(--accent-text)] transition-colors cursor-pointer truncate max-w-[140px] md:max-w-[200px] font-medium"
                   title={activeNote.path}

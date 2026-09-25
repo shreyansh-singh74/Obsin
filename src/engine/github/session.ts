@@ -2,7 +2,8 @@ import { useAuthStore } from '@/store/useAuthStore';
 
 /**
  * Checks if the stored token is still valid by making a lightweight API call.
- * Returns true if valid, false if expired/invalid.
+ * Returns true if valid or if we can't conclusively prove it's invalid (e.g. rate limit, offline).
+ * Only returns false if GitHub explicitly rejects the token as invalid or revoked.
  */
 export async function validateToken(token: string): Promise<boolean> {
   if (!token) return false;
@@ -15,16 +16,42 @@ export async function validateToken(token: string): Promise<boolean> {
       },
     });
 
-    // 200 = valid, 401 = expired/invalid, 403 = rate limited (but token is still valid)
-    return response.ok || response.status === 403;
+    // 200 = valid token with read:user scope
+    if (response.ok) return true;
+
+    // 403 = rate limited or missing specific permissions, but token format & auth is valid
+    if (response.status === 403) return true;
+
+    // If 401, check if this is a fine-grained PAT or restricted token lacking 'user' scope
+    // by making a test request to an endpoint accessible with repository permissions.
+    if (response.status === 401) {
+      try {
+        const repoCheck = await fetch('https://api.github.com/user/repos?per_page=1', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/vnd.github.v3+json',
+          },
+        });
+        if (repoCheck.ok || repoCheck.status === 403) {
+          return true;
+        }
+      } catch {
+        // Network failure during secondary check — assume token might be valid
+        return true;
+      }
+      return false;
+    }
+
+    // Other unexpected status codes: don't aggressively wipe
+    return true;
   } catch {
-    // Network error — assume token might be valid
+    // Network failure / offline / CORS issue — never assume invalid
     return true;
   }
 }
 
 /**
- * Handles a 401 response from GitHub API.
+ * Handles an explicit token expiration/revocation.
  * Clears the invalid token and redirects to auth page.
  */
 export function handleTokenExpired(): void {
@@ -54,26 +81,27 @@ export function setupSessionValidation(): () => void {
 
   if (!token) return () => {};
 
-  // Validate immediately
+  // Validate on startup
   validateToken(token).then((isValid) => {
     if (!isValid) {
-      console.warn('Stored token is invalid/expired');
+      console.warn('Stored token is invalid or revoked by GitHub');
       handleTokenExpired();
     }
   });
 
-  // Validate every 5 minutes
+  // Periodically validate every 15 minutes
   const interval = setInterval(() => {
     const currentToken = useAuthStore.getState().token;
     if (!currentToken) return;
 
     validateToken(currentToken).then((isValid) => {
       if (!isValid) {
-        console.warn('Token expired during session');
+        console.warn('Token expired or revoked during session');
         handleTokenExpired();
       }
     });
-  }, 5 * 60 * 1000);
+  }, 15 * 60 * 1000);
 
   return () => clearInterval(interval);
 }
+

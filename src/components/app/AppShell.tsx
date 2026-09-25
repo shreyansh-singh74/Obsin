@@ -136,15 +136,11 @@ export function AppShell() {
   return (
     <ErrorBoundary>
       <SidebarProvider>
-        {/* Viewport lock: owns exactly 100vh/100vw with no zoom, so the
-            zoomed app below can never push the page into body scroll
-            (which carried the navbar away on long notes). */}
+        {/* Viewport lock: owns exactly 100vh/100vw so the app below can
+            never push the page into body scroll (which carried the navbar
+            away on long notes). */}
         <div className="h-screen w-full overflow-hidden bg-[var(--surface-page)]">
-        {/* Zoomed app (desktop only): layout size divided by the zoom factor
-            renders back to exactly the viewport size (100/1.12). On mobile
-            the zoom is off — it shrinks the usable viewport and pushes
-            content off-screen. */}
-        <div className="h-full w-full md:h-[calc(100vh/1.12)] md:w-[calc(100vw/1.12)] bg-[var(--surface-page)] text-[var(--text-primary)] flex flex-col overflow-hidden font-sans transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)] md:[zoom:1.12]">
+        <div className="h-full w-full bg-[var(--surface-page)] text-[var(--text-primary)] flex flex-col overflow-hidden font-sans transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]">
 
           <OfflineBanner />
 

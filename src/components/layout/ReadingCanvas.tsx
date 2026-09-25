@@ -1,14 +1,17 @@
 import React, { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useVaultStore } from '@/store/useVaultStore';
 import { MarkdownRenderer } from '@/components/reader/MarkdownRenderer';
 import { HtmlRenderer } from '@/components/reader/HtmlRenderer';
-import { MobileTocToggle } from '@/components/reader/TableOfContents';
-import { FileText } from 'lucide-react';
+import { MobileTocToggle, TableOfContents } from '@/components/reader/TableOfContents';
+import { useSidebar } from '@/components/ui/sidebar';
+import { FileText, FolderGit2, Search, Network, PanelLeft } from 'lucide-react';
 
 export const ReadingCanvas: React.FC = () => {
   const {
     notes, activeNotePath, activeVault,
   } = useVaultStore();
+  const { setOpen } = useSidebar();
 
   const activeNote = useMemo(() => {
     if (!notes || !activeNotePath) return null;
@@ -21,11 +24,26 @@ export const ReadingCanvas: React.FC = () => {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
         <div className="w-16 h-16 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] flex items-center justify-center">
-          <FileText className="w-7 h-7 text-[var(--icon-muted)]" />
+          <FolderGit2 className="w-7 h-7 text-[var(--icon-muted)]" />
         </div>
         <div className="space-y-1.5">
           <h2 className="text-sm font-semibold text-[var(--text-primary)]">No Active Vault</h2>
           <p className="text-xs text-[var(--text-muted)] max-w-xs leading-relaxed">Select a repository from the sidebar to start reading your notes.</p>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+          >
+            <PanelLeft className="w-3.5 h-3.5" /> Open sidebar
+          </button>
+          <Link
+            to="/auth"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-[var(--accent)] text-[var(--text-on-accent)] hover:bg-[var(--accent-hover)] transition-colors"
+          >
+            <FolderGit2 className="w-3.5 h-3.5" /> Connect a vault
+          </Link>
         </div>
       </div>
     );
@@ -39,7 +57,30 @@ export const ReadingCanvas: React.FC = () => {
         </div>
         <div className="space-y-1.5">
           <h2 className="text-sm font-semibold text-[var(--text-primary)]">Select a Note</h2>
-          <p className="text-xs text-[var(--text-muted)] max-w-xs leading-relaxed">Choose a note from the sidebar or press <kbd className="px-1.5 py-0.5 rounded bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] font-mono text-[10px]">⌘K</kbd> to search.</p>
+          <p className="text-xs text-[var(--text-muted)] max-w-xs leading-relaxed">Choose a note from the sidebar or open search to jump anywhere.</p>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+          >
+            <PanelLeft className="w-3.5 h-3.5" /> Browse files
+          </button>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, ctrlKey: true }))}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+          >
+            <Search className="w-3.5 h-3.5" /> Search <kbd className="font-mono text-[10px] text-[var(--text-subtle)]">⌘K</kbd>
+          </button>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'g', metaKey: true, ctrlKey: true }))}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
+          >
+            <Network className="w-3.5 h-3.5" /> Graph <kbd className="font-mono text-[10px] text-[var(--text-subtle)]">⌘G</kbd>
+          </button>
         </div>
       </div>
     );
@@ -94,9 +135,18 @@ export const ReadingCanvas: React.FC = () => {
           )}
           </div>
         </main>
+
+        {/* Desktop outline rail — sticky TOC for long notes (xl+) */}
+        {!isHtml && (
+          <aside className="hidden xl:block w-64 shrink-0 border-l border-[var(--border-subtle)] overflow-y-auto">
+            <div className="sticky top-0 p-4">
+              <TableOfContents content={activeNote.content} />
+            </div>
+          </aside>
+        )}
       </div>
 
-      {/* Markdown-only TOC toggle */}
+      {/* Markdown-only TOC toggle (mobile/tablet) */}
       {!isHtml && <MobileTocToggle content={activeNote.content} />}
     </div>
   );
